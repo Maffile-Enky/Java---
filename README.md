@@ -1,358 +1,97 @@
-# 开发规范
+**项目总览**
+
+这是一个**SpringBoot**外卖点餐平台微服务系统（接近美团/饿了么校园版），强调高并发处理、实时性、分布式一致性、智能调度与全链路可观测性。
+
+**核心技术栈**：
+- **Java版本**：JDK 21
+- **主框架**：Spring Boot 3.3+（Jakarta EE） + Spring Cloud 2025.0.x（Northfields，兼容Spring Boot 3.5.x）
+- **微服务治理**：Spring Cloud Alibaba 2025.0.x（Nacos 3.1.x 作为服务注册发现 + 配置中心，支持3节点集群）
+- **API网关**：Spring Cloud Gateway（统一鉴权、限流、日志、跨域、路由）
+- **ORM**：MyBatis-Plus（代码生成、逻辑删除、分页插件）
+- **缓存**：Redis 7.x（分布式锁、购物车、Session、实时数据、ZSet抢单）
+- **消息队列**：RabbitMQ（可靠异步通知、支付回调） + Kafka（高吞吐订单事件流、骑手位置上报）
+- **搜索引擎**：Elasticsearch 8.x（商家、菜品、订单全文搜索与聚合）
+- **分布式事务**：Seata 2.5+（AT/Saga模式，重点用于下单扣库存、支付等一致性）
+- **限流熔断**：Sentinel（流量防护、降级、热点参数）
+- **实时通信**：WebSocket + MQTT（骑手位置上报、订单状态推送）
+- **地理位置**：集成高德/腾讯地图API（距离计算、ETA、地理围栏）
+- **调度算法**：Redis ZSet + 贪心算法（基础智能派单，可后续扩展）
+- **安全**：Spring Security + JWT/OAuth2 + 接口签名 + 防重放（时间戳+Nonce）
+- **监控观测**：Spring Boot Actuator + Prometheus + Grafana + SkyWalking（全链路追踪）
+- **部署**：Docker + Docker Compose（本地多服务） + Kubernetes基础支持
+- **其他工具**：Lombok、MapStruct（DTO转换）、Knife4J（接口文档）、JUnit5 + Testcontainers（测试）、Resilience4j（熔断备用）
+
+**架构特点**：
+- 严格一服务一数据库，禁止跨库Join
+- 配置全部走Nacos（Namespace环境隔离、Group DEV/PROD、DataId如user-service-dev.yaml + common-dev.yaml）
+- 事件驱动优先（MQ解耦），同步调用保持扁平（禁止循环调用）
+- 所有接口必须幂等、加分布式锁保护关键操作
+- 订单全生命周期使用状态机管理
+- 服务必须无状态、可降级、可观测
+
+**微服务列表**（核心拆分，先实现基础，后续迭代扩展）：
+- gateway（网关）
+- user-service（用户）
+- merchant-service（商家 + 菜品 + 购物车）
+- order-service（订单核心，最复杂）
+- payment-service（支付）
+- delivery-service（骑手 + 配送调度 + 实时位置，最先进）
+- search-service（ES搜索，可选由成员2/3协助）
+- notification-service（通知，可与支付合并部分）
+
+**开发流程**：所有人先拉取dev分支最新代码，在个人feature/xxx分支开发，完成自测+单元测试后提交PR，由架构负责人统一Review并合并到dev。严格执行包结构、统一返回、异常处理、日志规范等。
+
+**5人后端团队详细分工**（均衡难度，成员1把控全局架构与集成，成员3负责最复杂订单模块，成员5负责实时调度模块）：
+
+成员1（架构负责人/技术领头，建议由经验最丰富者担任，全局把控）：  
+负责整体项目架构设计、Nacos集群与公共配置、网关服务、用户服务、代码审查、集成测试、监控部署以及跨服务一致性框架。  
+具体部分包括：  
+- 网关服务全部内容：Spring Cloud Gateway路由配置、过滤器链（全局鉴权、日志记录、Sentinel限流、跨域处理、请求头透传）、统一入口安全策略。  
+- 用户服务全部内容：用户注册/登录（手机号、微信授权、JWT生成）、用户中心（个人信息、地址管理）、RBAC权限体系（角色定义：用户/商家/骑手/管理员，权限拦截）、OAuth2支持、分布式Session与Redis缓存框架。  
+- Nacos相关：3节点集群部署配置、公共配置common-dev.yaml（统一日志、数据库连接池、Redis/Sentinel等）、各服务专属配置（如user-service-dev.yaml）、动态刷新机制。  
+- 全局基础框架：统一Result<T>返回结构、全局异常处理GlobalExceptionHandler、traceId日志链路（MDC + SkyWalking）、接口签名与防重放机制、Docker Compose多服务编排脚本、Kubernetes基础部署yaml、Prometheus + Grafana监控面板搭建、每周代码Review与集成联调把控。  
+- 跨服务公共工作：Seata全局事务协调器配置、Sentinel规则统一管理、SkyWalking探针接入。
+
+成员2：  
+负责商家服务和菜品/购物车服务全部或主要部分。  
+具体部分包括：  
+- 商家服务：商家入驻流程（信息提交、审核状态）、店铺管理（基本信息、营业时间、配送范围设置、地理位置）、商家后台登录与权限、店铺统计基础。  
+- 菜品管理：菜品分类CRUD、多规格SKU管理（口味、价格、库存组合）、菜品上下架、图片上传与OSS集成、菜品搜索基础逻辑。  
+- 购物车服务：Redis实现购物车（添加、删除、修改数量、合并本地购物车）、购物车预览计算（总价、优惠）、库存预检查（Redis分布式锁）。  
+- 商家端订单处理：接单、出餐确认、拒单逻辑（通过MQ与订单服务交互）。  
+- 对应工作：merchant-service的Nacos配置、数据库表设计（商家表、菜品表、规格表、库存表）、MyBatis-Plus Mapper与Service实现、接口幂等处理、单元测试覆盖、与订单服务的Feign/MQ调用定义。
+
+成员3（承担最复杂、最困难模块）：  
+负责订单服务全部内容（整个项目技术难度最高的核心模块）。  
+具体部分包括：  
+- 订单全流程：订单创建与预览（购物车转订单、地址选择、优惠计算）、订单状态机全生命周期管理（下单 → 待支付 → 已支付 → 接单 → 出餐 → 配送中 → 已完成/取消/退款，使用Spring Statemachine实现状态流转与事件监听）。  
+- 分布式事务处理：Seata Saga/AT模式实现下单扣库存、扣优惠、创建订单等跨服务一致性（与商家服务、用户服务、支付服务配合）。  
+- 订单管理：订单查询（用户端/商家端/管理员）、复杂条件搜索与ES同步、订单分库分表策略（按用户ID/商家ID/时间维度）、订单项明细管理。  
+- 事件驱动：订单事件发布（Kafka/RabbitMQ，支付成功、状态变更等事件）、事件消费处理。  
+- 高并发优化：防重复下单（分布式锁 + 幂等Token）、限流保护、库存最终一致性保障。  
+- 对应工作：order-service完整包结构实现、Nacos配置、数据库设计（订单主表、订单项表、状态历史表）、状态机配置类、Seata事务注解使用、与支付/配送服务的通信接口定义、性能测试重点覆盖（下单高峰场景）。
+
+成员4：  
+负责支付服务和通知服务全部内容。  
+具体部分包括：  
+- 支付服务：支付宝/微信沙箱支付集成（统一下单、回调验签、退款接口、对账单生成）、支付流水记录、支付状态机与订单状态同步（通过MQ通知订单服务）、支付异常处理与重试。  
+- 通知服务：实时消息推送体系（WebSocket订单状态变更推送、短信/APP推送模板）、异步事件消费（支付成功后触发通知、订单取消通知等）、消息可靠性（RabbitMQ重试 + 死信队列）、通知日志与审计。  
+- 对应工作：payment-service与notification-service的Nacos配置、数据库表（支付流水表、通知记录表）、Feign/MQ调用定义、回调安全校验、与订单服务的分布式事务配合、单元测试（支付回调模拟）。
+
+成员5（承担最具技术亮点模块）：  
+负责骑手服务、配送/调度服务以及实时位置功能全部内容（项目中最前沿的实时与算法部分）。  
+具体部分包括：  
+- 骑手服务：骑手注册认证、个人信息管理、忙碌状态切换、骑手端登录与权限。  
+- 配送调度：配送任务创建（从订单服务接收）、智能调度算法实现（距离优先 + 负载均衡 + Redis ZSet抢单/派单 + 简单贪心算法）、派单/抢单逻辑、ETA预计送达时间计算。  
+- 实时位置：骑手位置上报（WebSocket/MQTT实时接口）、轨迹跟踪记录、地理围栏判断、与高德/腾讯地图API集成（距离、路线规划）。  
+- 骑手端功能：骑手订单列表、接单确认、导航集成、配送完成上报（触发订单状态变更MQ）。  
+- 对应工作：delivery-service完整实现、Nacos配置、数据库表（骑手表、配送任务表、位置轨迹表）、实时通信配置（WebSocket Handler + MQTT Broker集成）、调度算法核心类、Redis ZSet使用、与订单服务的MQ事件消费、实时大屏数据基础支持（可选与监控配合）、性能测试（骑手抢单高峰）。
+
+**跨成员协作要求**（所有人共同参与）：  
+- 数据库整体设计（雪花ID主键、create_time/update_time字段、索引优化、ER关系）。  
+- 统一接口规范与Knife4J文档编写。  
+- 单元测试、集成测试（Testcontainers模拟Redis/MQ）。  
+- 性能压测（JMeter重点覆盖订单创建、骑手抢单）。  
+- 日志与traceId统一、最终监控面板调优（Grafana展示订单量、骑手分布、事务成功率等）。  
+- 所有服务必须实现服务无状态、配置外部化、接口幂等、可降级。
 
-## 前言
-### 编写代码前请先拉取dev分支最新代码
-### 仓库与分支规范：
-约定分支规则：
-- main（主分支，仅存可运行成品）  
-- dev（开发分支，所有人代码由负责人合并到这里）  
-- feature/xxx（个人功能分支，如feature/user-auth/feature/video-upload，所有人代码仅提交到个人分支）  
-- 严禁直接往 main/dev 推代码，所有 PR 合并均由项目负责人单独完成，严禁私自合并。  
-
-### 提交信息规范：
-约定格式：【类型: 描述】如：
-- feat: 实现用户注册接口
-- fix: 修复登录Token过期问题
-- docs: 补充接口文档
-- 每条提交只做一个功能。
-
-### 文件目录规范：
-严格按照文档推荐的包结构统一，所有人本地项目目录一致，避免合并代码时路径冲突
-
-# 一、总体架构规范
-
-## 1. 架构选型
-
-* 架构模式：**微服务 + 分层**
-* 技术栈：
-
-  * Spring Boot 3.x（Jakarta）
-  * Spring Cloud Alibaba（Nacos 2.4）
-  * Gateway：Spring Cloud Gateway
-  * ORM：MyBatis-Plus 
-  * 缓存：Redis
-  * MQ：RabbitMQ
-  * ES
-
- Nacos核心能力：
-
-* 服务注册/发现
-* 配置中心（动态刷新） ([Nacos 官网][1])
-
----
-
-## 2. 标准分层结构（按业务模块）
-
-```
-com.xxx.project
-├── api            # DTO/VO/Feign接口
-├── controller     # 接口层
-├── service        # 业务层
-├── domain         # 领域模型（可选）
-├── repository     # 持久层
-├── config         # 配置类
-├── common         # 工具/统一返回/异常
-```
-
-### 强制约束
-
-* Controller  不允许写业务逻辑
-* Service  只处理业务
-* Repository  只操作数据库
-* DTO / Entity 严格分离
-
----
-
-# 二、Nacos 2.4 集群规范（重点）
-
-## 1. 集群部署模型（生产必须）
-
-### 推荐拓扑
-
-```
-Nginx（VIP）
-   ↓
-Nacos Cluster (3节点)
-   ↓
-MySQL（主从）
-```
-
-## 2. 核心机制
-
-* Nacos是**去中心化集群（无主节点）** ([springcloud.io][2])
-* 数据存储：
-
-  * MySQL：权威数据源
-  * 本地磁盘：缓存副本 ([springcloud.io][2])
-* 配置同步：
-
-  * 节点间 HTTP 通知同步
-
-
----
-
-## 3. 配置规范
-
-### application.yml（统一写法）
-
-```yaml
-spring:
-  application:
-    name: user-service
-
-  config:
-    import:
-      - nacos:common.yaml
-      - nacos:user-service.yaml
-
-  cloud:
-    nacos:
-      server-addr: nacos1:8848,nacos2:8848,nacos3:8848
-      username: nacos
-      password: nacos
-```
-
- Spring Boot 3 使用：
-
-```
-spring.config.import
-```
-
-替代旧 bootstrap.yml ([阿里云][3])
-
----
-
-## 4. Nacos配置设计规范
-
-| 类型        | 规范                |
-| --------- | ----------------- |
-| DataId    | `${服务名}-dev.yaml`     |
-| Group     | DEV / TEST / PROD |
-| Namespace | 环境隔离              |
-| 公共配置      | common-dev.yaml       |
-
-### 示例
-
-```
-common-dev.yaml
-user-service-dev.yaml
-order-service-dev.yaml
-```
-
----
-
-## 5. 服务注册规范
-
-```yaml
-spring:
-  cloud:
-    nacos:
-      discovery:
-        namespace: dev
-        group: DEFAULT_GROUP
-```
-
----
-
-# 三、Spring Boot 3 开发规范
-
-## 1. Controller规范
-
-```java
-@RestController
-@RequestMapping("/user")
-public class UserController {
-}
-```
-
-### 要求：
-
-* 返回统一结构
-* 不直接返回 Entity
-* 必须加参数校验
-
----
-
-## 2. 统一返回结构
-
-```java
-public class Result<T> {
-    private int code;
-    private String msg;
-    private T data;
-}
-```
-
----
-
-## 3. 全局异常处理（必须）
-
-```java
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-}
-```
-
----
-
-## 4. 参数校验
-
-```java
-@NotNull
-@Size(min = 1, max = 50)
-```
-
----
-
-## 5. 日志规范
-
-* 使用 `Slf4j`
-* 必须打印：
-
-  * traceId
-  * 请求参数
-  * 异常堆栈
-
----
-
-# 四、微服务通信规范
-
-## 1. 调用方式
-
-* 推荐：
-
-  * OpenFeign（同步）
-  * MQ（异步）
-
-## 2. 超时与重试
-
-* 必须配置：
-
-```yaml
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 3000
-        readTimeout: 5000
-```
-
----
-
-## 3. 服务调用原则
-
-*  禁止循环调用
-*  禁止跨多级调用（A→B→C→D）
-*  推荐扁平调用
-
----
-
-# 五、数据库规范
-
-## 1. 基本规则
-
-* 一服务一数据库（强制）
-* 禁止跨库 join
-
-## 2. 字段规范
-
-* 主键：`id`（雪花算法）
-* 时间字段：
-
-  * create_time
-  * update_time
-
----
-
-# 六、缓存规范（Redis）
-
-## Key命名
-
-```
-业务:模块:ID
-user:info:1001
-```
-
-## 设计原则
-
-* 先查缓存 → 再查DB
-* 设置过期时间（防止雪崩）
-
----
-
-# 七、安全规范
-
-## 必须项
-
-* JWT / OAuth2
-* 接口签名（可选）
-* 防重放（时间戳）
-
----
-
-# 八、网关规范
-
-## Spring Cloud Gateway
-
-统一处理：
-
-* 鉴权
-* 日志
-* 限流（Redis）
-* 跨域
-
----
-
-# 九、部署规范
-
-
----
-
-## docker-compose示例（核心）
-
-```yaml
-services:
-  nacos1:
-    image: nacos/nacos-server:v2.4
-    environment:
-      - MODE=cluster
-```
-
----
-
-# 十、监控与运维规范
-
-## 必须组件
-
-* Spring Boot Actuator
-* Prometheus + Grafana
-* SkyWalking（链路追踪）
-
----
-
-# 十一、代码质量规范
-
-## 必须执行
-
-* 单元测试
-* 接口文档（Knife4J）
-* 静态扫描
-
----
-
-# 十二、核心设计原则总结（重点）
-
-1. 配置必须外部化（Nacos）
-2. 服务必须无状态
-3. 数据必须隔离
-4. 接口必须幂等
-5. 调用必须可降级
-
----
-
-
-
-
-[1]: https://nacos.io/en/docs/next/v2/ecology/use-nacos-with-spring?utm_source=chatgpt.com "Nacos with Spring Projects | Nacos"
-[2]: https://www.springcloud.io/post/2022-04/nacos-principle-and-source-code/?utm_source=chatgpt.com "Nacos Configuration Center Cluster Principle and Source Code Analysis - Spring Cloud"
-[3]: https://www.alibabacloud.com/blog/best-practices-for-dynamic-configuration-with-spring-cloud-nacos-and-kms_601998?utm_source=chatgpt.com "Best Practices for Dynamic Configuration with Spring Cloud, Nacos, and KMS - Alibaba Cloud Community"
