@@ -1,0 +1,36 @@
+services:
+  gateway:
+    build: ./takeout-platform/gateway
+    container_name: takeout-gateway
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  user-service:
+    build: ./takeout-platform/user-service
+    container_name: takeout-user
+    ports:
+      - "8081:8081"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  merchant-service:
+    build: ./takeout-platform/merchant-service
+    container_name: takeout-merchant
+    ports:
+      - "8083:8083"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  frontend:
+    build: ./takeout-frontend
+    container_name: takeout-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped

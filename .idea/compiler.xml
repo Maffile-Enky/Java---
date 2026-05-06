@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="delivery-service" />
+        <module name="common-security" />
+        <module name="common-feign" />
+        <module name="merchant-service" />
+        <module name="common-mq" />
+        <module name="user-service" />
+        <module name="common-redis" />
+        <module name="notification-service" />
+        <module name="payment-service" />
+        <module name="search-service" />
+        <module name="common-web" />
+        <module name="order-service" />
+        <module name="gateway" />
+        <module name="common-core" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="21" />
+  </component>
+</project>

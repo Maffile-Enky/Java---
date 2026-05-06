@@ -1,4 +1,4 @@
-﻿import axios from 'axios'
+import axios from 'axios'
 
 const request = axios.create({
   baseURL: '/api',
@@ -24,12 +24,16 @@ request.interceptors.response.use(
   response => {
     const res = response.data
     if (res.code !== 200) {
-      console.error('API Error:', res.message)
       return Promise.reject(new Error(res.message || 'Error'))
     }
     return res
   },
   error => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      window.location.href = '/auth/login'
+    }
     return Promise.reject(error)
   }
 )

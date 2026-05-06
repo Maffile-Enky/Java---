@@ -1,16 +1,17 @@
-﻿<template>
+<template>
   <div class="login-container">
     <div class="login-box glass-panel">
-      <h2>Welcome Back</h2>
+      <h2>欢迎回来</h2>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <input type="text" v-model="username" placeholder="Username" required />
+          <input type="text" v-model="username" placeholder="用户名" required />
         </div>
         <div class="form-group">
-          <input type="password" v-model="password" placeholder="Password" required />
+          <input type="password" v-model="password" placeholder="密码" required />
         </div>
+        <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
         <button type="submit" class="submit-btn" :disabled="loading">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? '登录中...' : '登录' }}
         </button>
       </form>
     </div>
@@ -20,22 +21,23 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { login } from '@/api/user'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const username = ref('')
 const password = ref('')
 const loading = ref(false)
+const errorMsg = ref('')
 
 const handleLogin = async () => {
   loading.value = true
+  errorMsg.value = ''
   try {
-    const res = await login({ username: username.value, password: password.value })
-    localStorage.setItem('token', res.data.token)
+    await authStore.login({ username: username.value, password: password.value })
     router.push('/')
   } catch (error) {
-    console.error(error)
-    alert('Login failed or dummy endpoint not active')
+    errorMsg.value = '登录失败，请检查用户名和密码'
   } finally {
     loading.value = false
   }
@@ -75,10 +77,17 @@ input {
   font-size: 16px;
   outline: none;
   transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
 input:focus {
   border-color: var(--primary-color);
+}
+
+.error-msg {
+  color: #ff4757;
+  font-size: 14px;
+  margin: -8px 0 12px 0;
 }
 
 .submit-btn {

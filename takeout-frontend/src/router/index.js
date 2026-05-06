@@ -14,36 +14,59 @@ const router = createRouter({
       component: () => import('../views/auth/LoginView.vue')
     },
     {
-      path: '/restaurants',
-      name: 'restaurants',
-      component: () => import('../views/user/RestaurantsView.vue')
+      path: '/user',
+      component: () => import('../views/user/UserLayout.vue'),
+      children: [
+        {
+          path: 'restaurants',
+          name: 'restaurants',
+          component: () => import('../views/user/RestaurantsView.vue')
+        },
+        {
+          path: 'restaurants/:id',
+          name: 'restaurantDetail',
+          component: () => import('../views/user/RestaurantDetailView.vue')
+        },
+        {
+          path: 'cart',
+          name: 'cart',
+          component: () => import('../views/user/CartView.vue')
+        },
+        {
+          path: 'orders',
+          name: 'orders',
+          component: () => import('../views/user/OrdersView.vue')
+        },
+        {
+          path: 'orders/:id',
+          name: 'orderDetail',
+          component: () => import('../views/user/OrderDetailView.vue')
+        },
+        {
+          path: 'profile',
+          name: 'profile',
+          component: () => import('../views/user/ProfileView.vue')
+        }
+      ]
     },
     {
-      path: '/restaurant/:id',
-      name: 'restaurantDetail',
-      component: () => import('../views/user/RestaurantDetailView.vue')
-    },
-    {
-      path: '/cart',
-      name: 'cart',
-      component: () => import('../views/user/CartView.vue')
-    },
-    {
-      path: '/orders',
-      name: 'orders',
-      component: () => import('../views/user/OrdersView.vue')
-    },
-    {
-      path: '/order/:id',
-      name: 'orderDetail',
-      component: () => import('../views/user/OrderDetailView.vue')
-    },
-    {
-      path: '/profile',
-      name: 'profile',
-      component: () => import('../views/user/ProfileView.vue')
+      path: '/:pathMatch(.*)*',
+      name: 'notFound',
+      redirect: '/'
     }
   ]
+})
+
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.path.startsWith('/user') && !token) {
+    next('/auth/login')
+  } else if (to.path === '/auth/login' && token) {
+    next('/')
+  } else {
+    next()
+  }
 })
 
 export default router

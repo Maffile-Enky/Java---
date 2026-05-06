@@ -20,18 +20,11 @@ spring:
         import-check:
           enabled: false
 
-  # H2 内存数据库配置（临时使用）
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:takeout_merchant;DB_CLOSE_DELAY=-1;MODE=MySQL;INIT=RUNSCRIPT FROM 'classpath:schema.sql'
-    username: sa
-    password: 
-
-  # H2 控制台（可选，用于调试）
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.99.34.251:3306/takeout_merchant?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
 
 mybatis-plus:
   configuration:

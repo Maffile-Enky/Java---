@@ -21,7 +21,7 @@
         <router-link to="/user/cart" class="nav-item" :class="{ active: $route.path.startsWith('/user/cart') }">
           <span class="nav-icon">🛒</span>
           <span>购物车</span>
-          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+          <span v-if="cartStore.totalCount > 0" class="cart-badge">{{ cartStore.totalCount }}</span>
         </router-link>
         <router-link to="/user/orders" class="nav-item" :class="{ active: $route.path.startsWith('/user/orders') }">
           <span class="nav-icon">📋</span>
@@ -30,11 +30,12 @@
       </nav>
 
       <div class="header-right">
-        <div class="user-info" v-if="userInfo">
-          <span class="user-role" :class="userInfo.role">{{ getRoleName(userInfo.role) }}</span>
-          <span class="user-name">{{ userInfo.username }}</span>
+        <div class="user-info" v-if="authStore.isLoggedIn">
+          <span class="user-role" :class="authStore.userRole">{{ getRoleName(authStore.userRole) }}</span>
+          <span class="user-name">{{ authStore.username }}</span>
         </div>
-        <button class="logout-btn" @click="handleLogout">退出</button>
+        <button class="logout-btn" @click="handleLogout" v-if="authStore.isLoggedIn">退出</button>
+        <router-link v-else to="/auth/login" class="login-link">登录</router-link>
       </div>
     </header>
 
@@ -53,22 +54,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart'
 
 const router = useRouter()
-const userInfo = ref(null)
-const cartCount = ref(0)
-
-onMounted(() => {
-  // 从 localStorage 获取用户信息
-  const user = localStorage.getItem('userInfo')
-  if (user) {
-    userInfo.value = JSON.parse(user)
-  }
-  // 获取购物车数量
-  updateCartCount()
-})
+const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const getRoleName = (role) => {
   const roleMap = {
@@ -80,19 +72,13 @@ const getRoleName = (role) => {
   return roleMap[role] || role
 }
 
-const updateCartCount = () => {
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-  cartCount.value = cart.reduce((sum, item) => sum + item.quantity, 0)
-}
-
 const goHome = () => {
   router.push('/')
 }
 
 const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('userInfo')
-  localStorage.removeItem('cart')
+  authStore.logout()
+  cartStore.clearCart()
   router.push('/auth/login')
 }
 </script>
@@ -226,6 +212,20 @@ const handleLogout = () => {
 }
 
 .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.login-link {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.login-link:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 

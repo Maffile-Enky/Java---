@@ -1,139 +1,79 @@
 <template>
   <div class="cart-view">
     <h1>购物车</h1>
-    
-    <!-- 商家信息 -->
-    <div class="merchant-info">
-      <h2>{{ merchant.name }}</h2>
-      <div class="merchant-details">
-        <span class="distance">{{ merchant.distance }}m</span>
-        <span class="delivery-time">{{ merchant.deliveryTime }}分钟</span>
-      </div>
+
+    <!-- 空购物车 -->
+    <div v-if="cartStore.isEmpty" class="empty-cart">
+      <span class="empty-emoji">🛒</span>
+      <p>购物车是空的</p>
+      <button class="go-shop-btn" @click="$router.push('/user/restaurants')">去选购</button>
     </div>
 
-    <!-- 购物车商品列表 -->
-    <div class="cart-items">
-      <div v-for="item in cartItems" :key="item.id" class="cart-item">
-        <img :src="item.image" alt="item.name" class="item-image">
-        <div class="item-info">
-          <h3>{{ item.name }}</h3>
-          <p class="item-description">{{ item.description }}</p>
-          <div class="item-price-actions">
-            <span class="item-price">¥{{ item.price }}</span>
-            <div class="item-actions">
-              <button class="decrease-btn" @click="decreaseItem(item.id)">-</button>
-              <span class="item-count">{{ item.count }}</span>
-              <button class="increase-btn" @click="increaseItem(item.id)">+</button>
+    <template v-else>
+      <!-- 商家信息 -->
+      <div class="merchant-info">
+        <h2>{{ cartStore.merchantName || '商家' }}</h2>
+      </div>
+
+      <!-- 购物车商品列表 -->
+      <div class="cart-items">
+        <div v-for="item in cartStore.items" :key="item.dishId" class="cart-item">
+          <div class="item-image-placeholder">🍽️</div>
+          <div class="item-info">
+            <h3>{{ item.dishName }}</h3>
+            <p class="item-description">{{ item.description }}</p>
+            <div class="item-price-actions">
+              <span class="item-price">¥{{ item.price }}</span>
+              <div class="item-actions">
+                <button class="decrease-btn" @click="decreaseItem(item)">-</button>
+                <span class="item-count">{{ item.quantity }}</span>
+                <button class="increase-btn" @click="increaseItem(item)">+</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 底部结算栏 -->
-    <div class="checkout-bar">
-      <div class="checkout-info">
-        <div class="subtotal">
-          <span>小计：</span>
-          <span class="subtotal-price">¥{{ subtotal.toFixed(2) }}</span>
+      <!-- 底部结算栏 -->
+      <div class="checkout-bar">
+        <div class="checkout-info">
+          <div class="subtotal">
+            <span>小计：</span>
+            <span class="subtotal-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
+          </div>
+          <div class="total">
+            <span>总计：</span>
+            <span class="total-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
+          </div>
         </div>
-        <div class="delivery-fee">
-          <span>配送费：</span>
-          <span>¥{{ merchant.deliveryFee }}</span>
-        </div>
-        <div class="total">
-          <span>总计：</span>
-          <span class="total-price">¥{{ total.toFixed(2) }}</span>
-        </div>
+        <button class="checkout-btn" @click="checkout">去结算 ({{ cartStore.totalCount }}件)</button>
       </div>
-      <button class="checkout-btn" @click="checkout">去结算</button>
-    </div>
+    </template>
   </div>
 </template>
 
-<script>
-import { ref, computed, onMounted } from 'vue'
+<script setup>
 import { useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cart'
 
-export default {
-  name: 'CartView',
-  setup() {
-    const router = useRouter()
-    const merchant = ref({
-      name: '示例餐厅',
-      distance: 500,
-      deliveryTime: 30,
-      deliveryFee: 5
-    })
-    const cartItems = ref([
-      {
-        id: 1,
-        name: '宫保鸡丁',
-        description: '经典川菜，香辣可口',
-        price: 28,
-        count: 2,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=delicious%20kung%20pao%20chicken%20dish&image_size=square'
-      },
-      {
-        id: 2,
-        name: '麻婆豆腐',
-        description: '麻辣鲜香，下饭神器',
-        price: 22,
-        count: 1,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=mapo%20tofu%20chinese%20dish&image_size=square'
-      },
-      {
-        id: 4,
-        name: '可乐',
-        description: '冰镇可乐',
-        price: 8,
-        count: 2,
-        image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=coca%20cola%20drink&image_size=square'
-      }
-    ])
+const router = useRouter()
+const cartStore = useCartStore()
 
-    const subtotal = computed(() => {
-      return cartItems.value.reduce((sum, item) => sum + item.price * item.count, 0)
-    })
+function increaseItem(item) {
+  cartStore.updateQuantity(item.dishId, item.quantity + 1)
+}
 
-    const total = computed(() => {
-      return subtotal.value + merchant.value.deliveryFee
-    })
-
-    const increaseItem = (itemId) => {
-      const item = cartItems.value.find(item => item.id === itemId)
-      if (item) {
-        item.count++
-      }
-    }
-
-    const decreaseItem = (itemId) => {
-      const item = cartItems.value.find(item => item.id === itemId)
-      if (item && item.count > 1) {
-        item.count--
-      }
-    }
-
-    const checkout = () => {
-      // 实际项目中，这里会调用API创建订单
-      // 然后跳转到订单详情页
-      router.push('/orders')
-    }
-
-    onMounted(() => {
-      // 实际项目中，这里会从本地存储或API获取购物车数据
-    })
-
-    return {
-      merchant,
-      cartItems,
-      subtotal,
-      total,
-      increaseItem,
-      decreaseItem,
-      checkout
-    }
+function decreaseItem(item) {
+  if (item.quantity <= 1) {
+    cartStore.removeItem(item.dishId)
+  } else {
+    cartStore.updateQuantity(item.dishId, item.quantity - 1)
   }
+}
+
+function checkout() {
+  // TODO: call createOrder API when backend order-service is ready
+  router.push('/user/orders')
 }
 </script>
 
@@ -149,30 +89,49 @@ h1 {
   font-weight: bold;
   background-color: #fff;
   border-bottom: 1px solid #f0f0f0;
+  border-radius: 12px;
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+
+.empty-emoji {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.go-shop-btn {
+  margin-top: 16px;
+  padding: 12px 32px;
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .merchant-info {
   padding: 15px 20px;
   background-color: #fff;
   margin-top: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-radius: 12px;
 }
 
 .merchant-info h2 {
-  margin: 0 0 5px 0;
+  margin: 0;
   font-size: 18px;
-}
-
-.merchant-details {
-  display: flex;
-  gap: 15px;
-  font-size: 14px;
-  color: #666;
 }
 
 .cart-items {
   margin-top: 10px;
   background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .cart-item {
@@ -181,12 +140,17 @@ h1 {
   border-bottom: 1px solid #f0f0f0;
 }
 
-.item-image {
+.item-image-placeholder {
   width: 80px;
   height: 80px;
   border-radius: 8px;
-  object-fit: cover;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
   margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .item-info {
@@ -200,9 +164,8 @@ h1 {
 
 .item-description {
   margin: 0 0 10px 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
-  line-height: 1.4;
 }
 
 .item-price-actions {
@@ -234,11 +197,18 @@ h1 {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.decrease-btn:hover, .increase-btn:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
 }
 
 .item-count {
   min-width: 30px;
   text-align: center;
+  font-weight: 500;
 }
 
 .checkout-bar {
@@ -250,13 +220,14 @@ h1 {
   border-top: 1px solid #f0f0f0;
   padding: 15px 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 50;
 }
 
 .checkout-info {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-.subtotal, .delivery-fee, .total {
+.subtotal, .total {
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
@@ -270,8 +241,7 @@ h1 {
 .total {
   font-size: 16px;
   font-weight: bold;
-  margin-top: 10px;
-  padding-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid #f0f0f0;
 }
 
@@ -286,10 +256,11 @@ h1 {
   color: #fff;
   border: none;
   border-radius: 25px;
-  padding: 15px;
+  padding: 14px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .checkout-btn:hover {
