@@ -2,19 +2,15 @@
   <div class="user-manage">
     <h1 class="page-title">用户管理</h1>
 
-    <!-- Search Bar -->
     <div class="search-bar">
-      <input
-        v-model="keyword"
-        type="text"
-        placeholder="搜索用户名/昵称/手机号..."
-        @keyup.enter="handleSearch"
-      />
-      <button class="btn btn-primary" @click="handleSearch">搜索</button>
+      <div class="search-input">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input v-model="keyword" type="text" placeholder="搜索用户名/昵称/手机号..." @keyup.enter="handleSearch" />
+      </div>
+      <button class="btn-primary" @click="handleSearch">搜索</button>
     </div>
 
-    <!-- Table -->
-    <div class="table-card">
+    <div class="table-card card">
       <table class="data-table">
         <thead>
           <tr>
@@ -52,12 +48,10 @@
             <td>
               <div class="action-group">
                 <button
-                  class="btn btn-sm"
+                  class="btn-sm"
                   :class="user.status === 1 ? 'btn-danger' : 'btn-success'"
                   @click="toggleStatus(user)"
-                >
-                  {{ user.status === 1 ? '禁用' : '启用' }}
-                </button>
+                >{{ user.status === 1 ? '禁用' : '启用' }}</button>
                 <select
                   class="role-select"
                   :value="user.role"
@@ -75,11 +69,10 @@
       </table>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination">
-      <button class="btn btn-sm" :disabled="page <= 1" @click="goPage(page - 1)">上一页</button>
+      <button class="btn-sm btn-outline" :disabled="page <= 1" @click="goPage(page - 1)">上一页</button>
       <span class="page-info">第 {{ page }} / {{ totalPages }} 页，共 {{ total }} 条</span>
-      <button class="btn btn-sm" :disabled="page >= totalPages" @click="goPage(page + 1)">下一页</button>
+      <button class="btn-sm btn-outline" :disabled="page >= totalPages" @click="goPage(page + 1)">下一页</button>
     </div>
   </div>
 </template>
@@ -104,8 +97,7 @@ const fetchUsers = async () => {
     users.value = data.records || []
     total.value = data.total || 0
     totalPages.value = data.pages || 0
-  } catch (e) {
-    console.error('Failed to load users', e)
+  } catch {
     alert('加载用户列表失败')
   } finally {
     loading.value = false
@@ -127,9 +119,7 @@ const toggleStatus = async (user) => {
   try {
     await updateUserStatus(user.id, newStatus)
     user.status = newStatus
-    alert(newStatus === 1 ? '已启用' : '已禁用')
-  } catch (e) {
-    console.error('Failed to update status', e)
+  } catch {
     alert('操作失败')
   }
 }
@@ -138,109 +128,58 @@ const handleChangeRole = async (user, newRole) => {
   try {
     await updateUserRole(user.id, newRole)
     user.role = newRole
-    alert('角色已更新为 ' + newRole)
-  } catch (e) {
-    console.error('Failed to update role', e)
+  } catch {
     alert('操作失败')
   }
 }
 
-onMounted(() => {
-  fetchUsers()
-})
+onMounted(() => { fetchUsers() })
 </script>
 
 <style scoped>
 .user-manage {
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
 .page-title {
-  font-size: 26px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #2d3436;
-  margin: 0 0 24px 0;
+  margin: 0;
 }
 
 .search-bar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--spacing-sm);
 }
 
-.search-bar input {
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 var(--spacing-md);
+  height: 40px;
+  width: 320px;
+}
+
+.search-input input {
   flex: 1;
-  max-width: 360px;
-  padding: 10px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.search-bar input:focus {
-  border-color: #667eea;
-}
-
-.btn {
-  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s;
+  background: transparent;
+  height: 100%;
+  font-size: var(--font-size-base);
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.btn-success {
-  background: #00b894;
-  color: #fff;
-}
-
-.btn-success:hover {
-  background: #00a381;
-}
-
-.btn-danger {
-  background: #ff6b6b;
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background: #ee5a5a;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 6px;
+.search-input svg {
+  color: var(--color-text-hint);
+  flex-shrink: 0;
 }
 
 .table-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
@@ -250,69 +189,46 @@ onMounted(() => {
 }
 
 .data-table th {
-  background: #f8f9fb;
-  padding: 14px 16px;
+  background: var(--color-bg-page);
+  padding: 12px 16px;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #636e72;
-  border-bottom: 1px solid #eee;
+  color: var(--color-text-hint);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table td {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #2d3436;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table tbody tr:hover {
-  background: #f8f9ff;
+  background: var(--color-bg-page);
 }
 
 .empty-cell {
   text-align: center;
-  color: #b2bec3;
+  color: var(--color-text-hint);
   padding: 40px 16px !important;
 }
 
 .badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
-.badge-role-user {
-  background: #e8f0fe;
-  color: #1a73e8;
-}
-
-.badge-role-merchant {
-  background: #fff3e0;
-  color: #e67e22;
-}
-
-.badge-role-rider {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.badge-role-admin {
-  background: #fde8e8;
-  color: #e74c3c;
-}
-
-.badge-active {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.badge-disabled {
-  background: #fde8e8;
-  color: #e74c3c;
-}
+.badge-role-user { background: #e6f7ff; color: #1890ff; }
+.badge-role-merchant { background: #fff7e6; color: #fa8c16; }
+.badge-role-rider { background: #f6ffed; color: #52c41a; }
+.badge-role-admin { background: #fff2f0; color: #ff4d4f; }
+.badge-active { background: #f0fff0; color: var(--color-success); }
+.badge-disabled { background: #fff2f0; color: var(--color-error); }
 
 .action-group {
   display: flex;
@@ -321,29 +237,28 @@ onMounted(() => {
 }
 
 .role-select {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   outline: none;
-  background: #fff;
+  background: var(--color-bg-card);
   cursor: pointer;
 }
 
 .role-select:focus {
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
+  gap: var(--spacing-lg);
 }
 
 .page-info {
-  font-size: 14px;
-  color: #636e72;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
 }
 </style>

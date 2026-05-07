@@ -1,16 +1,19 @@
 <template>
   <Layout>
     <div class="home-page">
-      <!-- Hero Section -->
+      <!-- Hero: Search -->
       <section class="hero">
-        <div class="hero-content">
-          <h1 class="hero-title">美食外卖，即刻送达</h1>
-          <p class="hero-subtitle">海量商家，万千美食，一键下单，快速配送</p>
-          <div class="search-box">
+        <div class="hero-inner">
+          <h1 class="hero-title">美团外卖</h1>
+          <p class="hero-subtitle">送啥都快</p>
+          <div class="hero-search">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
             <input
-              type="text"
               v-model="searchKeyword"
-              placeholder="搜索商家或菜品..."
+              type="text"
+              placeholder="搜索商家或菜品"
               @keyup.enter="handleSearch"
             />
             <button class="search-btn" @click="handleSearch">搜索</button>
@@ -18,71 +21,79 @@
         </div>
       </section>
 
-      <!-- Features -->
-      <section class="features">
-        <div class="feature-card">
-          <span class="feature-icon">⚡</span>
-          <h3>快速配送</h3>
-          <p>平均 30 分钟送达</p>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">🏪</span>
-          <h3>优质商家</h3>
-          <p>严格筛选品质保证</p>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">💰</span>
-          <h3>优惠多多</h3>
-          <p>新人立减，满减活动</p>
-        </div>
-        <div class="feature-card">
-          <span class="feature-icon">🛡️</span>
-          <h3>安全保障</h3>
-          <p>食品安全全程追踪</p>
-        </div>
-      </section>
-
-      <!-- Popular Restaurants -->
-      <section class="restaurants-section">
-        <div class="section-header">
-          <h2>热门商家</h2>
-          <router-link to="/user/restaurants" class="view-all">查看全部 →</router-link>
-        </div>
-        <div class="restaurant-grid">
-          <div
-            v-for="shop in popularShops"
-            :key="shop.id"
-            class="restaurant-card"
-            @click="goToRestaurant(shop.id)"
-          >
-            <div class="shop-image">
-              <span class="shop-emoji">🏪</span>
-            </div>
-            <div class="shop-info">
-              <h3 class="shop-name">{{ shop.name }}</h3>
-              <div class="shop-meta">
-                <span class="rating">⭐ {{ shop.rating || '4.5' }}</span>
-                <span class="delivery-time">⏱️ {{ shop.deliveryTime || 30 }}分钟</span>
-              </div>
-              <p class="shop-description">{{ shop.address }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Categories -->
-      <section class="categories-section">
-        <h2>美食分类</h2>
+      <section class="categories card">
         <div class="category-grid">
           <div
             v-for="cat in categories"
             :key="cat.id"
-            class="category-card"
+            class="category-item"
             @click="filterByCategory(cat.id)"
           >
-            <span class="category-emoji">{{ cat.emoji }}</span>
+            <div class="category-icon" :style="{ background: cat.bg }">
+              <img :src="`/images/categories/${cat.icon}.svg`" :alt="cat.name" class="cat-img" />
+            </div>
             <span class="category-name">{{ cat.name }}</span>
           </div>
+        </div>
+      </section>
+
+      <!-- Banner Carousel -->
+      <section class="banner-section">
+        <div class="banner-track" :style="{ transform: `translateX(-${currentBanner * 100}%)` }">
+          <div class="banner-slide" v-for="i in 3" :key="i">
+            <img :src="`/images/banners/banner-${i}.png`" :alt="`banner-${i}`" class="banner-img" />
+          </div>
+        </div>
+        <div class="banner-dots">
+          <span
+            v-for="i in 3"
+            :key="i"
+            class="dot"
+            :class="{ active: currentBanner === i - 1 }"
+            @click="currentBanner = i - 1"
+          ></span>
+        </div>
+      </section>
+
+      <!-- Recommended Merchants -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">推荐商家</h2>
+          <router-link to="/user/restaurants" class="section-link">
+            查看全部
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
+          </router-link>
+        </div>
+        <div class="merchant-grid">
+          <div
+            v-for="shop in popularShops"
+            :key="shop.id"
+            class="merchant-card card"
+            @click="goToRestaurant(shop.id)"
+          >
+            <div class="merchant-cover">
+              <img :src="shop.imageUrl || '/images/placeholders/merchant-default.png'" :alt="shop.name" />
+            </div>
+            <div class="merchant-info">
+              <h3 class="merchant-name">{{ shop.name }}</h3>
+              <div class="merchant-meta">
+                <span class="rating">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  {{ shop.rating || '4.5' }}
+                </span>
+                <span class="monthly-sales">月售{{ shop.monthlySales || 100 }}+</span>
+              </div>
+              <div class="merchant-delivery">
+                <span class="delivery-time">{{ shop.deliveryTime || 30 }}分钟</span>
+                <span class="min-order">起送¥{{ shop.minOrder || 20 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="popularShops.length === 0 && !loading" class="empty-merchants">
+          <img src="/images/empty-states/empty-restaurants.svg" alt="暂无商家" class="empty-img" />
+          <p>暂无商家，敬请期待</p>
         </div>
       </section>
     </div>
@@ -90,7 +101,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Layout from '@/components/Layout.vue'
 import { getStoreList } from '@/api/merchant'
@@ -98,77 +109,363 @@ import { getStoreList } from '@/api/merchant'
 const router = useRouter()
 const searchKeyword = ref('')
 const popularShops = ref([])
+const loading = ref(true)
+const currentBanner = ref(0)
+let bannerTimer = null
 
 const categories = ref([
-  { id: 1, name: '汉堡披萨', emoji: '🍔' },
-  { id: 2, name: '中式快餐', emoji: '🍜' },
-  { id: 3, name: '火锅烧烤', emoji: '🍲' },
-  { id: 4, name: '奶茶饮品', emoji: '🧋' },
-  { id: 5, name: '炸鸡小吃', emoji: '🍗' },
-  { id: 6, name: '日料韩料', emoji: '🍣' },
-  { id: 7, name: '早餐甜点', emoji: '🥐' },
-  { id: 8, name: '素食轻食', emoji: '🥗' },
+  { id: 1, name: '中餐', icon: 'chinese', bg: '#FFF3E0' },
+  { id: 2, name: '快餐', icon: 'fastfood', bg: '#E3F2FD' },
+  { id: 3, name: '火锅', icon: 'hotpot', bg: '#FCE4EC' },
+  { id: 4, name: '饮品', icon: 'drinks', bg: '#E8F5E9' },
+  { id: 5, name: '烧烤', icon: 'bbq', bg: '#FFF8E1' },
+  { id: 6, name: '甜点', icon: 'dessert', bg: '#F3E5F5' },
+  { id: 7, name: '日料', icon: 'japanese', bg: '#E0F7FA' },
+  { id: 8, name: '西餐', icon: 'western', bg: '#FBE9E7' },
+  { id: 9, name: '水果', icon: 'fruit', bg: '#F1F8E9' },
+  { id: 10, name: '超市', icon: 'grocery', bg: '#ECEFF1' },
+  { id: 11, name: '早餐', icon: 'breakfast', bg: '#FFF3E0' },
+  { id: 12, name: '全部', icon: 'all', bg: '#F5F5F5' },
 ])
 
-const handleSearch = () => {
+function handleSearch() {
   if (searchKeyword.value.trim()) {
     router.push(`/user/restaurants?keyword=${searchKeyword.value}`)
   }
 }
 
-const goToRestaurant = (id) => {
+function goToRestaurant(id) {
   router.push(`/user/restaurants/${id}`)
 }
 
-const filterByCategory = (categoryId) => {
-  router.push(`/user/restaurants?category=${categoryId}`)
+function filterByCategory(catId) {
+  if (catId === 12) {
+    router.push('/user/restaurants')
+  } else {
+    router.push(`/user/restaurants?category=${catId}`)
+  }
+}
+
+function startBanner() {
+  bannerTimer = setInterval(() => {
+    currentBanner.value = (currentBanner.value + 1) % 3
+  }, 4000)
 }
 
 onMounted(async () => {
+  startBanner()
   try {
     const res = await getStoreList()
     popularShops.value = (res.data || []).slice(0, 6)
   } catch {
     popularShops.value = []
+  } finally {
+    loading.value = false
   }
+})
+
+onUnmounted(() => {
+  if (bannerTimer) clearInterval(bannerTimer)
 })
 </script>
 
 <style scoped>
-.home-page { animation: fadeIn 0.5s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 60px 40px; text-align: center; color: white; margin-bottom: 32px; }
-.hero-title { font-size: 42px; margin: 0 0 16px 0; font-weight: bold; }
-.hero-subtitle { font-size: 18px; opacity: 0.9; margin: 0 0 32px 0; }
-.search-box { display: flex; max-width: 500px; margin: 0 auto; gap: 12px; }
-.search-box input { flex: 1; padding: 16px 24px; border: none; border-radius: 12px; font-size: 16px; outline: none; }
-.search-btn { padding: 16px 32px; background: #ff6b6b; color: white; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; transition: all 0.3s; }
-.search-btn:hover { background: #ff5252; transform: scale(1.05); }
-.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
-.feature-card { background: white; padding: 24px; border-radius: 16px; text-align: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: transform 0.3s, box-shadow 0.3s; }
-.feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
-.feature-icon { font-size: 48px; display: block; margin-bottom: 12px; }
-.feature-card h3 { margin: 8px 0; color: #2d3436; }
-.feature-card p { color: #636e72; font-size: 14px; margin: 0; }
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.section-header h2 { font-size: 28px; color: #2d3436; margin: 0; }
-.view-all { color: #667eea; text-decoration: none; font-weight: 500; transition: color 0.3s; }
-.view-all:hover { color: #764ba2; }
-.restaurant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
-.restaurant-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
-.restaurant-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
-.shop-image { height: 160px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; align-items: center; justify-content: center; }
-.shop-emoji { font-size: 72px; }
-.shop-info { padding: 16px; }
-.shop-name { font-size: 18px; margin: 0 0 8px 0; color: #2d3436; }
-.shop-meta { display: flex; gap: 12px; font-size: 14px; color: #636e72; margin-bottom: 8px; }
-.rating { color: #ffa502; font-weight: 500; }
-.shop-description { color: #b2bec3; font-size: 13px; margin: 0; }
-.categories-section { margin-top: 40px; }
-.categories-section h2 { font-size: 28px; color: #2d3436; margin: 0 0 24px 0; text-align: center; }
-.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
-.category-card { background: white; padding: 24px; border-radius: 16px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); transition: all 0.3s; }
-.category-card:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); }
-.category-emoji { font-size: 42px; display: block; margin-bottom: 8px; }
-.category-name { font-size: 14px; color: #2d3436; font-weight: 500; }
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.hero-subtitle {
+  font-size: var(--font-size-base);
+  color: rgba(0,0,0,0.5);
+  margin: 0 0 20px 0;
+}
+
+.hero-search {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 4px 4px 4px 16px;
+  max-width: 520px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-md);
+}
+
+.hero-search .search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-hint);
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.hero-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  height: 40px;
+  font-size: var(--font-size-base);
+}
+
+.hero-search input::placeholder {
+  color: var(--color-text-hint);
+}
+
+.search-btn {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: 8px 24px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-btn:hover {
+  background: var(--color-accent-dark);
+}
+
+/* Categories */
+.categories {
+  padding: var(--spacing-xl);
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--spacing-lg) var(--spacing-sm);
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.category-item:hover {
+  transform: translateY(-2px);
+}
+
+.category-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cat-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.category-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+/* Banner */
+.banner-section {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-card);
+}
+
+.banner-track {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.banner-slide {
+  min-width: 100%;
+}
+
+.banner-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dot.active {
+  background: var(--color-bg-card);
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.section-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.section-link:hover {
+  color: var(--color-accent);
+}
+
+/* Merchant Grid */
+.merchant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.merchant-card {
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.merchant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.merchant-cover {
+  height: 140px;
+  overflow: hidden;
+  background: var(--color-bg-page);
+}
+
+.merchant-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.merchant-info {
+  padding: var(--spacing-md);
+}
+
+.merchant-name {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.merchant-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  margin-bottom: 6px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.rating svg {
+  color: var(--color-accent);
+}
+
+.monthly-sales {
+  color: var(--color-text-hint);
+}
+
+.merchant-delivery {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-hint);
+}
+
+/* Empty */
+.empty-merchants {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-hint);
+}
+
+.empty-img {
+  width: 180px;
+  margin: 0 auto 16px;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .category-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .merchant-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

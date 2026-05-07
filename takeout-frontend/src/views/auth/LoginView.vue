@@ -1,21 +1,22 @@
 <template>
-  <div class="login-container">
-    <div class="login-box glass-panel">
-      <h2>欢迎回来</h2>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="/images/logo/logo-icon.svg" alt="logo" class="auth-logo" />
+        <h1>登录美团外卖</h1>
+      </div>
 
-      <!-- Tab切换 -->
-      <div class="tab-bar">
+      <div class="auth-tabs">
         <span :class="{ active: tab === 'password' }" @click="tab = 'password'">密码登录</span>
         <span :class="{ active: tab === 'phone' }" @click="tab = 'phone'">验证码登录</span>
       </div>
 
-      <!-- 密码登录 -->
-      <form v-if="tab === 'password'" @submit.prevent="handleLogin">
+      <form v-if="tab === 'password'" @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group">
-          <input type="text" v-model="username" placeholder="用户名" required />
+          <input type="text" v-model="username" placeholder="请输入用户名" required />
         </div>
         <div class="form-group">
-          <input type="password" v-model="password" placeholder="密码" required />
+          <input type="password" v-model="password" placeholder="请输入密码" required />
         </div>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
         <button type="submit" class="submit-btn" :disabled="loading">
@@ -23,10 +24,9 @@
         </button>
       </form>
 
-      <!-- 手机号登录 -->
-      <form v-else @submit.prevent="handlePhoneLogin">
+      <form v-else @submit.prevent="handlePhoneLogin" class="auth-form">
         <div class="form-group">
-          <input type="tel" v-model="phone" placeholder="手机号" maxlength="11" required />
+          <input type="tel" v-model="phone" placeholder="请输入手机号" maxlength="11" required />
         </div>
         <div class="form-group sms-group">
           <input type="text" v-model="smsCode" placeholder="验证码" maxlength="6" required />
@@ -40,8 +40,8 @@
         </button>
       </form>
 
-      <div class="links">
-        <router-link to="/auth/register">注册账号</router-link>
+      <div class="auth-footer">
+        <router-link to="/auth/register" class="link">还没有账号？立即注册</router-link>
       </div>
     </div>
   </div>
@@ -110,81 +110,153 @@ const handleSendSms = async () => {
 </script>
 
 <style scoped>
-.login-container {
+.auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--light-bg) 0%, #e2e8f0 100%);
+  background: var(--color-bg-page);
+  padding: var(--spacing-xl);
 }
-.login-box {
+
+.auth-card {
   width: 100%;
   max-width: 400px;
-  padding: 40px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-header {
   text-align: center;
+  margin-bottom: 32px;
 }
-h2 { margin-bottom: 24px; color: var(--text-main); }
-.tab-bar {
+
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.auth-header h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.auth-tabs {
   display: flex;
+  border-bottom: 2px solid var(--color-divider);
   margin-bottom: 24px;
-  border-bottom: 2px solid #eee;
 }
-.tab-bar span {
+
+.auth-tabs span {
   flex: 1;
-  padding: 10px 0;
+  text-align: center;
+  padding: 12px 0;
   cursor: pointer;
-  font-size: 15px;
-  color: #999;
+  font-size: var(--font-size-base);
+  color: var(--color-text-hint);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
   transition: all 0.2s;
 }
-.tab-bar span.active {
-  color: var(--primary-color);
-  border-bottom: 2px solid var(--primary-color);
-  margin-bottom: -2px;
+
+.auth-tabs span.active {
+  color: var(--color-text-primary);
   font-weight: 600;
+  border-bottom-color: var(--color-primary);
 }
-.form-group { margin-bottom: 16px; }
-input {
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.3s;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s;
   box-sizing: border-box;
 }
-input:focus { border-color: var(--primary-color); }
-.sms-group { display: flex; gap: 10px; }
-.sms-group input { flex: 1; }
+
+.form-group input:focus {
+  border-color: var(--color-primary);
+}
+
+.sms-group {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.sms-group input {
+  flex: 1;
+}
+
 .sms-btn {
   padding: 12px 16px;
-  border: 1px solid var(--primary-color);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--primary-color);
-  font-size: 14px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s;
 }
-.sms-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
-.error-msg { color: #ff4757; font-size: 14px; margin: -4px 0 8px 0; text-align: left; }
+
+.sms-btn:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-hint);
+  cursor: not-allowed;
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin: -4px 0 0;
+}
+
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background-color: var(--primary-color);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-md);
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
+  transition: background 0.2s;
 }
-.submit-btn:hover { background-color: #ff5252; transform: translateY(-2px); }
-.submit-btn:disabled { background-color: #fab1b1; cursor: not-allowed; transform: none; }
-.links {
-  margin-top: 20px;
-  font-size: 14px;
+
+.submit-btn:hover {
+  background: var(--color-primary-dark);
 }
-.links a { color: var(--primary-color); text-decoration: none; }
+
+.submit-btn:disabled {
+  background: var(--color-border);
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.link {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
 </style>
