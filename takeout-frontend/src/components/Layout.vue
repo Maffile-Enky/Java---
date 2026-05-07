@@ -31,6 +31,14 @@
           <span class="nav-icon">👤</span>
           <span>我的</span>
         </router-link>
+        <router-link v-if="authStore.userRole === 'MERCHANT' || authStore.userRole === 'ADMIN'" to="/merchant" class="nav-item" :class="{ active: $route.path.startsWith('/merchant') }">
+          <span class="nav-icon">🍳</span>
+          <span>商家中心</span>
+        </router-link>
+        <router-link v-if="authStore.userRole === 'ADMIN'" to="/admin" class="nav-item" :class="{ active: $route.path.startsWith('/admin') }">
+          <span class="nav-icon">⚙️</span>
+          <span>管理后台</span>
+        </router-link>
       </nav>
 
       <div class="header-right">

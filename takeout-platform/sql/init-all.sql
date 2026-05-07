@@ -35,6 +35,24 @@ INSERT INTO t_user (username, password, phone, nickname, role, status) VALUES
 ('root', '123', '13800000000', '管理员', 'ADMIN', 1)
 ON DUPLICATE KEY UPDATE username=username;
 
+-- 商家入驻申请表（在 takeout_user 库，因为 user-service 需要访问）
+CREATE TABLE IF NOT EXISTS merchant_application (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '申请人用户ID',
+    shop_name VARCHAR(100) NOT NULL COMMENT '店铺名称',
+    shop_address VARCHAR(255) NOT NULL COMMENT '店铺地址',
+    longitude DECIMAL(10, 6) COMMENT '经度',
+    latitude DECIMAL(10, 6) COMMENT '纬度',
+    contact_phone VARCHAR(20) NOT NULL COMMENT '联系电话',
+    description TEXT COMMENT '店铺描述',
+    status TINYINT DEFAULT 0 COMMENT '状态: 0-待审核 1-已通过 2-已拒绝',
+    admin_note VARCHAR(500) COMMENT '管理员审核备注',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商家入驻申请表';
+
 -- 收货地址表
 CREATE TABLE IF NOT EXISTS t_address (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -54,21 +72,67 @@ CREATE TABLE IF NOT EXISTS t_address (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================
+-- 订单服务数据库
+-- ========================================
+CREATE DATABASE IF NOT EXISTS takeout_order DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE takeout_order;
+
+CREATE TABLE IF NOT EXISTS t_order (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(30) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL,
+    merchant_id BIGINT NOT NULL,
+    merchant_name VARCHAR(100),
+    total_price DECIMAL(10,2) NOT NULL,
+    delivery_fee DECIMAL(10,2) DEFAULT 0.00,
+    total_quantity INT DEFAULT 0,
+    delivery_address VARCHAR(255),
+    delivery_phone VARCHAR(20),
+    delivery_name VARCHAR(50),
+    note VARCHAR(500),
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT 'PENDING/CONFIRMED/DELIVERING/COMPLETED/CANCELLED',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    INDEX idx_merchant_id (merchant_id),
+    INDEX idx_order_no (order_no),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS t_order_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    dish_id BIGINT,
+    dish_name VARCHAR(100) NOT NULL,
+    dish_image VARCHAR(500),
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_order_id (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================
 -- 商家服务数据库
 -- ========================================
 USE takeout_merchant;
 
 CREATE TABLE IF NOT EXISTS merchant (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT DEFAULT NULL COMMENT '关联用户ID',
     name VARCHAR(100) NOT NULL,
     address VARCHAR(255),
     longitude DECIMAL(10, 6),
     latitude DECIMAL(10, 6),
     phone VARCHAR(20),
+    description TEXT COMMENT '商家描述',
+    image_url VARCHAR(500) COMMENT '商家图片',
     status TINYINT DEFAULT 1,
+    sort_weight INT DEFAULT 0 COMMENT '排序权重，值越大越靠前',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_user_id (user_id),
+    INDEX idx_sort_weight (sort_weight)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS dish (

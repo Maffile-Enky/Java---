@@ -177,6 +177,42 @@ public class AuthController {
         return Result.success(data);
     }
 
+    @PostMapping("/refresh")
+    public Result<Map<String, Object>> refreshToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        String token = authHeader.substring(7);
+        try {
+            if (JwtUtil.isTokenExpired(token)) {
+                throw new BusinessException(ErrorCode.UNAUTHORIZED);
+            }
+            Long userId = JwtUtil.getUserId(token);
+            User user = userService.getById(userId);
+            if (user == null || user.getStatus() != 1) {
+                throw new BusinessException(ErrorCode.UNAUTHORIZED);
+            }
+            String tokenRole = JwtUtil.getRole(token);
+            // If role hasn't changed, return the same token
+            if (tokenRole != null && tokenRole.equals(user.getRole())) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("token", token);
+                data.put("userInfo", buildUserInfo(user));
+                return Result.success(data);
+            }
+            // Role changed — re-issue token
+            String newToken = JwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", newToken);
+            data.put("userInfo", buildUserInfo(user));
+            return Result.success(data);
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
     @GetMapping("/info")
     public Result<Map<String, Object>> getUserInfo(
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {

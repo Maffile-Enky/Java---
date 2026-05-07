@@ -125,23 +125,10 @@ onMounted(async () => {
     categories.value = catMap.size > 0 ? [...catMap.values()] : [{ id: 1, name: '推荐' }]
     activeCategoryId.value = categories.value[0]?.id
   } catch (e) {
-    console.error('[RestaurantDetail] API失败, 使用mock数据:', e.message)
-    restaurant.value = {
-      id, name: '示例餐厅', rating: 4.8, deliveryTime: 30, minOrder: 20, deliveryFee: 5
-    }
-    categories.value = [
-      { id: 1, name: '推荐' },
-      { id: 2, name: '主食' },
-      { id: 3, name: '小吃' },
-      { id: 4, name: '饮料' }
-    ]
-    foods.value = [
-      { id: 1, name: '宫保鸡丁', description: '经典川菜，香辣可口', price: 28, categoryId: 1 },
-      { id: 2, name: '麻婆豆腐', description: '麻辣鲜香，下饭神器', price: 22, categoryId: 2 },
-      { id: 3, name: '红烧肉', description: '肥而不腻，入口即化', price: 38, categoryId: 2 },
-      { id: 4, name: '可乐', description: '冰镇可乐', price: 8, categoryId: 4 }
-    ]
-    activeCategoryId.value = 1
+    console.error('[RestaurantDetail] API失败:', e.message)
+    restaurant.value = null
+    foods.value = []
+    categories.value = []
   } finally {
     loading.value = false
   }

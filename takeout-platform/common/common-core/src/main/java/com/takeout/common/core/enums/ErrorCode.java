@@ -37,7 +37,13 @@ public enum ErrorCode {
     SIGN_REPLAY(4003, "重放攻击检测"),
 
     // 限流相关 5xxx
-    RATE_LIMIT_EXCEEDED(429, "请求过于频繁，请稍后再试");
+    RATE_LIMIT_EXCEEDED(429, "请求过于频繁，请稍后再试"),
+
+    // 申请相关 6xxx
+    APPLICATION_ALREADY_EXISTS(6001, "您已有待审核的申请"),
+    APPLICATION_NOT_FOUND(6002, "申请不存在"),
+    APPLICATION_ALREADY_PROCESSED(6003, "该申请已处理"),
+    ALREADY_MERCHANT(6004, "您已是商家身份");
 
     private final int code;
     private final String message;

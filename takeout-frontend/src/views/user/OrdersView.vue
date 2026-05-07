@@ -120,25 +120,10 @@ async function handleCancel(id) {
 onMounted(async () => {
   try {
     const res = await getOrderList()
-    orders.value = res.data || []
+    const page = res.data || res
+    orders.value = page.records || page || []
   } catch {
-    // Fallback mock data
-    orders.value = [
-      {
-        id: '100001', merchantName: '示例餐厅', status: 'COMPLETED', totalPrice: 66,
-        items: [
-          { id: 1, name: '宫保鸡丁', quantity: 2, price: 28 },
-          { id: 2, name: '麻婆豆腐', quantity: 1, price: 22 }
-        ]
-      },
-      {
-        id: '100002', merchantName: '示例餐厅', status: 'PENDING', totalPrice: 36,
-        items: [
-          { id: 1, name: '宫保鸡丁', quantity: 1, price: 28 },
-          { id: 4, name: '可乐', quantity: 1, price: 8 }
-        ]
-      }
-    ]
+    orders.value = []
   } finally {
     loading.value = false
   }

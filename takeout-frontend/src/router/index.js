@@ -21,6 +21,7 @@ const router = createRouter({
     {
       path: '/user',
       component: () => import('../views/user/UserLayout.vue'),
+      meta: { requiresAuth: true },
       children: [
         {
           path: 'restaurants',
@@ -60,6 +61,60 @@ const router = createRouter({
       ]
     },
     {
+      path: '/merchant',
+      component: () => import('../views/merchant/MerchantLayout.vue'),
+      meta: { requiresAuth: true, roles: ['MERCHANT', 'ADMIN'] },
+      children: [
+        {
+          path: '',
+          name: 'merchantDashboard',
+          component: () => import('../views/merchant/DashboardView.vue')
+        },
+        {
+          path: 'dishes',
+          name: 'merchantDishes',
+          component: () => import('../views/merchant/DishManageView.vue')
+        },
+        {
+          path: 'orders',
+          name: 'merchantOrders',
+          component: () => import('../views/merchant/MerchantOrdersView.vue')
+        },
+        {
+          path: 'settings',
+          name: 'merchantSettings',
+          component: () => import('../views/merchant/SettingsView.vue')
+        }
+      ]
+    },
+    {
+      path: '/admin',
+      component: () => import('../views/admin/AdminLayout.vue'),
+      meta: { requiresAuth: true, roles: ['ADMIN'] },
+      children: [
+        {
+          path: '',
+          name: 'adminDashboard',
+          component: () => import('../views/admin/DashboardView.vue')
+        },
+        {
+          path: 'users',
+          name: 'adminUsers',
+          component: () => import('../views/admin/UserManageView.vue')
+        },
+        {
+          path: 'applications',
+          name: 'adminApplications',
+          component: () => import('../views/admin/ApplicationManageView.vue')
+        },
+        {
+          path: 'merchants',
+          name: 'adminMerchants',
+          component: () => import('../views/admin/MerchantManageView.vue')
+        }
+      ]
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notFound',
       redirect: '/'
@@ -70,13 +125,25 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  if (to.path.startsWith('/user') && !token) {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
+  const role = userInfo?.role || 'USER'
+
+  if (to.meta.requiresAuth && !token) {
     next('/auth/login')
-  } else if ((to.path === '/auth/login' || to.path === '/auth/register') && token) {
-    next('/')
-  } else {
-    next()
+    return
   }
+
+  if (to.meta.roles && !to.meta.roles.includes(role)) {
+    next('/')
+    return
+  }
+
+  if ((to.path === '/auth/login' || to.path === '/auth/register') && token) {
+    next('/')
+    return
+  }
+
+  next()
 })
 
 export default router

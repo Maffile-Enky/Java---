@@ -115,24 +115,9 @@ onMounted(async () => {
   const id = route.params.id
   try {
     const res = await getOrderDetail(id)
-    order.value = res.data || {}
+    order.value = res.data || res || {}
   } catch {
-    // Fallback mock
-    order.value = {
-      id: id || '100001',
-      status: 'COMPLETED',
-      merchantName: '示例餐厅',
-      deliveryAddress: '北京市朝阳区建国路88号',
-      items: [
-        { id: 1, name: '宫保鸡丁', quantity: 2, price: 28 },
-        { id: 2, name: '麻婆豆腐', quantity: 1, price: 22 },
-        { id: 4, name: '可乐', quantity: 2, price: 8 }
-      ],
-      subtotal: 66,
-      deliveryFee: 5,
-      totalPrice: 71,
-      createTime: '2026-05-06 12:00'
-    }
+    order.value = null
   } finally {
     loading.value = false
   }

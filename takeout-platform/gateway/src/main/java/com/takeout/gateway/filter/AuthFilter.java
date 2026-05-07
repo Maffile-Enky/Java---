@@ -20,7 +20,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
             "/auth/login",
             "/auth/register",
             "/auth/sms/send",
-            "/merchant/health"
+            "/merchant/health",
+            "/merchant/list",
+            "/dish/list"
     );
 
     @Override
