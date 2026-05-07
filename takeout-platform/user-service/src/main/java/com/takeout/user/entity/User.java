@@ -12,6 +12,9 @@ public class User {
     private String username;
     private String password;
     private String phone;
+    private String nickname;
+    private String avatar;
+    private String openid;
     private String role;
     private Integer status;
     @TableField(fill = FieldFill.INSERT)

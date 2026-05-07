@@ -114,6 +114,8 @@ const handleSearch = () => {
 }
 
 const goToRestaurant = (id) => {
+  console.log('[RestaurantsView] 点击商家, id:', id, '跳转:', `/user/restaurants/${id}`)
+  console.log('[RestaurantsView] token:', localStorage.getItem('token') ? '存在' : '不存在')
   router.push(`/user/restaurants/${id}`)
 }
 

@@ -27,6 +27,10 @@
           <span class="nav-icon">📋</span>
           <span>订单</span>
         </router-link>
+        <router-link v-if="authStore.isLoggedIn" to="/user/profile" class="nav-item" :class="{ active: $route.path.startsWith('/user/profile') }">
+          <span class="nav-icon">👤</span>
+          <span>我的</span>
+        </router-link>
       </nav>
 
       <div class="header-right">
@@ -36,6 +40,7 @@
         </div>
         <button class="logout-btn" @click="handleLogout" v-if="authStore.isLoggedIn">退出</button>
         <router-link v-else to="/auth/login" class="login-link">登录</router-link>
+        <router-link v-if="!authStore.isLoggedIn" to="/auth/register" class="login-link register-link">注册</router-link>
       </div>
     </header>
 

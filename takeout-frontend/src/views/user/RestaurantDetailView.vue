@@ -98,12 +98,13 @@ function goToCart() {
 
 onMounted(async () => {
   const id = route.params.id
+  console.log('[RestaurantDetail] 加载商家详情, id:', id)
   try {
-    // Try fetching from backend
     const [merchantRes, dishRes] = await Promise.all([
       getMerchantById(id),
       getDishList(id)
     ])
+    console.log('[RestaurantDetail] API成功 merchant:', merchantRes, 'dishes:', dishRes)
     restaurant.value = merchantRes.data || {}
     const dishList = dishRes.data || []
     foods.value = dishList.map(d => ({
@@ -114,7 +115,6 @@ onMounted(async () => {
       stock: d.stock,
       categoryId: d.categoryId || 1
     }))
-    // Build categories from dishes
     const catMap = new Map()
     dishList.forEach(d => {
       const cid = d.categoryId || 1
@@ -125,7 +125,7 @@ onMounted(async () => {
     categories.value = catMap.size > 0 ? [...catMap.values()] : [{ id: 1, name: '推荐' }]
     activeCategoryId.value = categories.value[0]?.id
   } catch (e) {
-    // Fallback mock data if backend not available
+    console.error('[RestaurantDetail] API失败, 使用mock数据:', e.message)
     restaurant.value = {
       id, name: '示例餐厅', rating: 4.8, deliveryTime: 30, minOrder: 20, deliveryFee: 5
     }

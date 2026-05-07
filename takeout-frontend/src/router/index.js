@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('../views/auth/LoginView.vue')
     },
     {
+      path: '/auth/register',
+      name: 'register',
+      component: () => import('../views/auth/RegisterView.vue')
+    },
+    {
       path: '/user',
       component: () => import('../views/user/UserLayout.vue'),
       children: [
@@ -46,6 +51,11 @@ const router = createRouter({
           path: 'profile',
           name: 'profile',
           component: () => import('../views/user/ProfileView.vue')
+        },
+        {
+          path: 'address',
+          name: 'address',
+          component: () => import('../views/user/AddressView.vue')
         }
       ]
     },
@@ -62,7 +72,7 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   if (to.path.startsWith('/user') && !token) {
     next('/auth/login')
-  } else if (to.path === '/auth/login' && token) {
+  } else if ((to.path === '/auth/login' || to.path === '/auth/register') && token) {
     next('/')
   } else {
     next()

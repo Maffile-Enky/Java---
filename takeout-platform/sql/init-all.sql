@@ -18,17 +18,40 @@ CREATE TABLE IF NOT EXISTS t_user (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
+    nickname VARCHAR(50),
+    avatar VARCHAR(500),
+    openid VARCHAR(100),
     role VARCHAR(20) DEFAULT 'USER',
     status TINYINT DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_username (username)
+    INDEX idx_username (username),
+    INDEX idx_phone (phone),
+    INDEX idx_openid (openid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 测试账户: root / 123
-INSERT INTO t_user (username, password, phone, role, status) VALUES
-('root', '123', '13800000000', 'ADMIN', 1)
+-- 测试账户: root / 123 (password will be BCrypt hashed by DataInitializer on startup)
+INSERT INTO t_user (username, password, phone, nickname, role, status) VALUES
+('root', '123', '13800000000', '管理员', 'ADMIN', 1)
 ON DUPLICATE KEY UPDATE username=username;
+
+-- 收货地址表
+CREATE TABLE IF NOT EXISTS t_address (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(50) NOT NULL COMMENT '联系人姓名',
+    phone VARCHAR(20) NOT NULL COMMENT '联系电话',
+    province VARCHAR(50) COMMENT '省',
+    city VARCHAR(50) COMMENT '市',
+    district VARCHAR(50) COMMENT '区',
+    detail VARCHAR(255) NOT NULL COMMENT '详细地址',
+    longitude DECIMAL(10, 6) COMMENT '经度',
+    latitude DECIMAL(10, 6) COMMENT '纬度',
+    is_default TINYINT DEFAULT 0 COMMENT '是否默认地址',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================
 -- 商家服务数据库

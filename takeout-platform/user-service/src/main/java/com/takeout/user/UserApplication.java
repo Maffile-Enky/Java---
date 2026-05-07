@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.takeout.user", "com.takeout.common"})
 @EnableDiscoveryClient
 @MapperScan("com.takeout.user.mapper")
 public class UserApplication {

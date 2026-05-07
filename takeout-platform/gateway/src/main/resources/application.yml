@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9999
 
 spring:
   application:
@@ -9,13 +9,13 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 47.99.34.251:8848
-        username: nacos
-        password: nacos
+        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
       config:
-        server-addr: 47.99.34.251:8848
-        username: nacos
-        password: nacos
+        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
         file-extension: yaml
         import-check:
           enabled: false
@@ -24,14 +24,54 @@ spring:
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/auth/**
+            - Path=/auth/**,/user/**
         - id: merchant-service
           uri: lb://merchant-service
           predicates:
             - Path=/merchant/**,/dish/**,/cart/**
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/order/**
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/delivery/**
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "*"
+            allowedOriginPatterns: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+    sentinel:
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD:localhost:8858}
+        port: 8719
+      eager: true
+
+# Actuator for Prometheus metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Logging with traceId
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}] %-5level %logger{36} - %msg%n"
+
+takeout:
+  gateway:
+    rate-limit:
+      enabled: true
+      default-qps: 100
+      auth-qps: 20

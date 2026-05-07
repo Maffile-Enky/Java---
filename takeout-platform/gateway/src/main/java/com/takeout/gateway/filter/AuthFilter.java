@@ -19,6 +19,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
     private static final List<String> WHITE_LIST = List.of(
             "/auth/login",
             "/auth/register",
+            "/auth/sms/send",
             "/merchant/health"
     );
 
