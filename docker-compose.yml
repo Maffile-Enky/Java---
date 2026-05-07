@@ -1,0 +1,122 @@
+services:
+  # ============ Infrastructure ============
+  nacos:
+    image: nacos/nacos-server:v2.3.1
+    container_name: takeout-nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=
+      - JVM_XMS=256m
+      - JVM_XMX=256m
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: takeout-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./takeout-platform/sql:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: takeout-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # ============ Application Services ============
+  gateway:
+    build: ./takeout-platform/gateway
+    container_name: takeout-gateway
+    ports:
+      - "9999:9999"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=nacos
+      - NACOS_PASSWORD=nacos
+    depends_on:
+      - nacos
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  user-service:
+    build: ./takeout-platform/user-service
+    container_name: takeout-user
+    ports:
+      - "8081:8081"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=nacos
+      - NACOS_PASSWORD=nacos
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  merchant-service:
+    build: ./takeout-platform/merchant-service
+    container_name: takeout-merchant
+    ports:
+      - "8083:8083"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=nacos
+      - NACOS_PASSWORD=nacos
+      - MYSQL_HOST=mysql
+    depends_on:
+      - nacos
+      - mysql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  frontend:
+    build: ./takeout-frontend
+    container_name: takeout-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  # ============ Monitoring ============
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: takeout-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: takeout-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/takeout.json
+    volumes:
+      - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ./monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/takeout.json
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

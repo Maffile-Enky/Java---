@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: takeout-config
+  namespace: takeout
+data:
+  NACOS_SERVER_ADDR: "nacos:8848"
+  NACOS_USERNAME: "nacos"
+  NACOS_PASSWORD: "nacos"
+  MYSQL_HOST: "mysql"
+  MYSQL_PORT: "3306"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"

@@ -1,158 +1,151 @@
 <template>
   <div class="restaurant-detail">
-    <!-- 商家信息 -->
-    <div class="restaurant-header">
-      <h1>{{ restaurant.name }}</h1>
-      <div class="restaurant-info">
-        <span class="rating">{{ restaurant.rating }}</span>
-        <span class="distance">{{ restaurant.distance }}m</span>
-        <span class="delivery-time">{{ restaurant.deliveryTime }}分钟</span>
-        <span class="min-order">起送¥{{ restaurant.minOrder }}</span>
-        <span class="delivery-fee">配送费¥{{ restaurant.deliveryFee }}</span>
-      </div>
-    </div>
+    <!-- Loading -->
+    <div v-if="loading" class="loading">加载中...</div>
 
-    <!-- 菜品分类 -->
-    <div class="menu-container">
-      <div class="category-list">
-        <div 
-          v-for="category in categories" 
-          :key="category.id"
-          class="category-item"
-          :class="{ active: activeCategoryId === category.id }"
-          @click="selectCategory(category.id)"
-        >
-          {{ category.name }}
+    <template v-else>
+      <!-- 商家信息 -->
+      <div class="restaurant-header">
+        <h1>{{ restaurant.name }}</h1>
+        <div class="restaurant-info">
+          <span class="rating">⭐ {{ restaurant.rating || '-' }}</span>
+          <span class="delivery-time">⏱️ {{ restaurant.deliveryTime || 30 }}分钟</span>
+          <span class="min-order">起送¥{{ restaurant.minOrder || 20 }}</span>
+          <span class="delivery-fee">配送费¥{{ restaurant.deliveryFee || 5 }}</span>
         </div>
       </div>
-      <div class="food-list">
-        <div v-for="food in foods" :key="food.id" class="food-item">
-          <img :src="food.image" alt="food.name" class="food-image">
-          <div class="food-info">
-            <h3>{{ food.name }}</h3>
-            <p class="food-description">{{ food.description }}</p>
-            <div class="food-price">
-              <span class="price">¥{{ food.price }}</span>
-              <div class="food-actions">
-                <button class="decrease-btn" @click="decreaseFood(food.id)">-</button>
-                <span class="food-count">{{ cart[food.id] || 0 }}</span>
-                <button class="increase-btn" @click="increaseFood(food.id)">+</button>
+
+      <!-- 菜品分类 + 菜品列表 -->
+      <div class="menu-container">
+        <div class="category-list">
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="category-item"
+            :class="{ active: activeCategoryId === category.id }"
+            @click="activeCategoryId = category.id"
+          >
+            {{ category.name }}
+          </div>
+        </div>
+        <div class="food-list">
+          <div v-for="food in filteredFoods" :key="food.id" class="food-item">
+            <div class="food-image-placeholder">🍽️</div>
+            <div class="food-info">
+              <h3>{{ food.name }}</h3>
+              <p class="food-description">{{ food.description }}</p>
+              <div class="food-price">
+                <span class="price">¥{{ food.price }}</span>
+                <div class="food-actions">
+                  <button class="decrease-btn" @click="decreaseFood(food)">-</button>
+                  <span class="food-count">{{ cartStore.getQuantity(food.id) }}</span>
+                  <button class="increase-btn" @click="increaseFood(food)">+</button>
+                </div>
               </div>
             </div>
           </div>
+          <div v-if="filteredFoods.length === 0" class="empty-foods">该分类暂无菜品</div>
         </div>
       </div>
-    </div>
 
-    <!-- 购物车底部栏 -->
-    <div class="cart-bar">
-      <div class="cart-info">
-        <span class="cart-count">{{ totalCount }}</span>
-        <span class="cart-total">¥{{ totalPrice.toFixed(2) }}</span>
+      <!-- 购物车底部栏 -->
+      <div class="cart-bar" v-if="!cartStore.isEmpty">
+        <div class="cart-info">
+          <span class="cart-count">{{ cartStore.totalCount }}</span>
+          <span class="cart-total">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
+        </div>
+        <button class="checkout-btn" @click="goToCart">去结算</button>
       </div>
-      <button class="checkout-btn" @click="goToCart">去结算</button>
-    </div>
+    </template>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { getMenu } from '../../api/merchant'
+import { useRoute, useRouter } from 'vue-router'
+import { getMerchantById, getDishList } from '@/api/merchant'
+import { useCartStore } from '@/stores/cart'
 
-export default {
-  name: 'RestaurantDetailView',
-  props: {
-    storeId: {
-      type: String,
-      default: () => {
-        // 从路由参数中获取storeId
-        const router = useRouter()
-        return router.currentRoute.value.params.id
+const route = useRoute()
+const router = useRouter()
+const cartStore = useCartStore()
+
+const loading = ref(true)
+const restaurant = ref({})
+const categories = ref([])
+const foods = ref([])
+const activeCategoryId = ref(null)
+
+const filteredFoods = computed(() => {
+  if (!activeCategoryId.value) return foods.value
+  return foods.value.filter(f => f.categoryId === activeCategoryId.value)
+})
+
+function increaseFood(food) {
+  cartStore.addItem(food, restaurant.value.id, restaurant.value.name)
+}
+
+function decreaseFood(food) {
+  const qty = cartStore.getQuantity(food.id)
+  if (qty > 0) {
+    cartStore.updateQuantity(food.id, qty - 1)
+  }
+}
+
+function goToCart() {
+  router.push('/user/cart')
+}
+
+onMounted(async () => {
+  const id = route.params.id
+  console.log('[RestaurantDetail] 加载商家详情, id:', id)
+  try {
+    const [merchantRes, dishRes] = await Promise.all([
+      getMerchantById(id),
+      getDishList(id)
+    ])
+    console.log('[RestaurantDetail] API成功 merchant:', merchantRes, 'dishes:', dishRes)
+    restaurant.value = merchantRes.data || {}
+    const dishList = dishRes.data || []
+    foods.value = dishList.map(d => ({
+      id: d.id,
+      name: d.name,
+      price: d.price,
+      description: d.description,
+      stock: d.stock,
+      categoryId: d.categoryId || 1
+    }))
+    const catMap = new Map()
+    dishList.forEach(d => {
+      const cid = d.categoryId || 1
+      if (!catMap.has(cid)) {
+        catMap.set(cid, { id: cid, name: d.categoryName || '推荐' })
       }
-    }
-  },
-  setup(props) {
-    const router = useRouter()
-    const restaurant = ref({
-      name: '示例餐厅',
-      rating: 4.8,
-      distance: 500,
-      deliveryTime: 30,
-      minOrder: 20,
-      deliveryFee: 5
     })
-    const categories = ref([
+    categories.value = catMap.size > 0 ? [...catMap.values()] : [{ id: 1, name: '推荐' }]
+    activeCategoryId.value = categories.value[0]?.id
+  } catch (e) {
+    console.error('[RestaurantDetail] API失败, 使用mock数据:', e.message)
+    restaurant.value = {
+      id, name: '示例餐厅', rating: 4.8, deliveryTime: 30, minOrder: 20, deliveryFee: 5
+    }
+    categories.value = [
       { id: 1, name: '推荐' },
       { id: 2, name: '主食' },
       { id: 3, name: '小吃' },
       { id: 4, name: '饮料' }
-    ])
-    const foods = ref([
-      { id: 1, name: '宫保鸡丁', description: '经典川菜，香辣可口', price: 28, image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=delicious%20kung%20pao%20chicken%20dish&image_size=square' },
-      { id: 2, name: '麻婆豆腐', description: '麻辣鲜香，下饭神器', price: 22, image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=mapo%20tofu%20chinese%20dish&image_size=square' },
-      { id: 3, name: '红烧肉', description: '肥而不腻，入口即化', price: 38, image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=braised%20pork%20belly%20chinese%20dish&image_size=square' },
-      { id: 4, name: '可乐', description: '冰镇可乐', price: 8, image: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=coca%20cola%20drink&image_size=square' }
-    ])
-    const activeCategoryId = ref(1)
-    const cart = ref({})
-
-    const totalCount = computed(() => {
-      return Object.values(cart.value).reduce((sum, count) => sum + count, 0)
-    })
-
-    const totalPrice = computed(() => {
-      return Object.entries(cart.value).reduce((sum, [foodId, count]) => {
-        const food = foods.value.find(f => f.id == foodId)
-        return sum + (food ? food.price * count : 0)
-      }, 0)
-    })
-
-    const selectCategory = (categoryId) => {
-      activeCategoryId.value = categoryId
-    }
-
-    const increaseFood = (foodId) => {
-      cart.value[foodId] = (cart.value[foodId] || 0) + 1
-    }
-
-    const decreaseFood = (foodId) => {
-      if (cart.value[foodId] > 0) {
-        cart.value[foodId]--
-      }
-    }
-
-    const goToCart = () => {
-      router.push('/cart')
-    }
-
-    onMounted(async () => {
-      try {
-        // 实际项目中调用API获取数据
-        // const response = await getMenu(props.storeId)
-        // restaurant.value = response.data.restaurant
-        // categories.value = response.data.categories
-        // foods.value = response.data.foods
-      } catch (error) {
-        console.error('Failed to get menu:', error)
-      }
-    })
-
-    return {
-      restaurant,
-      categories,
-      foods,
-      activeCategoryId,
-      cart,
-      totalCount,
-      totalPrice,
-      selectCategory,
-      increaseFood,
-      decreaseFood,
-      goToCart
-    }
+    ]
+    foods.value = [
+      { id: 1, name: '宫保鸡丁', description: '经典川菜，香辣可口', price: 28, categoryId: 1 },
+      { id: 2, name: '麻婆豆腐', description: '麻辣鲜香，下饭神器', price: 22, categoryId: 2 },
+      { id: 3, name: '红烧肉', description: '肥而不腻，入口即化', price: 38, categoryId: 2 },
+      { id: 4, name: '可乐', description: '冰镇可乐', price: 8, categoryId: 4 }
+    ]
+    activeCategoryId.value = 1
+  } finally {
+    loading.value = false
   }
-}
+})
 </script>
 
 <style scoped>
@@ -160,10 +153,18 @@ export default {
   padding-bottom: 100px;
 }
 
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #999;
+}
+
 .restaurant-header {
   padding: 20px;
   background-color: #fff;
   border-bottom: 1px solid #f0f0f0;
+  border-radius: 12px;
+  margin-bottom: 16px;
 }
 
 .restaurant-header h1 {
@@ -182,6 +183,9 @@ export default {
 .menu-container {
   display: flex;
   height: calc(100vh - 250px);
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .category-list {
@@ -195,6 +199,8 @@ export default {
   text-align: center;
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
 }
 
 .category-item.active {
@@ -219,12 +225,17 @@ export default {
   border-radius: 8px;
 }
 
-.food-image {
+.food-image-placeholder {
   width: 80px;
   height: 80px;
   border-radius: 8px;
-  object-fit: cover;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
   margin-right: 15px;
+  flex-shrink: 0;
 }
 
 .food-info {
@@ -238,7 +249,7 @@ export default {
 
 .food-description {
   margin: 0 0 10px 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #999;
   line-height: 1.4;
 }
@@ -272,11 +283,24 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.decrease-btn:hover, .increase-btn:hover {
+  border-color: #ff6b00;
+  color: #ff6b00;
 }
 
 .food-count {
   min-width: 30px;
   text-align: center;
+  font-weight: 500;
+}
+
+.empty-foods {
+  text-align: center;
+  padding: 40px;
+  color: #999;
 }
 
 .cart-bar {
@@ -284,7 +308,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 70px;
   background-color: #fff;
   border-top: 1px solid #f0f0f0;
   display: flex;
@@ -292,6 +316,7 @@ export default {
   align-items: center;
   padding: 0 20px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 50;
 }
 
 .cart-info {
@@ -303,13 +328,14 @@ export default {
 .cart-count {
   background-color: #ff6b00;
   color: #fff;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  font-weight: bold;
 }
 
 .cart-total {
@@ -327,6 +353,7 @@ export default {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .checkout-btn:hover {
