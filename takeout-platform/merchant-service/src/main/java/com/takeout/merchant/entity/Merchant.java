@@ -13,6 +13,8 @@ public class Merchant {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    private Long userId;
+
     private String name;
 
     private String address;
@@ -23,7 +25,13 @@ public class Merchant {
 
     private String phone;
 
+    private String description;
+
+    private String imageUrl;
+
     private Integer status;
+
+    private Integer sortWeight;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;

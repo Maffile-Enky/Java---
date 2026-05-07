@@ -46,18 +46,59 @@
             <span class="total-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
           </div>
         </div>
-        <button class="checkout-btn" @click="checkout">去结算 ({{ cartStore.totalCount }}件)</button>
+        <button class="checkout-btn" @click="showCheckout = true">去结算 ({{ cartStore.totalCount }}件)</button>
+      </div>
+
+      <!-- 结算弹窗 -->
+      <div v-if="showCheckout" class="modal-overlay" @click.self="showCheckout = false">
+        <div class="modal">
+          <h2 class="modal-title">确认订单</h2>
+          <form @submit.prevent="submitOrder">
+            <div class="form-group">
+              <label>收货人</label>
+              <input v-model="orderForm.name" type="text" placeholder="请输入收货人姓名" required />
+            </div>
+            <div class="form-group">
+              <label>联系电话</label>
+              <input v-model="orderForm.phone" type="tel" placeholder="请输入联系电话" required />
+            </div>
+            <div class="form-group">
+              <label>收货地址</label>
+              <input v-model="orderForm.address" type="text" placeholder="请输入收货地址" required />
+            </div>
+            <div class="form-group">
+              <label>备注</label>
+              <textarea v-model="orderForm.note" placeholder="选填，如口味偏好等" rows="2"></textarea>
+            </div>
+            <div class="order-summary">
+              <span>共 {{ cartStore.totalCount }} 件，合计</span>
+              <span class="summary-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" @click="showCheckout = false">取消</button>
+              <button type="submit" class="btn-confirm" :disabled="submitting">
+                {{ submitting ? '提交中...' : '提交订单' }}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </template>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { createOrder } from '@/api/order'
 
 const router = useRouter()
 const cartStore = useCartStore()
+
+const showCheckout = ref(false)
+const submitting = ref(false)
+const orderForm = ref({ name: '', phone: '', address: '', note: '' })
 
 function increaseItem(item) {
   cartStore.updateQuantity(item.dishId, item.quantity + 1)
@@ -71,9 +112,32 @@ function decreaseItem(item) {
   }
 }
 
-function checkout() {
-  // TODO: call createOrder API when backend order-service is ready
-  router.push('/user/orders')
+async function submitOrder() {
+  submitting.value = true
+  try {
+    await createOrder({
+      merchantId: cartStore.merchantId,
+      merchantName: cartStore.merchantName,
+      deliveryName: orderForm.value.name,
+      deliveryPhone: orderForm.value.phone,
+      deliveryAddress: orderForm.value.address,
+      note: orderForm.value.note,
+      items: cartStore.items.map(item => ({
+        dishId: item.dishId,
+        dishName: item.dishName,
+        price: item.price,
+        quantity: item.quantity
+      }))
+    })
+    cartStore.clearCart()
+    showCheckout.value = false
+    alert('下单成功!')
+    router.push('/user/orders')
+  } catch (e) {
+    alert('下单失败: ' + (e.message || '请重试'))
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 
@@ -265,5 +329,94 @@ h1 {
 
 .checkout-btn:hover {
   background-color: #ff8533;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+}
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+.form-group input,
+.form-group textarea {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #ff6b00;
+}
+.order-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid #f0f0f0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.summary-price {
+  color: #ff6b00;
+  font-size: 20px;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.btn-cancel {
+  flex: 1;
+  padding: 10px;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-confirm {
+  flex: 1;
+  padding: 10px;
+  background: #ff6b00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

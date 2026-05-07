@@ -1,7 +1,9 @@
 package com.takeout.merchant.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.takeout.common.core.annotation.RequireRole;
 import com.takeout.common.core.domain.Result;
+import com.takeout.common.core.enums.RoleEnum;
 import com.takeout.merchant.entity.Dish;
 import com.takeout.merchant.service.DishService;
 import lombok.RequiredArgsConstructor;
@@ -27,40 +29,38 @@ public class DishController {
         LambdaQueryWrapper<Dish> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Dish::getMerchantId, merchantId);
         wrapper.eq(Dish::getStatus, 1);
-        List<Dish> list = dishService.list(wrapper);
-        return Result.success(list);
+        return Result.success(dishService.list(wrapper));
     }
 
     @GetMapping("/{id}")
     public Result<Dish> getById(@PathVariable Long id) {
-        Dish dish = dishService.getById(id);
-        return Result.success(dish);
+        return Result.success(dishService.getById(id));
     }
 
     @PostMapping
+    @RequireRole({RoleEnum.MERCHANT, RoleEnum.ADMIN})
     public Result<Boolean> save(@RequestBody Dish dish) {
-        boolean result = dishService.save(dish);
-        return Result.success(result);
+        return Result.success(dishService.save(dish));
     }
 
     @PutMapping
+    @RequireRole({RoleEnum.MERCHANT, RoleEnum.ADMIN})
     public Result<Boolean> update(@RequestBody Dish dish) {
-        boolean result = dishService.updateById(dish);
-        return Result.success(result);
+        return Result.success(dishService.updateById(dish));
     }
 
     @DeleteMapping("/{id}")
+    @RequireRole({RoleEnum.MERCHANT, RoleEnum.ADMIN})
     public Result<Boolean> delete(@PathVariable Long id) {
-        boolean result = dishService.removeById(id);
-        return Result.success(result);
+        return Result.success(dishService.removeById(id));
     }
 
     @PutMapping("/stock/{id}")
+    @RequireRole({RoleEnum.MERCHANT, RoleEnum.ADMIN})
     public Result<Boolean> updateStock(@PathVariable Long id, @RequestParam Integer stock) {
         Dish dish = new Dish();
         dish.setId(id);
         dish.setStock(stock);
-        boolean result = dishService.updateById(dish);
-        return Result.success(result);
+        return Result.success(dishService.updateById(dish));
     }
 }

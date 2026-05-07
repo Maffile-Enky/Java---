@@ -42,6 +42,16 @@
 
     <!-- 功能列表 -->
     <div class="feature-list">
+      <div v-if="authStore.userRole === 'USER' && (!merchantApp || merchantApp.status === 2)" class="feature-item" @click="showMerchantApply = true">
+        <div class="feature-icon">🍳</div>
+        <span>申请成为商家</span>
+        <div class="feature-arrow">›</div>
+      </div>
+      <div v-if="merchantApp" class="feature-item">
+        <div class="feature-icon">📋</div>
+        <span>商家申请状态：<b :class="'status-' + merchantApp.status">{{ getAppStatusText(merchantApp.status) }}</b></span>
+        <div class="feature-arrow" v-if="merchantApp.status === 2 && merchantApp.adminNote" @click="showRejectNote">查看</div>
+      </div>
       <div class="feature-item" @click="$router.push('/user/address')">
         <div class="feature-icon">📍</div>
         <span>收货地址</span>
@@ -86,6 +96,27 @@
       </div>
     </div>
 
+    <!-- 商家入驻弹窗 -->
+    <div v-if="showMerchantApply" class="modal-overlay" @click.self="showMerchantApply = false">
+      <div class="modal glass-panel">
+        <h3>申请成为商家</h3>
+        <form @submit.prevent="handleMerchantApply">
+          <label>店铺名称</label>
+          <input v-model="applyForm.shopName" placeholder="请输入店铺名称" required />
+          <label>店铺地址</label>
+          <input v-model="applyForm.shopAddress" placeholder="请输入店铺地址" required />
+          <label>联系电话</label>
+          <input v-model="applyForm.contactPhone" placeholder="请输入联系电话" required />
+          <label>店铺描述</label>
+          <input v-model="applyForm.description" placeholder="请描述您的店铺" />
+          <div class="form-actions">
+            <button type="button" @click="showMerchantApply = false">取消</button>
+            <button type="submit" class="primary">提交申请</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- 修改密码弹窗 -->
     <div v-if="showPassword" class="modal-overlay" @click.self="showPassword = false">
       <div class="modal glass-panel">
@@ -110,7 +141,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
-import { getProfile, updateProfile, changePassword } from '@/api/user'
+import { getProfile, updateProfile, changePassword, submitMerchantApplication, getMerchantApplicationStatus } from '@/api/user'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -119,12 +150,44 @@ const cartStore = useCartStore()
 const profile = ref({})
 const showEdit = ref(false)
 const showPassword = ref(false)
+const showMerchantApply = ref(false)
+const merchantApp = ref(null)
+const applyForm = ref({ shopName: '', shopAddress: '', contactPhone: '', description: '' })
 const editForm = ref({ nickname: '', phone: '', avatar: '' })
 const pwdForm = ref({ oldPassword: '', newPassword: '' })
 
 const getRoleName = (role) => {
   const map = { USER: '用户', MERCHANT: '商家', RIDER: '骑手', ADMIN: '管理员' }
   return map[role] || role
+}
+
+const getAppStatusText = (status) => {
+  const map = { 0: '待审核', 1: '已通过', 2: '已拒绝' }
+  return map[status] || '未知'
+}
+
+const handleMerchantApply = async () => {
+  try {
+    await submitMerchantApplication(applyForm.value)
+    showMerchantApply.value = false
+    alert('申请已提交，请等待管理员审核')
+    loadMerchantApp()
+  } catch (e) {
+    alert(e?.response?.data?.message || e?.message || '提交失败')
+  }
+}
+
+const showRejectNote = () => {
+  alert('拒绝原因：' + (merchantApp.value?.adminNote || '无'))
+}
+
+const loadMerchantApp = async () => {
+  try {
+    const res = await getMerchantApplicationStatus()
+    merchantApp.value = res.data || null
+  } catch {
+    merchantApp.value = null
+  }
 }
 
 const navigateToOrders = (status) => {
@@ -170,6 +233,7 @@ const handleLogout = () => {
 
 onMounted(() => {
   loadProfile()
+  loadMerchantApp()
   editForm.value = {
     nickname: authStore.userInfo?.nickname || '',
     phone: authStore.userInfo?.phone || '',
@@ -238,6 +302,9 @@ onMounted(() => {
   color: #ff6b00; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s;
 }
 .logout-btn:hover { background-color: #fff3e6; }
+.status-0 { color: #ffa502; }
+.status-1 { color: #2ed573; }
+.status-2 { color: #ff4757; }
 
 /* Modal */
 .modal-overlay {

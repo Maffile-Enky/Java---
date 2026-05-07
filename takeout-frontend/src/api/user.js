@@ -20,3 +20,7 @@ export const saveAddress = (data) => request.post('/user/address', data)
 export const updateAddress = (id, data) => request.put(`/user/address/${id}`, data)
 export const deleteAddress = (id) => request.delete(`/user/address/${id}`)
 export const setDefaultAddress = (id) => request.put(`/user/address/${id}/default`)
+
+// Merchant Application
+export const submitMerchantApplication = (data) => request.post('/user/merchant-application', data)
+export const getMerchantApplicationStatus = () => request.get('/user/merchant-application/status')

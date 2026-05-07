@@ -124,15 +124,7 @@ onMounted(async () => {
     const res = await getStoreList()
     shops.value = res.data || []
   } catch {
-    // Fallback mock data
-    shops.value = [
-      { id: 1, name: '麦当劳', rating: 4.8, address: '西式快餐，汉堡薯条', phone: '400-123-4567' },
-      { id: 2, name: '肯德基', rating: 4.7, address: '炸鸡专家，美味到家', phone: '400-234-5678' },
-      { id: 3, name: '必胜客', rating: 4.6, address: '比萨专家，意面小吃', phone: '400-345-6789' },
-      { id: 4, name: '海底捞', rating: 4.9, address: '火锅专家，配送到家', phone: '400-456-7890' },
-      { id: 5, name: '真功夫', rating: 4.5, address: '中式快餐，营养健康', phone: '400-567-8901' },
-      { id: 6, name: '喜茶', rating: 4.8, address: '新式茶饮，网红打卡', phone: '400-678-9012' },
-    ]
+    shops.value = []
   } finally {
     loading.value = false
   }

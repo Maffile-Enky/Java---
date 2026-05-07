@@ -129,15 +129,7 @@ onMounted(async () => {
     const res = await getStoreList()
     popularShops.value = (res.data || []).slice(0, 6)
   } catch {
-    // Fallback mock data if backend not available
-    popularShops.value = [
-      { id: 1, name: '麦当劳', rating: 4.8, deliveryTime: 25, address: '西式快餐，汉堡薯条' },
-      { id: 2, name: '肯德基', rating: 4.7, deliveryTime: 30, address: '炸鸡专家，美味到家' },
-      { id: 3, name: '必胜客', rating: 4.6, deliveryTime: 35, address: '比萨专家，意面小吃' },
-      { id: 4, name: '海底捞', rating: 4.9, deliveryTime: 40, address: '火锅专家，配送到家' },
-      { id: 5, name: '真功夫', rating: 4.5, deliveryTime: 28, address: '中式快餐，营养健康' },
-      { id: 6, name: '喜茶', rating: 4.8, deliveryTime: 20, address: '新式茶饮，网红打卡' },
-    ]
+    popularShops.value = []
   }
 })
 </script>
