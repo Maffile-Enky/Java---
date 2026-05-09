@@ -2,7 +2,6 @@
   <div class="application-manage">
     <h1 class="page-title">入驻审核</h1>
 
-    <!-- Tab Filter -->
     <div class="tab-bar">
       <button
         v-for="tab in tabs"
@@ -10,13 +9,10 @@
         class="tab-btn"
         :class="{ active: activeStatus === tab.value }"
         @click="switchTab(tab.value)"
-      >
-        {{ tab.label }}
-      </button>
+      >{{ tab.label }}</button>
     </div>
 
-    <!-- Table -->
-    <div class="table-card">
+    <div class="table-card card">
       <table class="data-table">
         <thead>
           <tr>
@@ -41,8 +37,8 @@
             <td>{{ app.id }}</td>
             <td>{{ app.userId }}</td>
             <td>{{ app.shopName || '-' }}</td>
-            <td>{{ app.address || '-' }}</td>
-            <td>{{ app.phone || '-' }}</td>
+            <td>{{ app.shopAddress || app.address || '-' }}</td>
+            <td>{{ app.contactPhone || app.phone || '-' }}</td>
             <td>
               <span class="badge" :class="'badge-status-' + app.status">
                 {{ statusMap[app.status] || '未知' }}
@@ -51,8 +47,8 @@
             <td>{{ app.createdAt || '-' }}</td>
             <td>
               <div class="action-group" v-if="app.status === 0">
-                <button class="btn btn-sm btn-success" @click="handleApprove(app)">通过</button>
-                <button class="btn btn-sm btn-danger" @click="handleReject(app)">拒绝</button>
+                <button class="btn-sm btn-success" @click="handleApprove(app)">通过</button>
+                <button class="btn-sm btn-danger" @click="handleReject(app)">拒绝</button>
               </div>
               <span v-else class="text-muted">-</span>
             </td>
@@ -61,11 +57,10 @@
       </table>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination">
-      <button class="btn btn-sm" :disabled="page <= 1" @click="goPage(page - 1)">上一页</button>
+      <button class="btn-sm btn-outline" :disabled="page <= 1" @click="goPage(page - 1)">上一页</button>
       <span class="page-info">第 {{ page }} / {{ totalPages }} 页，共 {{ total }} 条</span>
-      <button class="btn btn-sm" :disabled="page >= totalPages" @click="goPage(page + 1)">下一页</button>
+      <button class="btn-sm btn-outline" :disabled="page >= totalPages" @click="goPage(page + 1)">下一页</button>
     </div>
   </div>
 </template>
@@ -81,11 +76,7 @@ const tabs = [
   { label: '已拒绝', value: 2 }
 ]
 
-const statusMap = {
-  0: '待审核',
-  1: '已通过',
-  2: '已拒绝'
-}
+const statusMap = { 0: '待审核', 1: '已通过', 2: '已拒绝' }
 
 const activeStatus = ref(null)
 const applications = ref([])
@@ -99,16 +90,13 @@ const fetchApplications = async () => {
   loading.value = true
   try {
     const params = { page: page.value, size: size.value }
-    if (activeStatus.value !== null) {
-      params.status = activeStatus.value
-    }
+    if (activeStatus.value !== null) params.status = activeStatus.value
     const res = await getApplicationList(params)
     const data = res.data || res
     applications.value = data.records || []
     total.value = data.total || 0
     totalPages.value = data.pages || 0
-  } catch (e) {
-    console.error('Failed to load applications', e)
+  } catch {
     alert('加载申请列表失败')
   } finally {
     loading.value = false
@@ -130,10 +118,8 @@ const handleApprove = async (app) => {
   if (!confirm(`确认通过「${app.shopName}」的入驻申请？`)) return
   try {
     await approveApplication(app.id)
-    alert('已通过')
     fetchApplications()
-  } catch (e) {
-    console.error('Failed to approve', e)
+  } catch {
     alert('操作失败')
   }
 }
@@ -143,108 +129,58 @@ const handleReject = async (app) => {
   if (adminNote === null) return
   try {
     await rejectApplication(app.id, adminNote)
-    alert('已拒绝')
     fetchApplications()
-  } catch (e) {
-    console.error('Failed to reject', e)
+  } catch {
     alert('操作失败')
   }
 }
 
-onMounted(() => {
-  fetchApplications()
-})
+onMounted(() => { fetchApplications() })
 </script>
 
 <style scoped>
 .application-manage {
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
 .page-title {
-  font-size: 26px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #2d3436;
-  margin: 0 0 24px 0;
+  margin: 0;
 }
 
 .tab-bar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--spacing-sm);
 }
 
 .tab-btn {
   padding: 8px 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-card);
+  font-size: var(--font-size-sm);
   font-weight: 500;
-  color: #636e72;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.2s;
 }
 
 .tab-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  border-color: transparent;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-success {
-  background: #00b894;
-  color: #fff;
-}
-
-.btn-success:hover {
-  background: #00a381;
-}
-
-.btn-danger {
-  background: #ff6b6b;
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background: #ee5a5a;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 6px;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
 }
 
 .table-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
@@ -254,54 +190,43 @@ onMounted(() => {
 }
 
 .data-table th {
-  background: #f8f9fb;
-  padding: 14px 16px;
+  background: var(--color-bg-page);
+  padding: 12px 16px;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #636e72;
-  border-bottom: 1px solid #eee;
+  color: var(--color-text-hint);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table td {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #2d3436;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table tbody tr:hover {
-  background: #f8f9ff;
+  background: var(--color-bg-page);
 }
 
 .empty-cell {
   text-align: center;
-  color: #b2bec3;
+  color: var(--color-text-hint);
   padding: 40px 16px !important;
 }
 
 .badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
-.badge-status-0 {
-  background: #fff3e0;
-  color: #e67e22;
-}
-
-.badge-status-1 {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.badge-status-2 {
-  background: #fde8e8;
-  color: #e74c3c;
-}
+.badge-status-0 { background: #fffbe6; color: #d48806; }
+.badge-status-1 { background: #f0fff0; color: var(--color-success); }
+.badge-status-2 { background: #fff2f0; color: var(--color-error); }
 
 .action-group {
   display: flex;
@@ -310,20 +235,18 @@ onMounted(() => {
 }
 
 .text-muted {
-  color: #b2bec3;
-  font-size: 14px;
+  color: var(--color-text-hint);
 }
 
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
+  gap: var(--spacing-lg);
 }
 
 .page-info {
-  font-size: 14px;
-  color: #636e72;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
 }
 </style>

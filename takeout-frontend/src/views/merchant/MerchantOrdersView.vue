@@ -1,12 +1,13 @@
 <template>
-  <div class="orders-placeholder">
-    <div class="placeholder-card">
-      <div class="placeholder-icon">&#9830;</div>
-      <h1 class="placeholder-title">订单管理功能开发中...</h1>
-      <p class="placeholder-desc">
-        我们正在努力开发订单管理功能，敬请期待。<br />
-        该功能上线后，您将可以在这里查看和处理客户订单。
-      </p>
+  <div class="merchant-orders">
+    <h1 class="page-title">订单管理</h1>
+
+    <div class="card placeholder-card">
+      <div class="placeholder-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <h2>订单管理功能开发中...</h2>
+      <p>我们正在努力开发订单管理功能，敬请期待。</p>
       <router-link to="/merchant" class="btn-primary">返回店铺概览</router-link>
     </div>
   </div>
@@ -16,55 +17,39 @@
 </script>
 
 <style scoped>
-.orders-placeholder {
+.merchant-orders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   max-width: 600px;
-  margin: 0 auto;
-  padding-top: 60px;
+}
+
+.page-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
 }
 
 .placeholder-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 60px 40px;
   text-align: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 60px 40px;
 }
 
 .placeholder-icon {
-  font-size: 56px;
-  color: #ff6b00;
+  color: var(--color-accent);
   margin-bottom: 20px;
 }
 
-.placeholder-title {
-  font-size: 22px;
+.placeholder-card h2 {
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  color: #333;
   margin: 0 0 12px 0;
 }
 
-.placeholder-desc {
-  font-size: 14px;
-  color: #888;
-  line-height: 1.8;
-  margin: 0 0 32px 0;
-}
-
-.btn-primary {
-  display: inline-block;
-  padding: 12px 28px;
-  background: #ff6b00;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #e66000;
+.placeholder-card p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-hint);
+  line-height: 1.6;
+  margin: 0 0 28px 0;
 }
 </style>

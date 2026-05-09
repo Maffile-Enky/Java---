@@ -1,85 +1,89 @@
 <template>
   <div class="profile-view">
-    <!-- 用户信息 -->
-    <div class="user-info-section">
-      <div class="user-avatar">
-        <img v-if="profile.avatar" :src="profile.avatar" alt="avatar" />
-        <span v-else class="avatar-emoji">👤</span>
+    <!-- User card -->
+    <div class="user-card">
+      <div class="user-card-inner">
+        <img :src="profile.avatar || '/images/placeholders/avatar-default.png'" class="user-avatar" @error="$event.target.src='/images/placeholders/avatar-default.png'" />
+        <div class="user-info">
+          <h2 class="user-name">{{ profile.nickname || profile.username || '未登录' }}</h2>
+          <span class="user-role-badge" :class="'role-' + profile.role">{{ getRoleName(profile.role) }}</span>
+          <p class="user-phone" v-if="profile.phone">{{ profile.phone }}</p>
+        </div>
+        <button class="edit-btn" @click="showEdit = true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
       </div>
-      <div class="user-details">
-        <h2>{{ profile.nickname || profile.username || '未登录' }}</h2>
-        <p class="user-role">{{ getRoleName(profile.role) }}</p>
-        <p class="user-phone" v-if="profile.phone">{{ profile.phone }}</p>
-      </div>
-      <button class="edit-profile-btn" @click="showEdit = true">编辑</button>
     </div>
 
-    <!-- 订单管理 -->
-    <div class="order-management">
-      <div class="section-header">
-        <h3>订单管理</h3>
-        <router-link to="/user/orders" class="view-all">查看全部</router-link>
+    <!-- Order shortcuts -->
+    <div class="order-shortcuts card">
+      <div class="shortcut-header">
+        <h3>我的订单</h3>
+        <router-link to="/user/orders" class="view-all">
+          查看全部
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="m9 18 6-6-6-6"/></svg>
+        </router-link>
       </div>
-      <div class="order-types">
-        <div class="order-type-item" @click="navigateToOrders('PENDING')">
-          <div class="order-icon">⏳</div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item" @click="navigateToOrders('PENDING')">
+          <div class="shortcut-icon">⏳</div>
           <span>待支付</span>
         </div>
-        <div class="order-type-item" @click="navigateToOrders('DELIVERING')">
-          <div class="order-icon">🚚</div>
+        <div class="shortcut-item" @click="navigateToOrders('DELIVERING')">
+          <div class="shortcut-icon">🚚</div>
           <span>待配送</span>
         </div>
-        <div class="order-type-item" @click="navigateToOrders('COMPLETED')">
-          <div class="order-icon">✅</div>
+        <div class="shortcut-item" @click="navigateToOrders('COMPLETED')">
+          <div class="shortcut-icon">✅</div>
           <span>已完成</span>
         </div>
-        <div class="order-type-item" @click="navigateToOrders('CANCELLED')">
-          <div class="order-icon">❌</div>
+        <div class="shortcut-item" @click="navigateToOrders('CANCELLED')">
+          <div class="shortcut-icon">❌</div>
           <span>已取消</span>
         </div>
       </div>
     </div>
 
-    <!-- 功能列表 -->
-    <div class="feature-list">
+    <!-- Feature list -->
+    <div class="feature-list card">
       <div v-if="authStore.userRole === 'USER' && (!merchantApp || merchantApp.status === 2)" class="feature-item" @click="showMerchantApply = true">
-        <div class="feature-icon">🍳</div>
-        <span>申请成为商家</span>
-        <div class="feature-arrow">›</div>
+        <div class="fi-icon">🍳</div>
+        <span class="fi-label">申请成为商家</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
       </div>
       <div v-if="merchantApp" class="feature-item">
-        <div class="feature-icon">📋</div>
-        <span>商家申请状态：<b :class="'status-' + merchantApp.status">{{ getAppStatusText(merchantApp.status) }}</b></span>
-        <div class="feature-arrow" v-if="merchantApp.status === 2 && merchantApp.adminNote" @click="showRejectNote">查看</div>
+        <div class="fi-icon">📋</div>
+        <span class="fi-label">商家申请：<b :class="'status-' + merchantApp.status">{{ getAppStatusText(merchantApp.status) }}</b></span>
+        <span v-if="merchantApp.status === 2 && merchantApp.adminNote" class="fi-action" @click="showRejectNote">查看</span>
       </div>
       <div class="feature-item" @click="$router.push('/user/address')">
-        <div class="feature-icon">📍</div>
-        <span>收货地址</span>
-        <div class="feature-arrow">›</div>
+        <div class="fi-icon">📍</div>
+        <span class="fi-label">收货地址</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
       </div>
       <div class="feature-item" @click="showPassword = true">
-        <div class="feature-icon">🔒</div>
-        <span>修改密码</span>
-        <div class="feature-arrow">›</div>
+        <div class="fi-icon">🔒</div>
+        <span class="fi-label">修改密码</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
       </div>
       <div class="feature-item">
-        <div class="feature-icon">🎁</div>
-        <span>我的优惠</span>
-        <div class="feature-arrow">›</div>
+        <div class="fi-icon">🎁</div>
+        <span class="fi-label">我的优惠</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
       </div>
       <div class="feature-item">
-        <div class="feature-icon">💬</div>
-        <span>客服中心</span>
-        <div class="feature-arrow">›</div>
+        <div class="fi-icon">💬</div>
+        <span class="fi-label">客服中心</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m9 18 6-6-6-6"/></svg>
       </div>
     </div>
 
-    <!-- 退出登录按钮 -->
+    <!-- Logout -->
     <button class="logout-btn" @click="handleLogout">退出登录</button>
 
-    <!-- 编辑资料弹窗 -->
+    <!-- Edit modal -->
     <div v-if="showEdit" class="modal-overlay" @click.self="showEdit = false">
-      <div class="modal glass-panel">
+      <div class="modal">
         <h3>编辑资料</h3>
         <form @submit.prevent="handleUpdateProfile">
           <label>昵称</label>
@@ -89,16 +93,16 @@
           <label>头像URL</label>
           <input v-model="editForm.avatar" placeholder="头像链接" />
           <div class="form-actions">
-            <button type="button" @click="showEdit = false">取消</button>
-            <button type="submit" class="primary">保存</button>
+            <button type="button" class="btn-cancel" @click="showEdit = false">取消</button>
+            <button type="submit" class="btn-confirm">保存</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- 商家入驻弹窗 -->
+    <!-- Merchant apply modal -->
     <div v-if="showMerchantApply" class="modal-overlay" @click.self="showMerchantApply = false">
-      <div class="modal glass-panel">
+      <div class="modal">
         <h3>申请成为商家</h3>
         <form @submit.prevent="handleMerchantApply">
           <label>店铺名称</label>
@@ -110,16 +114,16 @@
           <label>店铺描述</label>
           <input v-model="applyForm.description" placeholder="请描述您的店铺" />
           <div class="form-actions">
-            <button type="button" @click="showMerchantApply = false">取消</button>
-            <button type="submit" class="primary">提交申请</button>
+            <button type="button" class="btn-cancel" @click="showMerchantApply = false">取消</button>
+            <button type="submit" class="btn-confirm">提交申请</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- 修改密码弹窗 -->
+    <!-- Password modal -->
     <div v-if="showPassword" class="modal-overlay" @click.self="showPassword = false">
-      <div class="modal glass-panel">
+      <div class="modal">
         <h3>修改密码</h3>
         <form @submit.prevent="handleChangePassword">
           <label>原密码</label>
@@ -127,8 +131,8 @@
           <label>新密码</label>
           <input type="password" v-model="pwdForm.newPassword" placeholder="新密码" required />
           <div class="form-actions">
-            <button type="button" @click="showPassword = false">取消</button>
-            <button type="submit" class="primary">确认</button>
+            <button type="button" class="btn-cancel" @click="showPassword = false">取消</button>
+            <button type="submit" class="btn-confirm">确认</button>
           </div>
         </form>
       </div>
@@ -157,7 +161,7 @@ const editForm = ref({ nickname: '', phone: '', avatar: '' })
 const pwdForm = ref({ oldPassword: '', newPassword: '' })
 
 const getRoleName = (role) => {
-  const map = { USER: '用户', MERCHANT: '商家', RIDER: '骑手', ADMIN: '管理员' }
+  const map = { USER: '普通用户', MERCHANT: '商家', RIDER: '骑手', ADMIN: '管理员' }
   return map[role] || role
 }
 
@@ -243,89 +247,289 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.profile-view { padding-bottom: 20px; }
-.user-info-section {
-  display: flex; align-items: center; padding: 30px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff; border-radius: 12px; position: relative;
+.profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
+
+/* User card */
+.user-card {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+}
+
+.user-card-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
 .user-avatar {
-  width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.2);
-  display: flex; align-items: center; justify-content: center; margin-right: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--color-text-primary);
+}
+
+.user-role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  background: rgba(0,0,0,0.1);
+  color: var(--color-text-primary);
+}
+
+.role-ADMIN { background: rgba(255,77,79,0.2); color: #a8071a; }
+.role-MERCHANT { background: rgba(255,107,0,0.2); color: #ad4e00; }
+
+.user-phone {
+  font-size: var(--font-size-sm);
+  margin: 4px 0 0 0;
+  color: rgba(0,0,0,0.45);
+}
+
+.edit-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.edit-btn:hover {
+  background: rgba(0,0,0,0.15);
+}
+
+.edit-btn svg {
+  color: var(--color-text-primary);
+}
+
+/* Order shortcuts */
+.order-shortcuts {
+  padding: var(--spacing-lg);
+}
+
+.shortcut-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.shortcut-header h3 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.view-all {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
+  text-decoration: none;
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+.shortcut-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.shortcut-item:hover {
+  transform: translateY(-2px);
+}
+
+.shortcut-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-page);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.shortcut-item span {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Feature list */
+.feature-list {
   overflow: hidden;
 }
-.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-emoji { font-size: 36px; }
-.user-details h2 { margin: 0 0 5px 0; font-size: 20px; font-weight: bold; }
-.user-role { margin: 0; font-size: 14px; opacity: 0.8; }
-.user-phone { margin: 4px 0 0; font-size: 13px; opacity: 0.7; }
-.edit-profile-btn {
-  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-  background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.4);
-  padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px;
-}
-.edit-profile-btn:hover { background: rgba(255,255,255,0.3); }
-.order-management {
-  margin-top: 10px; padding: 15px 20px; background-color: #fff; border-radius: 12px;
-}
-.section-header {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-}
-.section-header h3 { margin: 0; font-size: 16px; font-weight: bold; }
-.view-all { font-size: 14px; color: #667eea; text-decoration: none; }
-.order-types { display: flex; justify-content: space-around; }
-.order-type-item {
-  display: flex; flex-direction: column; align-items: center;
-  cursor: pointer; transition: transform 0.2s;
-}
-.order-type-item:hover { transform: scale(1.05); }
-.order-icon {
-  width: 50px; height: 50px; border-radius: 50%; background-color: #f5f5f5;
-  display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 5px;
-}
-.order-type-item span { font-size: 12px; color: #666; }
-.feature-list {
-  margin-top: 10px; background-color: #fff; border-radius: 12px; overflow: hidden;
-}
+
 .feature-item {
-  display: flex; align-items: center; padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-divider);
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.feature-item:hover { background: #f9f9f9; }
-.feature-item:last-child { border-bottom: none; }
-.feature-icon { font-size: 20px; margin-right: 15px; }
-.feature-item span { flex: 1; font-size: 16px; }
-.feature-arrow { font-size: 20px; color: #999; }
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+.feature-item:hover {
+  background: var(--color-bg-page);
+}
+
+.fi-icon {
+  font-size: 20px;
+  margin-right: var(--spacing-md);
+}
+
+.fi-label {
+  flex: 1;
+  font-size: var(--font-size-base);
+}
+
+.fi-label b.status-0 { color: var(--color-warning); }
+.fi-label b.status-1 { color: var(--color-success); }
+.fi-label b.status-2 { color: var(--color-error); }
+
+.fi-action {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.feature-item svg {
+  color: var(--color-text-hint);
+}
+
+/* Logout */
 .logout-btn {
-  width: 90%; margin: 20px auto; display: block; padding: 12px;
-  border: 1px solid #ff6b00; border-radius: 25px; background-color: #fff;
-  color: #ff6b00; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-card);
+  color: var(--color-error);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
-.logout-btn:hover { background-color: #fff3e6; }
-.status-0 { color: #ffa502; }
-.status-1 { color: #2ed573; }
-.status-2 { color: #ff4757; }
+
+.logout-btn:hover {
+  background: #fff2f0;
+}
 
 /* Modal */
 .modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5); display: flex; align-items: center;
-  justify-content: center; z-index: 1000;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
-.modal { width: 90%; max-width: 420px; padding: 24px; }
-.modal h3 { margin: 0 0 20px 0; }
-.modal label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; margin-top: 10px; }
+
+.modal {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal h3 {
+  margin: 0 0 20px 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.modal label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: 4px;
+  margin-top: var(--spacing-md);
+}
+
+.modal label:first-of-type {
+  margin-top: 0;
+}
+
 .modal input {
-  width: 100%; padding: 10px 12px; border: 1px solid #ddd;
-  border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  box-sizing: border-box;
+  transition: border-color 0.2s;
 }
-.modal input:focus { border-color: var(--primary-color); }
-.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.form-actions button {
-  padding: 10px 20px; border: 1px solid #ddd; border-radius: 8px;
-  background: #fff; cursor: pointer;
+
+.modal input:focus {
+  border-color: var(--color-primary);
 }
-.form-actions button.primary {
-  background: var(--primary-color); color: #fff; border-color: var(--primary-color);
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 10px;
+  background: var(--color-bg-page);
+  color: var(--color-text-secondary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+
+.btn-confirm {
+  flex: 1;
+  padding: 10px;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

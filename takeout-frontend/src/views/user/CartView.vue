@@ -1,55 +1,50 @@
 <template>
   <div class="cart-view">
-    <h1>购物车</h1>
-
-    <!-- 空购物车 -->
-    <div v-if="cartStore.isEmpty" class="empty-cart">
-      <span class="empty-emoji">🛒</span>
+    <!-- Empty -->
+    <div v-if="cartStore.isEmpty" class="empty-state">
+      <img src="/images/empty-states/empty-cart.svg" alt="空购物车" class="empty-img" />
       <p>购物车是空的</p>
-      <button class="go-shop-btn" @click="$router.push('/user/restaurants')">去选购</button>
+      <button class="btn-primary" @click="$router.push('/user/restaurants')">去选购</button>
     </div>
 
     <template v-else>
-      <!-- 商家信息 -->
-      <div class="merchant-info">
-        <h2>{{ cartStore.merchantName || '商家' }}</h2>
+      <!-- Merchant header -->
+      <div class="merchant-bar card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        <span class="merchant-name">{{ cartStore.merchantName || '商家' }}</span>
       </div>
 
-      <!-- 购物车商品列表 -->
-      <div class="cart-items">
+      <!-- Items -->
+      <div class="items-list card">
         <div v-for="item in cartStore.items" :key="item.dishId" class="cart-item">
-          <div class="item-image-placeholder">🍽️</div>
+          <div class="item-img">
+            <img :src="item.imageUrl || '/images/placeholders/dish-default.png'" :alt="item.dishName" />
+          </div>
           <div class="item-info">
-            <h3>{{ item.dishName }}</h3>
-            <p class="item-description">{{ item.description }}</p>
-            <div class="item-price-actions">
+            <h3 class="item-name">{{ item.dishName }}</h3>
+            <p class="item-desc">{{ item.description }}</p>
+            <div class="item-bottom">
               <span class="item-price">¥{{ item.price }}</span>
-              <div class="item-actions">
-                <button class="decrease-btn" @click="decreaseItem(item)">-</button>
-                <span class="item-count">{{ item.quantity }}</span>
-                <button class="increase-btn" @click="increaseItem(item)">+</button>
+              <div class="item-stepper">
+                <button class="stepper-btn" @click="decreaseItem(item)">-</button>
+                <span class="stepper-qty">{{ item.quantity }}</span>
+                <button class="stepper-btn stepper-plus" @click="increaseItem(item)">+</button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 底部结算栏 -->
+      <!-- Bottom bar -->
       <div class="checkout-bar">
-        <div class="checkout-info">
-          <div class="subtotal">
-            <span>小计：</span>
-            <span class="subtotal-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
-          </div>
-          <div class="total">
-            <span>总计：</span>
-            <span class="total-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
-          </div>
+        <div class="checkout-summary">
+          <span class="summary-count">共{{ cartStore.totalCount }}件</span>
+          <span class="summary-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
         </div>
-        <button class="checkout-btn" @click="showCheckout = true">去结算 ({{ cartStore.totalCount }}件)</button>
+        <button class="checkout-btn" @click="showCheckout = true">去结算</button>
       </div>
 
-      <!-- 结算弹窗 -->
+      <!-- Checkout modal -->
       <div v-if="showCheckout" class="modal-overlay" @click.self="showCheckout = false">
         <div class="modal">
           <h2 class="modal-title">确认订单</h2>
@@ -72,7 +67,7 @@
             </div>
             <div class="order-summary">
               <span>共 {{ cartStore.totalCount }} 件，合计</span>
-              <span class="summary-price">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
+              <span class="summary-total">¥{{ cartStore.totalPrice.toFixed(2) }}</span>
             </div>
             <div class="modal-actions">
               <button type="button" class="btn-cancel" @click="showCheckout = false">取消</button>
@@ -143,119 +138,123 @@ async function submitOrder() {
 
 <style scoped>
 .cart-view {
-  padding-bottom: 150px;
+  padding-bottom: 90px;
 }
 
-h1 {
-  padding: 20px;
-  margin: 0;
-  font-size: 24px;
-  font-weight: bold;
-  background-color: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  border-radius: 12px;
-}
-
-.empty-cart {
+/* Empty */
+.empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: #999;
+  color: var(--color-text-hint);
 }
 
-.empty-emoji {
-  font-size: 64px;
-  display: block;
-  margin-bottom: 16px;
+.empty-img {
+  width: 200px;
+  margin: 0 auto 20px;
+  opacity: 0.7;
 }
 
-.go-shop-btn {
-  margin-top: 16px;
-  padding: 12px 32px;
-  background: #ff6b00;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  font-size: 16px;
-  cursor: pointer;
+.empty-state p {
+  margin-bottom: 20px;
+  font-size: var(--font-size-md);
 }
 
-.merchant-info {
-  padding: 15px 20px;
-  background-color: #fff;
-  margin-top: 10px;
-  border-radius: 12px;
+/* Merchant bar */
+.merchant-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
 }
 
-.merchant-info h2 {
-  margin: 0;
-  font-size: 18px;
+.merchant-name {
+  font-size: var(--font-size-md);
+  font-weight: 600;
 }
 
-.cart-items {
-  margin-top: 10px;
-  background-color: #fff;
-  border-radius: 12px;
+/* Items */
+.items-list {
   overflow: hidden;
 }
 
 .cart-item {
   display: flex;
-  padding: 15px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-divider);
 }
 
-.item-image-placeholder {
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-img {
   width: 80px;
   height: 80px;
-  border-radius: 8px;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  margin-right: 15px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
   flex-shrink: 0;
+  background: var(--color-bg-page);
+}
+
+.item-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .item-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.item-info h3 {
-  margin: 0 0 5px 0;
-  font-size: 16px;
+.item-name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.item-description {
-  margin: 0 0 10px 0;
-  font-size: 13px;
-  color: #999;
+.item-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-hint);
+  margin: 0 0 auto 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.item-price-actions {
+.item-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 8px;
 }
 
 .item-price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff6b00;
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-accent);
 }
 
-.item-actions {
+.item-stepper {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.decrease-btn, .increase-btn {
+.stepper-btn {
   width: 28px;
   height: 28px;
-  border: 1px solid #e0e0e0;
-  border-radius: 50%;
-  background-color: #fff;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -264,157 +263,168 @@ h1 {
   transition: all 0.2s;
 }
 
-.decrease-btn:hover, .increase-btn:hover {
-  border-color: #ff6b00;
-  color: #ff6b00;
+.stepper-plus {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-.item-count {
-  min-width: 30px;
+.stepper-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.stepper-qty {
+  min-width: 24px;
   text-align: center;
-  font-weight: 500;
+  font-weight: 600;
 }
 
+/* Checkout bar */
 .checkout-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
-  padding: 15px 20px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  height: 60px;
+  background: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-xl);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
   z-index: 50;
 }
 
-.checkout-info {
-  margin-bottom: 10px;
-}
-
-.subtotal, .total {
+.checkout-summary {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: 14px;
+  align-items: baseline;
+  gap: var(--spacing-sm);
 }
 
-.subtotal-price {
-  font-weight: bold;
+.summary-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
 }
 
-.total {
-  font-size: 16px;
-  font-weight: bold;
-  padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.total-price {
-  color: #ff6b00;
-  font-size: 18px;
+.summary-price {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-accent);
 }
 
 .checkout-btn {
-  width: 100%;
-  background-color: #ff6b00;
+  background: var(--color-accent);
   color: #fff;
   border: none;
-  border-radius: 25px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: var(--radius-xl);
+  padding: 10px 32px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.2s;
 }
 
 .checkout-btn:hover {
-  background-color: #ff8533;
+  background: var(--color-accent-dark);
 }
 
+/* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
   background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
 .modal {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
   padding: 28px;
   width: 420px;
   max-width: 90vw;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-lg);
 }
+
 .modal-title {
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0 0 20px 0;
 }
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 14px;
+  margin-bottom: var(--spacing-lg);
 }
+
 .form-group label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
+
 .form-group input,
 .form-group textarea {
   padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s;
 }
+
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #ff6b00;
+  border-color: var(--color-primary);
 }
+
 .order-summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 0;
-  border-top: 1px solid #f0f0f0;
-  font-size: 15px;
+  padding: var(--spacing-lg) 0;
+  border-top: 1px solid var(--color-divider);
+  font-size: var(--font-size-base);
   font-weight: 600;
 }
-.summary-price {
-  color: #ff6b00;
-  font-size: 20px;
+
+.summary-total {
+  color: var(--color-accent);
+  font-size: var(--font-size-lg);
 }
+
 .modal-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 12px;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
+
 .btn-cancel {
   flex: 1;
   padding: 10px;
-  background: #f5f5f5;
-  color: #666;
+  background: var(--color-bg-page);
+  color: var(--color-text-secondary);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   cursor: pointer;
 }
+
 .btn-confirm {
   flex: 1;
   padding: 10px;
-  background: #ff6b00;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 700;
   cursor: pointer;
 }
+
 .btn-confirm:disabled {
   opacity: 0.6;
   cursor: not-allowed;

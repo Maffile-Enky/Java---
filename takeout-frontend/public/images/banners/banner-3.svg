@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <defs>
+    <linearGradient id="b3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A"/>
+      <stop offset="100%" stop-color="#333"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="200" fill="url(#b3)"/>
+  <circle cx="500" cy="100" r="80" fill="#FFD100" opacity="0.15"/>
+  <circle cx="530" cy="60" r="40" fill="#FFD100" opacity="0.1"/>
+  <text x="60" y="80" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="36" font-weight="bold" fill="#FFD100">品质精选</text>
+  <text x="60" y="115" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="18" fill="#fff" opacity="0.9">严选优质餐厅，放心每一餐</text>
+  <rect x="60" y="135" width="120" height="36" rx="18" fill="#FFD100"/>
+  <text x="120" y="158" text-anchor="middle" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="14" font-weight="bold" fill="#1A1A1A">探索好店</text>
+</svg>

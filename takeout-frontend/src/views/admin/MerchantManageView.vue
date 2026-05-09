@@ -2,8 +2,7 @@
   <div class="merchant-manage">
     <h1 class="page-title">商家管理</h1>
 
-    <!-- Table -->
-    <div class="table-card">
+    <div class="table-card card">
       <table class="data-table">
         <thead>
           <tr>
@@ -36,24 +35,17 @@
             </td>
             <td>
               <div class="sort-weight-group">
-                <input
-                  type="number"
-                  class="sort-input"
-                  v-model.number="merchant._editWeight"
-                  min="0"
-                />
-                <button class="btn btn-sm btn-primary" @click="handleSaveWeight(merchant)">保存</button>
+                <input type="number" class="sort-input" v-model.number="merchant._editWeight" min="0" />
+                <button class="btn-sm btn-primary" @click="handleSaveWeight(merchant)">保存</button>
               </div>
             </td>
             <td>{{ merchant.userId || '-' }}</td>
             <td>
               <button
-                class="btn btn-sm"
+                class="btn-sm"
                 :class="merchant.status === 1 ? 'btn-danger' : 'btn-success'"
                 @click="toggleStatus(merchant)"
-              >
-                {{ merchant.status === 1 ? '禁用' : '启用' }}
-              </button>
+              >{{ merchant.status === 1 ? '禁用' : '启用' }}</button>
             </td>
           </tr>
         </tbody>
@@ -78,8 +70,7 @@ const fetchMerchants = async () => {
       ...m,
       _editWeight: m.sortWeight ?? 0
     }))
-  } catch (e) {
-    console.error('Failed to load merchants', e)
+  } catch {
     alert('加载商家列表失败')
   } finally {
     loading.value = false
@@ -91,9 +82,7 @@ const toggleStatus = async (merchant) => {
   try {
     await updateMerchantStatus(merchant.id, newStatus)
     merchant.status = newStatus
-    alert(newStatus === 1 ? '已启用' : '已禁用')
-  } catch (e) {
-    console.error('Failed to update status', e)
+  } catch {
     alert('操作失败')
   }
 }
@@ -102,88 +91,28 @@ const handleSaveWeight = async (merchant) => {
   try {
     await updateMerchantSortWeight(merchant.id, merchant._editWeight)
     merchant.sortWeight = merchant._editWeight
-    alert('排序权重已更新')
-  } catch (e) {
-    console.error('Failed to update sort weight', e)
+  } catch {
     alert('操作失败')
   }
 }
 
-onMounted(() => {
-  fetchMerchants()
-})
+onMounted(() => { fetchMerchants() })
 </script>
 
 <style scoped>
 .merchant-manage {
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
 }
 
 .page-title {
-  font-size: 26px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #2d3436;
-  margin: 0 0 24px 0;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.btn-success {
-  background: #00b894;
-  color: #fff;
-}
-
-.btn-success:hover {
-  background: #00a381;
-}
-
-.btn-danger {
-  background: #ff6b6b;
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background: #ee5a5a;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-  border-radius: 6px;
+  margin: 0;
 }
 
 .table-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
@@ -193,49 +122,42 @@ onMounted(() => {
 }
 
 .data-table th {
-  background: #f8f9fb;
-  padding: 14px 16px;
+  background: var(--color-bg-page);
+  padding: 12px 16px;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #636e72;
-  border-bottom: 1px solid #eee;
+  color: var(--color-text-hint);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table td {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #2d3436;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .data-table tbody tr:hover {
-  background: #f8f9ff;
+  background: var(--color-bg-page);
 }
 
 .empty-cell {
   text-align: center;
-  color: #b2bec3;
+  color: var(--color-text-hint);
   padding: 40px 16px !important;
 }
 
 .badge {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
-.badge-active {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.badge-disabled {
-  background: #fde8e8;
-  color: #e74c3c;
-}
+.badge-active { background: #f0fff0; color: var(--color-success); }
+.badge-disabled { background: #fff2f0; color: var(--color-error); }
 
 .sort-weight-group {
   display: flex;
@@ -244,17 +166,16 @@ onMounted(() => {
 }
 
 .sort-input {
-  width: 64px;
-  padding: 6px 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 13px;
+  width: 60px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
   text-align: center;
   outline: none;
-  transition: border-color 0.3s;
 }
 
 .sort-input:focus {
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 </style>

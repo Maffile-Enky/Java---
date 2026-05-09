@@ -1,27 +1,32 @@
 <template>
-  <div class="login-container">
-    <div class="login-box glass-panel">
-      <h2>注册账号</h2>
-      <form @submit.prevent="handleRegister">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="/images/logo/logo-icon.svg" alt="logo" class="auth-logo" />
+        <h1>注册美团外卖</h1>
+      </div>
+
+      <form @submit.prevent="handleRegister" class="auth-form">
         <div class="form-group">
-          <input type="text" v-model="form.username" placeholder="用户名" required />
+          <input type="text" v-model="form.username" placeholder="请输入用户名" required />
         </div>
         <div class="form-group">
           <input type="tel" v-model="form.phone" placeholder="手机号（选填）" maxlength="11" />
         </div>
         <div class="form-group">
-          <input type="password" v-model="form.password" placeholder="密码" required />
+          <input type="password" v-model="form.password" placeholder="请输入密码（至少6位）" required />
         </div>
         <div class="form-group">
-          <input type="password" v-model="confirmPassword" placeholder="确认密码" required />
+          <input type="password" v-model="confirmPassword" placeholder="请确认密码" required />
         </div>
         <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
         <button type="submit" class="submit-btn" :disabled="loading">
           {{ loading ? '注册中...' : '注册' }}
         </button>
       </form>
-      <div class="links">
-        已有账号？<router-link to="/auth/login">去登录</router-link>
+
+      <div class="auth-footer">
+        <router-link to="/auth/login" class="link">已有账号？立即登录</router-link>
       </div>
     </div>
   </div>
@@ -63,29 +68,102 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.login-container {
+.auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--light-bg) 0%, #e2e8f0 100%);
+  background: var(--color-bg-page);
+  padding: var(--spacing-xl);
 }
-.login-box { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
-h2 { margin-bottom: 30px; color: var(--text-main); }
-.form-group { margin-bottom: 16px; }
-input {
-  width: 100%; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px;
-  font-size: 16px; outline: none; transition: border-color 0.3s; box-sizing: border-box;
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  box-shadow: var(--shadow-lg);
 }
-input:focus { border-color: var(--primary-color); }
-.error-msg { color: #ff4757; font-size: 14px; margin: -4px 0 8px 0; }
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-logo {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.auth-header h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  border-color: var(--color-primary);
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin: -4px 0 0;
+}
+
 .submit-btn {
-  width: 100%; padding: 14px; background-color: var(--primary-color); color: white;
-  border: none; border-radius: 8px; font-size: 16px; cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
+  width: 100%;
+  padding: 14px;
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-.submit-btn:hover { background-color: #ff5252; transform: translateY(-2px); }
-.submit-btn:disabled { background-color: #fab1b1; cursor: not-allowed; transform: none; }
-.links { margin-top: 20px; font-size: 14px; color: #666; }
-.links a { color: var(--primary-color); text-decoration: none; }
+
+.submit-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.submit-btn:disabled {
+  background: var(--color-border);
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.link {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
 </style>

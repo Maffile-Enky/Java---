@@ -1,63 +1,49 @@
 <template>
   <div class="orders-view">
-    <h1>我的订单</h1>
-
-    <!-- 订单状态筛选 -->
-    <div class="order-filters">
+    <!-- Tab bar -->
+    <div class="tabs card">
       <button
-        v-for="filter in filters"
-        :key="filter.value"
-        class="filter-btn"
-        :class="{ active: activeFilter === filter.value }"
-        @click="activeFilter = filter.value"
-      >
-        {{ filter.label }}
-      </button>
+        v-for="f in filters"
+        :key="f.value"
+        class="tab"
+        :class="{ active: activeFilter === f.value }"
+        @click="activeFilter = f.value"
+      >{{ f.label }}</button>
     </div>
 
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading">加载中...</div>
+    <!-- Loading -->
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+    </div>
 
-    <!-- 订单列表 -->
+    <!-- Order list -->
     <div v-else-if="filteredOrders.length > 0" class="order-list">
-      <div v-for="order in filteredOrders" :key="order.id" class="order-item">
+      <div v-for="order in filteredOrders" :key="order.id" class="order-card card">
         <div class="order-header">
           <span class="order-merchant">{{ order.merchantName }}</span>
-          <span class="order-status" :class="statusClass(order.status)">{{ statusText(order.status) }}</span>
+          <span class="order-status" :class="'status-' + order.status">{{ statusText(order.status) }}</span>
         </div>
-        <div class="order-content">
-          <div v-for="item in order.items" :key="item.id" class="order-item-detail">
-            <span class="item-name">{{ item.name || item.dishName }}</span>
-            <span class="item-quantity">x{{ item.quantity }}</span>
-            <span class="item-price">¥{{ item.price }}</span>
+        <div class="order-items">
+          <div v-for="item in order.items" :key="item.id" class="order-item-row">
+            <span class="oi-name">{{ item.name || item.dishName }}</span>
+            <span class="oi-qty">x{{ item.quantity }}</span>
+            <span class="oi-price">¥{{ item.price }}</span>
           </div>
         </div>
         <div class="order-footer">
           <span class="order-total">合计：¥{{ order.totalPrice }}</span>
           <div class="order-actions">
-            <button
-              v-if="order.status === 'PENDING'"
-              class="action-btn primary"
-              @click="handlePay(order.id)"
-            >立即支付</button>
-            <button
-              v-if="order.status === 'PENDING'"
-              class="action-btn secondary"
-              @click="handleCancel(order.id)"
-            >取消订单</button>
-            <button
-              class="action-btn secondary"
-              @click="goDetail(order.id)"
-            >查看详情</button>
+            <button v-if="order.status === 'PENDING'" class="btn-sm btn-primary" @click="handlePay(order.id)">立即支付</button>
+            <button v-if="order.status === 'PENDING'" class="btn-sm btn-outline" @click="handleCancel(order.id)">取消订单</button>
+            <button class="btn-sm btn-outline" @click="goDetail(order.id)">查看详情</button>
           </div>
         </div>
-        <div class="order-divider"></div>
       </div>
     </div>
 
-    <!-- 空状态 -->
+    <!-- Empty -->
     <div v-else class="empty-state">
-      <span class="empty-emoji">📋</span>
+      <img src="/images/empty-states/empty-orders.svg" alt="暂无订单" class="empty-img" />
       <p>暂无订单</p>
     </div>
   </div>
@@ -92,17 +78,11 @@ function statusText(status) {
   return map[status] || status
 }
 
-function statusClass(status) {
-  const map = { PENDING: 'status-pending', DELIVERING: 'status-processing', COMPLETED: 'status-completed', CANCELLED: 'status-cancelled' }
-  return map[status] || ''
-}
-
 function goDetail(id) {
   router.push(`/user/orders/${id}`)
 }
 
 async function handlePay(id) {
-  // TODO: integrate with payment-service
   alert('支付功能暂未开放')
 }
 
@@ -131,33 +111,173 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.orders-view { padding-bottom: 20px; }
-h1 { padding: 20px; margin: 0; font-size: 24px; font-weight: bold; background-color: #fff; border-bottom: 1px solid #f0f0f0; border-radius: 12px; }
-.order-filters { display: flex; background-color: #fff; margin-top: 10px; border-bottom: 1px solid #f0f0f0; overflow-x: auto; border-radius: 12px; }
-.filter-btn { flex: 1; padding: 15px 0; border: none; background: none; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
-.filter-btn.active { color: #ff6b00; border-bottom-color: #ff6b00; font-weight: bold; }
-.loading { text-align: center; padding: 40px; color: #999; }
-.order-list { margin-top: 10px; background-color: #fff; border-radius: 12px; overflow: hidden; }
-.order-item { padding: 15px 20px; }
-.order-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-.order-merchant { font-size: 16px; font-weight: bold; }
-.order-status { font-size: 14px; padding: 2px 8px; border-radius: 10px; }
-.status-pending { background-color: #fff3cd; color: #856404; }
-.status-processing { background-color: #cce7ff; color: #004085; }
-.status-completed { background-color: #d4edda; color: #155724; }
-.status-cancelled { background-color: #f8d7da; color: #721c24; }
-.order-content { margin-bottom: 10px; }
-.order-item-detail { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
-.item-name { flex: 1; }
-.item-quantity { margin: 0 10px; color: #999; }
-.order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-.order-total { font-size: 14px; color: #666; }
-.order-actions { display: flex; gap: 10px; }
-.action-btn { padding: 5px 12px; border: 1px solid #e0e0e0; border-radius: 15px; background-color: #fff; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-.action-btn.primary { background-color: #ff6b00; color: #fff; border-color: #ff6b00; }
-.action-btn.secondary { color: #666; }
-.action-btn:hover { opacity: 0.8; }
-.order-divider { height: 10px; background-color: #f5f5f5; margin: 15px -20px 0 -20px; }
-.empty-state { text-align: center; padding: 60px 20px; color: #b2bec3; }
-.empty-emoji { font-size: 64px; display: block; margin-bottom: 16px; }
+.orders-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  padding: 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 14px 0;
+  border: none;
+  background: none;
+  font-size: var(--font-size-base);
+  color: var(--color-text-hint);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab.active {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  border-bottom-color: var(--color-accent);
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Order list */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.order-card {
+  padding: var(--spacing-lg);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.order-merchant {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.order-status {
+  font-size: var(--font-size-xs);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.status-PENDING { background: #fffbe6; color: #d48806; }
+.status-DELIVERING { background: #e6f7ff; color: #096dd9; }
+.status-COMPLETED { background: #f6ffed; color: #389e0d; }
+.status-CANCELLED { background: #fff2f0; color: #cf1322; }
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--spacing-md);
+}
+
+.order-item-row {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.oi-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oi-qty {
+  margin: 0 var(--spacing-md);
+  color: var(--color-text-hint);
+}
+
+.oi-price {
+  color: var(--color-text-secondary);
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-divider);
+}
+
+.order-total {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.order-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.btn-sm {
+  padding: 5px 14px;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sm.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+}
+
+.btn-sm.btn-outline {
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.btn-sm:hover {
+  opacity: 0.85;
+}
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-hint);
+}
+
+.empty-img {
+  width: 200px;
+  margin: 0 auto 16px;
+  opacity: 0.6;
+}
 </style>

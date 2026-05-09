@@ -1,6 +1,6 @@
 services:
   gateway:
-    image: takeout/gateway:latest
+    image: takeout-gateway:latest
     container_name: takeout-gateway
     ports:
       - "9999:9999"
@@ -13,7 +13,7 @@ services:
           memory: 512M
 
   user-service:
-    image: takeout/user-service:latest
+    image: takeout-user:latest
     container_name: takeout-user
     ports:
       - "8081:8081"
@@ -30,7 +30,7 @@ services:
           memory: 512M
 
   merchant-service:
-    image: takeout/merchant-service:latest
+    image: takeout-merchant:latest
     container_name: takeout-merchant
     ports:
       - "8083:8083"
@@ -47,7 +47,7 @@ services:
           memory: 512M
 
   order-service:
-    image: takeout/order-service:latest
+    image: takeout-order:latest
     container_name: takeout-order
     ports:
       - "8084:8084"
@@ -62,7 +62,7 @@ services:
           memory: 512M
 
   frontend:
-    image: takeout/frontend:latest
+    image: takeout-frontend:latest
     container_name: takeout-frontend
     ports:
       - "80:80"
