@@ -104,6 +104,22 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return updateById(order);
     }
 
+    @Override
+    @Transactional
+    public void updateOrderStatusToPaid(String orderNo) {
+        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Order::getOrderNo, orderNo);
+        Order order = getOne(wrapper);
+        if (order == null) {
+            throw new BusinessException(404, "订单不存在: " + orderNo);
+        }
+        if (!"PENDING".equals(order.getStatus())) {
+            return;
+        }
+        order.setStatus("PAID");
+        updateById(order);
+    }
+
     private String generateOrderNo() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         int random = ThreadLocalRandom.current().nextInt(100000, 999999);

@@ -110,7 +110,7 @@ function decreaseItem(item) {
 async function submitOrder() {
   submitting.value = true
   try {
-    await createOrder({
+    const res = await createOrder({
       merchantId: cartStore.merchantId,
       merchantName: cartStore.merchantName,
       deliveryName: orderForm.value.name,
@@ -126,8 +126,15 @@ async function submitOrder() {
     })
     cartStore.clearCart()
     showCheckout.value = false
-    alert('下单成功!')
-    router.push('/user/orders')
+    const orderData = res.data || res
+    router.push({
+      path: '/user/payment',
+      query: {
+        orderNo: orderData.orderNo,
+        amount: orderData.totalPrice,
+        subject: cartStore.merchantName + ' - 外卖订单'
+      }
+    })
   } catch (e) {
     alert('下单失败: ' + (e.message || '请重试'))
   } finally {

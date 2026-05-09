@@ -53,6 +53,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getOrderList, cancelOrder } from '@/api/order'
+import { createPayment } from '@/api/payment'
 
 const router = useRouter()
 const route = useRoute()
@@ -63,6 +64,7 @@ const orders = ref([])
 const filters = [
   { label: '全部', value: 'all' },
   { label: '待支付', value: 'PENDING' },
+  { label: '已支付', value: 'PAID' },
   { label: '待配送', value: 'DELIVERING' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' }
@@ -74,7 +76,7 @@ const filteredOrders = computed(() => {
 })
 
 function statusText(status) {
-  const map = { PENDING: '待支付', DELIVERING: '待配送', COMPLETED: '已完成', CANCELLED: '已取消' }
+  const map = { PENDING: '待支付', PAID: '已支付', CONFIRMED: '已确认', DELIVERING: '待配送', COMPLETED: '已完成', CANCELLED: '已取消' }
   return map[status] || status
 }
 
@@ -83,7 +85,16 @@ function goDetail(id) {
 }
 
 async function handlePay(id) {
-  alert('支付功能暂未开放')
+  const order = orders.value.find(o => o.id === id)
+  if (!order) return
+  router.push({
+    path: '/user/payment',
+    query: {
+      orderNo: order.orderNo,
+      amount: order.totalPrice,
+      subject: order.merchantName + ' - 外卖订单'
+    }
+  })
 }
 
 async function handleCancel(id) {
@@ -192,6 +203,8 @@ onMounted(async () => {
 }
 
 .status-PENDING { background: #fffbe6; color: #d48806; }
+.status-PAID { background: #e6f7ff; color: #096dd9; }
+.status-CONFIRMED { background: #e6f7ff; color: #096dd9; }
 .status-DELIVERING { background: #e6f7ff; color: #096dd9; }
 .status-COMPLETED { background: #f6ffed; color: #389e0d; }
 .status-CANCELLED { background: #fff2f0; color: #cf1322; }

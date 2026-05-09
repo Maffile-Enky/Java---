@@ -111,6 +111,37 @@ CREATE TABLE IF NOT EXISTS t_order_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================
+-- 支付服务数据库
+-- ========================================
+CREATE DATABASE IF NOT EXISTS takeout_payment DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE takeout_payment;
+
+CREATE TABLE IF NOT EXISTS t_payment_order (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    payment_no VARCHAR(30) NOT NULL UNIQUE COMMENT '支付流水号',
+    order_no VARCHAR(30) NOT NULL COMMENT '业务订单号',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    amount DECIMAL(10,2) NOT NULL COMMENT '支付金额',
+    pay_channel VARCHAR(20) NOT NULL COMMENT '支付渠道: ALIPAY/WECHAT',
+    pay_type VARCHAR(20) DEFAULT 'NATIVE' COMMENT '支付类型: NATIVE/JSAPI/H5',
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '状态: CREATED/PENDING/SUCCESS/FAILED/REFUNDED/CLOSED',
+    trade_no VARCHAR(64) COMMENT '第三方支付交易号',
+    remark VARCHAR(500) COMMENT '商品描述/备注',
+    pay_time DATETIME COMMENT '支付成功时间',
+    expire_time DATETIME COMMENT '支付过期时间',
+    callback_data TEXT COMMENT '回调原始数据',
+    refund_reason VARCHAR(500) COMMENT '退款原因',
+    version INT DEFAULT 0 COMMENT '乐观锁版本号',
+    deleted TINYINT DEFAULT 0 COMMENT '逻辑删除: 0-未删除 1-已删除',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_payment_no (payment_no),
+    INDEX idx_order_no (order_no),
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付流水表';
+
+-- ========================================
 -- 商家服务数据库
 -- ========================================
 USE takeout_merchant;

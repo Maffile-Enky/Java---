@@ -26,6 +26,22 @@ spring:
     username: root
     password: ${MYSQL_PASSWORD:123456}
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:47.99.34.251}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        acknowledge-mode: manual
+        concurrency: 1
+        max-concurrency: 3
+        retry:
+          enabled: true
+          initial-interval: 1000
+          multiplier: 2.0
+          max-attempts: 3
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

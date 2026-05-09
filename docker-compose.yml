@@ -32,6 +32,17 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: takeout-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    restart: unless-stopped
+
   # ============ Application Services ============
   gateway:
     build: ./takeout-platform/gateway
@@ -101,9 +112,61 @@ services:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
     depends_on:
       - nacos
       - mysql
+      - rabbitmq
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  payment-service:
+    build: ./takeout-platform/payment-service
+    container_name: takeout-payment
+    ports:
+      - "8085:8085"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+      - rabbitmq
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  notification-service:
+    build: ./takeout-platform/notification-service
+    container_name: takeout-notification
+    ports:
+      - "8086:8086"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+    depends_on:
+      - nacos
+      - rabbitmq
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

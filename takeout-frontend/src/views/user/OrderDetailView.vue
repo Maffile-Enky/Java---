@@ -85,6 +85,7 @@
       <!-- Actions -->
       <div class="action-bar">
         <button class="btn-outline" @click="router.push('/user/orders')">返回列表</button>
+        <button v-if="order.status === 'PENDING'" class="btn-primary" @click="goPayment">去支付</button>
       </div>
     </template>
   </div>
@@ -101,13 +102,24 @@ const loading = ref(true)
 const order = ref({})
 
 function statusText(status) {
-  const map = { PENDING: '待支付', DELIVERING: '配送中', COMPLETED: '已完成', CANCELLED: '已取消' }
+  const map = { PENDING: '待支付', PAID: '已支付', CONFIRMED: '已确认', DELIVERING: '配送中', COMPLETED: '已完成', CANCELLED: '已取消' }
   return map[status] || status || '未知'
 }
 
 function statusIcon(status) {
-  const map = { PENDING: '⏳', DELIVERING: '🚚', COMPLETED: '✓', CANCELLED: '✕' }
+  const map = { PENDING: '⏳', PAID: '💳', CONFIRMED: '✓', DELIVERING: '🚚', COMPLETED: '✓', CANCELLED: '✕' }
   return map[status] || '?'
+}
+
+function goPayment() {
+  router.push({
+    path: '/user/payment',
+    query: {
+      orderNo: order.value.orderNo,
+      amount: order.value.totalPrice,
+      subject: order.value.merchantName + ' - 外卖订单'
+    }
+  })
 }
 
 onMounted(async () => {
@@ -159,6 +171,8 @@ onMounted(async () => {
 }
 
 .banner-PENDING { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.banner-PAID { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+.banner-CONFIRMED { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
 .banner-DELIVERING { background: linear-gradient(135deg, #4facfe, #00f2fe); }
 .banner-COMPLETED { background: linear-gradient(135deg, #43e97b, #38f9d7); }
 .banner-CANCELLED { background: linear-gradient(135deg, #a8a8a8, #d0d0d0); }
@@ -265,5 +279,17 @@ onMounted(async () => {
   padding: var(--spacing-lg);
   background: var(--color-bg-card);
   border-radius: var(--radius-lg);
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  padding: 8px 24px;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
 }
 </style>
