@@ -4,7 +4,7 @@ services:
     image: nacos/nacos-server:v2.3.1
     container_name: takeout-nacos
     ports:
-      - "8848:8848"
+      - "${NACOS_PORT:-8848}:8848"
       - "9848:9848"
     environment:
       - MODE=standalone
@@ -17,9 +17,9 @@ services:
     image: mysql:8.0
     container_name: takeout-mysql
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
     volumes:
       - mysql-data:/var/lib/mysql
       - ./takeout-platform/sql:/docker-entrypoint-initdb.d
@@ -29,7 +29,7 @@ services:
     image: redis:7-alpine
     container_name: takeout-redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     restart: unless-stopped
 
   # ============ Application Services ============
@@ -40,8 +40,8 @@ services:
       - "9999:9999"
     environment:
       - NACOS_SERVER_ADDR=nacos:8848
-      - NACOS_USERNAME=nacos
-      - NACOS_PASSWORD=nacos
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
     depends_on:
       - nacos
     extra_hosts:
@@ -55,10 +55,13 @@ services:
       - "8081:8081"
     environment:
       - NACOS_SERVER_ADDR=nacos:8848
-      - NACOS_USERNAME=nacos
-      - NACOS_PASSWORD=nacos
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
       - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - nacos
       - mysql
@@ -74,9 +77,30 @@ services:
       - "8083:8083"
     environment:
       - NACOS_SERVER_ADDR=nacos:8848
-      - NACOS_USERNAME=nacos
-      - NACOS_PASSWORD=nacos
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
       - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+    depends_on:
+      - nacos
+      - mysql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  order-service:
+    build: ./takeout-platform/order-service
+    container_name: takeout-order
+    ports:
+      - "8084:8084"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
     depends_on:
       - nacos
       - mysql
