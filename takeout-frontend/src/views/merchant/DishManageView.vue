@@ -5,39 +5,47 @@
       <button v-if="merchant" class="btn-primary" @click="openAddModal">添加菜品</button>
     </div>
 
-    <div v-if="loading" class="loading-state">加载中...</div>
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+    </div>
 
-    <div v-else-if="!merchant" class="empty-state">
-      <div class="empty-icon">&#9888;</div>
+    <div v-else-if="!merchant" class="empty-state card">
       <h2>请先创建店铺</h2>
       <p>您需要先创建店铺才能管理菜品。</p>
       <router-link to="/merchant" class="btn-primary">前往创建店铺</router-link>
     </div>
 
-    <div v-else-if="dishes.length === 0" class="empty-state">
-      <div class="empty-icon">&#9638;</div>
+    <div v-else-if="dishes.length === 0" class="empty-state card">
       <h2>暂无菜品</h2>
       <p>点击上方"添加菜品"按钮添加您的第一个菜品。</p>
     </div>
 
-    <div v-else class="dish-grid">
-      <div v-for="dish in dishes" :key="dish.id" class="dish-card">
-        <div class="dish-header">
-          <h3 class="dish-name">{{ dish.name }}</h3>
-          <span :class="['status-badge', dish.status === 1 ? 'status-on' : 'status-off']">
-            {{ dish.status === 1 ? '上架' : '下架' }}
-          </span>
+    <div v-else class="dish-list">
+      <div v-for="dish in dishes" :key="dish.id" class="dish-card card">
+        <div class="dish-img">
+          <img :src="dish.imageUrl || '/images/placeholders/dish-default.png'" :alt="dish.name" />
         </div>
-        <div class="dish-price">&yen;{{ dish.price }}</div>
-        <p class="dish-desc">{{ dish.description || '暂无描述' }}</p>
-        <div class="dish-stock">库存: {{ dish.stock }}</div>
-        <div class="dish-actions">
-          <button class="btn-edit" @click="openEditModal(dish)">编辑</button>
-          <button class="btn-delete" @click="handleDelete(dish)">删除</button>
+        <div class="dish-info">
+          <div class="dish-header">
+            <h3 class="dish-name">{{ dish.name }}</h3>
+            <span :class="['status-tag', dish.status === 1 ? 'tag-on' : 'tag-off']">
+              {{ dish.status === 1 ? '上架' : '下架' }}
+            </span>
+          </div>
+          <p class="dish-desc">{{ dish.description || '暂无描述' }}</p>
+          <div class="dish-meta">
+            <span class="dish-price">¥{{ dish.price }}</span>
+            <span class="dish-stock">库存: {{ dish.stock }}</span>
+          </div>
+          <div class="dish-actions">
+            <button class="btn-sm btn-edit" @click="openEditModal(dish)">编辑</button>
+            <button class="btn-sm btn-delete" @click="handleDelete(dish)">删除</button>
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal">
         <h2 class="modal-title">{{ isEditing ? '编辑菜品' : '添加菜品' }}</h2>
@@ -170,7 +178,6 @@ async function handleDelete(dish) {
   if (!confirm(`确定要删除菜品"${dish.name}"吗?`)) return
   try {
     await deleteDish(dish.id)
-    alert('删除成功!')
     await loadDishes()
   } catch (e) {
     alert('删除失败: ' + (e.message || '请重试'))
@@ -180,6 +187,9 @@ async function handleDelete(dish) {
 
 <style scoped>
 .dish-manage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   max-width: 960px;
 }
 
@@ -187,181 +197,165 @@ async function handleDelete(dish) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #333;
   margin: 0;
 }
 
-.loading-state {
-  text-align: center;
-  padding: 60px 0;
-  color: #999;
-  font-size: 16px;
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
 }
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .empty-state {
-  background: #fff;
-  border-radius: 12px;
-  padding: 60px 32px;
   text-align: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  padding: 60px 32px;
 }
 
 .empty-state h2 {
-  font-size: 20px;
-  color: #333;
+  font-size: var(--font-size-lg);
   margin: 0 0 8px 0;
 }
 
 .empty-state p {
-  color: #999;
-  font-size: 14px;
-  margin: 0 0 24px 0;
+  color: var(--color-text-hint);
+  margin: 0 0 20px 0;
 }
 
-.dish-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+/* Dish list */
+.dish-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .dish-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+
+.dish-img {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-bg-page);
+}
+
+.dish-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dish-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .dish-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .dish-name {
-  font-size: 17px;
+  font-size: var(--font-size-md);
   font-weight: 600;
-  color: #333;
   margin: 0;
 }
 
-.status-badge {
-  display: inline-block;
+.status-tag {
   padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
 }
 
-.status-on {
-  background: #e6f9ee;
-  color: #1db954;
+.tag-on { background: #f0fff0; color: var(--color-success); }
+.tag-off { background: #fff2f0; color: var(--color-error); }
+
+.dish-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
+  margin: 0 0 8px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-off {
-  background: #fde8e8;
-  color: #e74c3c;
-}
-
-.dish-price {
-  font-size: 20px;
-  font-weight: 700;
-  color: #ff6b00;
+.dish-meta {
+  display: flex;
+  gap: var(--spacing-lg);
   margin-bottom: 8px;
 }
 
-.dish-desc {
-  font-size: 13px;
-  color: #888;
-  margin: 0 0 12px 0;
-  line-height: 1.5;
+.dish-price {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-accent);
 }
 
 .dish-stock {
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 16px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-hint);
 }
 
 .dish-actions {
   display: flex;
-  gap: 10px;
+  gap: var(--spacing-sm);
 }
 
-.btn-primary {
-  padding: 10px 20px;
-  background: #ff6b00;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+.btn-sm {
+  padding: 5px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #e66000;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  transition: all 0.2s;
 }
 
 .btn-edit {
-  flex: 1;
-  padding: 8px 0;
-  background: #fff;
-  color: #ff6b00;
-  border: 1px solid #ff6b00;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
 }
 
-.btn-edit:hover {
-  background: #fff5ee;
-}
+.btn-edit:hover { background: #fff5ee; }
 
 .btn-delete {
-  flex: 1;
-  padding: 8px 0;
-  background: #fff;
-  color: #e74c3c;
-  border: 1px solid #e74c3c;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+  background: var(--color-bg-card);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
 }
 
-.btn-delete:hover {
-  background: #fef2f2;
-}
+.btn-delete:hover { background: #fff2f0; }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
+  inset: 0;
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,27 +363,26 @@ async function handleDelete(dish) {
 }
 
 .modal {
-  background: #fff;
-  border-radius: 12px;
-  padding: 32px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 28px;
   width: 480px;
   max-width: 90vw;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-title {
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  color: #333;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
 }
 
 .dish-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--spacing-lg);
 }
 
 .form-group {
@@ -399,24 +392,23 @@ async function handleDelete(dish) {
 }
 
 .form-group label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .form-group input,
 .form-group textarea {
   padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   transition: border-color 0.2s;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #ff6b00;
+  border-color: var(--color-primary);
 }
 
 .form-group textarea {
@@ -427,57 +419,51 @@ async function handleDelete(dish) {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--spacing-lg);
 }
 
 .status-toggle {
   display: flex;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 
 .toggle-btn {
   padding: 8px 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .toggle-btn.active-on {
-  border-color: #1db954;
-  background: #e6f9ee;
-  color: #1db954;
+  border-color: var(--color-success);
+  background: #f0fff0;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .toggle-btn.active-off {
-  border-color: #e74c3c;
-  background: #fde8e8;
-  color: #e74c3c;
+  border-color: var(--color-error);
+  background: #fff2f0;
+  color: var(--color-error);
   font-weight: 600;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
+  gap: var(--spacing-md);
 }
 
 .btn-cancel {
   padding: 10px 20px;
-  background: #f5f5f5;
-  color: #666;
+  background: var(--color-bg-page);
+  color: var(--color-text-secondary);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-cancel:hover {
-  background: #eee;
 }
 </style>

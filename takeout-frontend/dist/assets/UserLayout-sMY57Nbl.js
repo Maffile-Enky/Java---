@@ -1,1 +1,0 @@
-import{L as t}from"./Layout-DVWEfU0R.js";import{c as e,w as r,a,b as s,g as p}from"./index-B_yRfwHm.js";import"./auth-FQQPmoJ5.js";import"./user-DllGkctN.js";import"./request-CXLAujxk.js";import"./cart-DZJOg4KE.js";const d={__name:"UserLayout",setup(c){return(m,n)=>{const o=a("router-view");return s(),e(t,null,{default:r(()=>[p(o)]),_:1})}}};export{d as default};

@@ -2,31 +2,31 @@
   <div class="admin-layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <span class="logo-icon">⚙</span>
-        <h2 class="logo-text">管理后台</h2>
+        <img src="/images/logo/logo-icon.svg" alt="logo" class="sidebar-logo" />
+        <h2>管理后台</h2>
       </div>
       <nav class="sidebar-nav">
-        <router-link to="/admin" class="nav-item" exact-active-class="active">
-          <span class="nav-icon">📊</span>
-          <span class="nav-label">数据概览</span>
+        <router-link to="/admin" class="nav-link" exact-active-class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>数据概览</span>
         </router-link>
-        <router-link to="/admin/users" class="nav-item" active-class="active">
-          <span class="nav-icon">👥</span>
-          <span class="nav-label">用户管理</span>
+        <router-link to="/admin/users" class="nav-link" active-class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>用户管理</span>
         </router-link>
-        <router-link to="/admin/applications" class="nav-item" active-class="active">
-          <span class="nav-icon">📋</span>
-          <span class="nav-label">入驻审核</span>
+        <router-link to="/admin/applications" class="nav-link" active-class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>入驻审核</span>
         </router-link>
-        <router-link to="/admin/merchants" class="nav-item" active-class="active">
-          <span class="nav-icon">🏪</span>
-          <span class="nav-label">商家管理</span>
+        <router-link to="/admin/merchants" class="nav-link" active-class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span>商家管理</span>
         </router-link>
       </nav>
       <div class="sidebar-footer">
         <router-link to="/" class="back-link">
-          <span class="nav-icon">🏠</span>
-          <span class="nav-label">返回首页</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="m15 18-6-6 6-6"/></svg>
+          返回首页
         </router-link>
       </div>
     </aside>
@@ -43,12 +43,11 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: #f0f2f5;
 }
 
 .sidebar {
-  width: 220px;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  width: var(--sidebar-width);
+  background: #2C3E50;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -59,89 +58,81 @@
 }
 
 .sidebar-header {
-  padding: 28px 20px 20px;
+  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo-icon {
-  font-size: 28px;
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
 }
 
-.logo-text {
-  margin: 0;
-  font-size: 20px;
-  color: #fff;
+.sidebar-header h2 {
+  font-size: var(--font-size-md);
   font-weight: 700;
+  margin: 0;
+  color: #fff;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.nav-item {
+.nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.8);
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  color: rgba(255,255,255,0.65);
   text-decoration: none;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   font-weight: 500;
-  transition: all 0.25s ease;
+  transition: all 0.2s;
 }
 
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+.nav-link:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.9);
 }
 
-.nav-item.active {
-  background: rgba(255, 255, 255, 0.25);
+.nav-link.active {
+  background: rgba(255,255,255,0.15);
   color: #fff;
   font-weight: 600;
 }
 
-.nav-icon {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
-}
-
 .sidebar-footer {
-  padding: 16px 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .back-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
+  gap: 6px;
+  color: rgba(255,255,255,0.5);
   text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.25s ease;
+  font-size: var(--font-size-sm);
+  transition: color 0.2s;
 }
 
 .back-link:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: rgba(255,255,255,0.8);
 }
 
 .main-content {
   flex: 1;
-  margin-left: 220px;
-  padding: 28px 32px;
+  margin-left: var(--sidebar-width);
+  padding: 32px;
+  background: var(--color-bg-page);
   min-height: 100vh;
 }
 </style>

@@ -1,86 +1,90 @@
 <template>
   <div class="order-detail-view">
-    <div v-if="loading" class="loading">加载中...</div>
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+    </div>
 
     <template v-else>
-      <h1>订单详情</h1>
-
-      <!-- 订单状态 -->
-      <div class="order-status-section">
-        <div class="status-icon" :class="statusClass(order.status)">{{ statusIcon(order.status) }}</div>
-        <div class="status-info">
+      <!-- Status banner -->
+      <div class="status-banner" :class="'banner-' + order.status">
+        <div class="status-icon">{{ statusIcon(order.status) }}</div>
+        <div class="status-text">
           <h2>{{ statusText(order.status) }}</h2>
           <p>订单号：{{ order.id }}</p>
         </div>
       </div>
 
-      <!-- 配送信息 -->
-      <div class="delivery-section" v-if="order.deliveryAddress">
-        <h3>配送信息</h3>
-        <div class="delivery-info">
-          <div class="delivery-item">
-            <span class="label">收货地址：</span>
-            <span class="value">{{ order.deliveryAddress }}</span>
-          </div>
+      <!-- Delivery info -->
+      <div class="info-card card" v-if="order.deliveryAddress">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          配送信息
+        </h3>
+        <div class="info-row">
+          <span class="info-label">收货人</span>
+          <span class="info-value">{{ order.deliveryName || '-' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">联系电话</span>
+          <span class="info-value">{{ order.deliveryPhone || '-' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">收货地址</span>
+          <span class="info-value">{{ order.deliveryAddress }}</span>
         </div>
       </div>
 
-      <!-- 商家信息 -->
-      <div class="merchant-section">
-        <h3>{{ order.merchantName }}</h3>
+      <!-- Merchant -->
+      <div class="info-card card">
+        <h3 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          {{ order.merchantName }}
+        </h3>
       </div>
 
-      <!-- 订单商品 -->
-      <div class="items-section">
-        <h3>订单商品</h3>
-        <div class="items-list">
-          <div v-for="item in order.items" :key="item.id" class="item">
-            <div class="item-info">
-              <span class="item-name">{{ item.name || item.dishName }}</span>
-              <span class="item-quantity">x{{ item.quantity }}</span>
-            </div>
-            <span class="item-price">¥{{ (item.price * item.quantity).toFixed(2) }}</span>
-          </div>
+      <!-- Items -->
+      <div class="info-card card">
+        <h3 class="card-title">订单商品</h3>
+        <div v-for="item in order.items" :key="item.id" class="item-row">
+          <span class="item-name">{{ item.name || item.dishName }}</span>
+          <span class="item-qty">x{{ item.quantity }}</span>
+          <span class="item-price">¥{{ (item.price * item.quantity).toFixed(2) }}</span>
         </div>
       </div>
 
-      <!-- 订单金额 -->
-      <div class="price-section">
-        <h3>订单金额</h3>
-        <div class="price-info">
-          <div class="price-item">
-            <span class="label">商品金额：</span>
-            <span class="value">¥{{ order.subtotal || order.totalPrice }}</span>
-          </div>
-          <div class="price-item" v-if="order.deliveryFee">
-            <span class="label">配送费：</span>
-            <span class="value">¥{{ order.deliveryFee }}</span>
-          </div>
-          <div class="price-item total">
-            <span class="label">实付金额：</span>
-            <span class="value">¥{{ order.totalPrice }}</span>
-          </div>
+      <!-- Price breakdown -->
+      <div class="info-card card">
+        <h3 class="card-title">订单金额</h3>
+        <div class="info-row">
+          <span class="info-label">商品金额</span>
+          <span class="info-value">¥{{ order.subtotal || order.totalPrice }}</span>
+        </div>
+        <div class="info-row" v-if="order.deliveryFee">
+          <span class="info-label">配送费</span>
+          <span class="info-value">¥{{ order.deliveryFee }}</span>
+        </div>
+        <div class="info-row total-row">
+          <span class="info-label">实付金额</span>
+          <span class="info-value total-price">¥{{ order.totalPrice }}</span>
         </div>
       </div>
 
-      <!-- 订单信息 -->
-      <div class="order-info-section">
-        <h3>订单信息</h3>
-        <div class="order-info">
-          <div class="info-item">
-            <span class="label">订单编号：</span>
-            <span class="value">{{ order.id }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">下单时间：</span>
-            <span class="value">{{ order.createTime }}</span>
-          </div>
+      <!-- Order info -->
+      <div class="info-card card">
+        <h3 class="card-title">订单信息</h3>
+        <div class="info-row">
+          <span class="info-label">订单编号</span>
+          <span class="info-value">{{ order.id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">下单时间</span>
+          <span class="info-value">{{ order.createTime }}</span>
         </div>
       </div>
 
-      <!-- 底部操作按钮 -->
+      <!-- Actions -->
       <div class="action-bar">
-        <button class="action-btn secondary" @click="router.push('/user/orders')">返回列表</button>
+        <button class="btn-outline" @click="router.push('/user/orders')">返回列表</button>
       </div>
     </template>
   </div>
@@ -101,11 +105,6 @@ function statusText(status) {
   return map[status] || status || '未知'
 }
 
-function statusClass(status) {
-  const map = { PENDING: 'status-pending', DELIVERING: 'status-processing', COMPLETED: 'status-completed', CANCELLED: 'status-cancelled' }
-  return map[status] || ''
-}
-
 function statusIcon(status) {
   const map = { PENDING: '⏳', DELIVERING: '🚚', COMPLETED: '✓', CANCELLED: '✕' }
   return map[status] || '?'
@@ -117,7 +116,7 @@ onMounted(async () => {
     const res = await getOrderDetail(id)
     order.value = res.data || res || {}
   } catch {
-    order.value = null
+    order.value = {}
   } finally {
     loading.value = false
   }
@@ -125,33 +124,146 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.order-detail-view { padding-bottom: 100px; }
-.loading { text-align: center; padding: 60px; color: #999; }
-h1 { padding: 20px; margin: 0; font-size: 24px; font-weight: bold; background-color: #fff; border-bottom: 1px solid #f0f0f0; border-radius: 12px; }
-.order-status-section { display: flex; align-items: center; padding: 20px; margin-top: 10px; background-color: #fff; border-radius: 12px; }
-.status-icon { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 20px; }
-.status-completed { background-color: #d4edda; color: #155724; }
-.status-pending { background-color: #fff3cd; color: #856404; }
-.status-processing { background-color: #cce7ff; color: #004085; }
-.status-cancelled { background-color: #f8d7da; color: #721c24; }
-.status-info h2 { margin: 0 0 5px 0; font-size: 18px; }
-.status-info p { margin: 0; font-size: 14px; color: #666; }
-.delivery-section, .merchant-section, .items-section, .price-section, .order-info-section { margin-top: 10px; padding: 15px 20px; background-color: #fff; border-radius: 12px; }
-h3 { margin: 0 0 15px 0; font-size: 16px; font-weight: bold; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-.delivery-item, .price-item, .info-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-.label { color: #666; }
-.value { color: #333; }
-.items-list { margin-top: 10px; }
-.item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-.item-info { display: flex; gap: 10px; }
-.item-name { flex: 1; }
-.item-quantity { color: #999; }
-.item-price { color: #ff6b00; font-weight: 500; }
-.price-item.total { font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-.price-item.total .value { color: #ff6b00; font-size: 16px; }
-.action-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 10px; padding: 15px 20px; background-color: #fff; border-top: 1px solid #f0f0f0; box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); z-index: 50; }
-.action-btn { flex: 1; padding: 10px 0; border: 1px solid #e0e0e0; border-radius: 20px; background-color: #fff; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-.action-btn.primary { background-color: #ff6b00; color: #fff; border-color: #ff6b00; }
-.action-btn.secondary { color: #666; }
-.action-btn:hover { opacity: 0.8; }
+.order-detail-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-bottom: 80px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Status banner */
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  color: #fff;
+}
+
+.banner-PENDING { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.banner-DELIVERING { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.banner-COMPLETED { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.banner-CANCELLED { background: linear-gradient(135deg, #a8a8a8, #d0d0d0); }
+
+.status-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.status-text h2 {
+  margin: 0 0 4px 0;
+  font-size: var(--font-size-lg);
+}
+
+.status-text p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  opacity: 0.85;
+}
+
+/* Info cards */
+.info-card {
+  padding: var(--spacing-lg);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  margin: 0 0 var(--spacing-md) 0;
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.card-title svg {
+  color: var(--color-text-hint);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: var(--font-size-sm);
+}
+
+.info-label {
+  color: var(--color-text-hint);
+}
+
+.info-value {
+  color: var(--color-text-primary);
+}
+
+.total-row {
+  padding-top: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-divider);
+}
+
+.total-price {
+  color: var(--color-accent);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  font-size: var(--font-size-sm);
+}
+
+.item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-qty {
+  margin: 0 var(--spacing-md);
+  color: var(--color-text-hint);
+}
+
+.item-price {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* Actions */
+.action-bar {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+}
 </style>

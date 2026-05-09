@@ -2,9 +2,11 @@
   <div class="settings-view">
     <h1 class="page-title">店铺设置</h1>
 
-    <div v-if="loading" class="loading-state">加载中...</div>
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+    </div>
 
-    <div v-else class="card">
+    <div v-else class="card settings-card">
       <div class="status-row">
         <span class="status-label">店铺状态</span>
         <span :class="['status-badge', form.status === 1 ? 'status-open' : 'status-closed']">
@@ -102,67 +104,68 @@ async function handleSave() {
 
 <style scoped>
 .settings-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
   max-width: 640px;
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   font-weight: 700;
-  color: #333;
-  margin: 0 0 24px 0;
+  margin: 0;
 }
 
-.loading-state {
-  text-align: center;
-  padding: 60px 0;
-  color: #999;
-  font-size: 16px;
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
 }
 
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.settings-card {
+  padding: 24px;
 }
 
 .status-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .status-label {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .status-badge {
-  display: inline-block;
   padding: 4px 14px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
-.status-open {
-  background: #e6f9ee;
-  color: #1db954;
-}
-
-.status-closed {
-  background: #fde8e8;
-  color: #e74c3c;
-}
+.status-open { background: #f0fff0; color: var(--color-success); }
+.status-closed { background: #fff2f0; color: var(--color-error); }
 
 .settings-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-xl);
 }
 
 .form-group {
@@ -172,24 +175,23 @@ async function handleSave() {
 }
 
 .form-group label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-secondary);
 }
 
 .form-group input,
 .form-group textarea {
   padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
   transition: border-color 0.2s;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #ff6b00;
+  border-color: var(--color-primary);
 }
 
 .form-group textarea {
@@ -199,26 +201,5 @@ async function handleSave() {
 
 .form-actions {
   padding-top: 8px;
-}
-
-.btn-primary {
-  padding: 12px 32px;
-  background: #ff6b00;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-primary:hover {
-  background: #e66000;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 </style>
