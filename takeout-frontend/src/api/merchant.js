@@ -16,3 +16,6 @@ export const updateMyMerchant = (data) => request.put('/merchant/my', data)
 export const createDish = (data) => request.post('/dish', data)
 export const updateDish = (data) => request.put('/dish', data)
 export const deleteDish = (id) => request.delete(`/dish/${id}`)
+
+// Stock management
+export const updateDishStock = (id, stock) => request.put(`/dish/stock/${id}`, null, { params: { stock } })

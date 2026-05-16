@@ -255,8 +255,8 @@ onMounted(() => {
 
 /* User card */
 .user-card {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  border-radius: var(--radius-card);
   padding: var(--spacing-xl);
 }
 
@@ -280,10 +280,11 @@ onMounted(() => {
 }
 
 .user-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0 0 4px 0;
-  color: var(--color-text-primary);
+  color: #fff;
 }
 
 .user-role-badge {
@@ -302,7 +303,7 @@ onMounted(() => {
 .user-phone {
   font-size: var(--font-size-sm);
   margin: 4px 0 0 0;
-  color: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.7);
 }
 
 .edit-btn {
@@ -376,7 +377,8 @@ onMounted(() => {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
-  background: var(--color-bg-page);
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-divider);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,7 +409,7 @@ onMounted(() => {
 }
 
 .feature-item:hover {
-  background: var(--color-bg-page);
+  background: var(--color-bg-hover);
 }
 
 .fi-icon {
@@ -449,14 +451,14 @@ onMounted(() => {
 }
 
 .logout-btn:hover {
-  background: #fff2f0;
+  background: #F5EDEB;
 }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(45, 35, 25, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -474,6 +476,7 @@ onMounted(() => {
 
 .modal h3 {
   margin: 0 0 20px 0;
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
 }
@@ -525,11 +528,16 @@ onMounted(() => {
   flex: 1;
   padding: 10px;
   background: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   font-weight: 700;
   cursor: pointer;
+  transition: background var(--transition-smooth);
+}
+
+.btn-confirm:hover {
+  background: var(--color-primary-dark);
 }
 </style>

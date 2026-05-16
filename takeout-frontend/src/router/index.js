@@ -120,6 +120,46 @@ const router = createRouter({
       ]
     },
     {
+      path: '/user/notifications',
+      name: 'notifications',
+      component: () => import('../views/user/NotificationView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/user/orders/:id/track',
+      name: 'deliveryTracking',
+      component: () => import('../views/user/DeliveryTrackingView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/rider',
+      component: () => import('../views/rider/RiderLayout.vue'),
+      meta: { requiresAuth: true, roles: ['RIDER', 'MERCHANT', 'ADMIN'] },
+      children: [
+        {
+          path: '',
+          name: 'riderDashboard',
+          component: () => import('../views/rider/RiderDashboardView.vue')
+        },
+        {
+          path: 'tasks',
+          name: 'riderTasks',
+          component: () => import('../views/rider/RiderTasksView.vue')
+        },
+        {
+          path: 'tasks/:taskNo',
+          name: 'riderTaskDetail',
+          component: () => import('../views/rider/RiderTaskDetailView.vue')
+        }
+      ]
+    },
+    {
+      path: '/rider/register',
+      name: 'riderRegister',
+      component: () => import('../views/rider/RiderRegisterView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notFound',
       redirect: '/'

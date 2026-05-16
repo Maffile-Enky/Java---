@@ -170,12 +170,12 @@ onMounted(async () => {
   color: #fff;
 }
 
-.banner-PENDING { background: linear-gradient(135deg, #f093fb, #f5576c); }
-.banner-PAID { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-.banner-CONFIRMED { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-.banner-DELIVERING { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-.banner-COMPLETED { background: linear-gradient(135deg, #43e97b, #38f9d7); }
-.banner-CANCELLED { background: linear-gradient(135deg, #a8a8a8, #d0d0d0); }
+.banner-PENDING { background: linear-gradient(135deg, #E8A838, #C84B31); }
+.banner-PAID { background: linear-gradient(135deg, #C84B31, #A93D28); }
+.banner-CONFIRMED { background: linear-gradient(135deg, #C84B31, #A93D28); }
+.banner-DELIVERING { background: linear-gradient(135deg, #5B8DB8, #4A7A9E); }
+.banner-COMPLETED { background: linear-gradient(135deg, #4CAF50, #3D8B40); }
+.banner-CANCELLED { background: linear-gradient(135deg, #9E8E7E, #7A6E62); }
 
 .status-icon {
   width: 48px;
@@ -209,6 +209,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0 0 var(--spacing-md) 0;
@@ -243,7 +244,7 @@ onMounted(async () => {
 }
 
 .total-price {
-  color: var(--color-accent);
+  color: var(--color-primary);
   font-size: var(--font-size-md);
   font-weight: 700;
 }
@@ -268,7 +269,7 @@ onMounted(async () => {
 }
 
 .item-price {
-  color: var(--color-accent);
+  color: var(--color-primary);
   font-weight: 500;
 }
 
@@ -284,12 +285,17 @@ onMounted(async () => {
 
 .btn-primary {
   padding: 8px 24px;
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
+  transition: background var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
 }
 </style>

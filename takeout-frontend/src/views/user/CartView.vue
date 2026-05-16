@@ -339,7 +339,7 @@ async function submitOrder() {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(45, 35, 25, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,6 +356,7 @@ async function submitOrder() {
 }
 
 .modal-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0 0 20px 0;
@@ -424,7 +425,7 @@ async function submitOrder() {
   flex: 1;
   padding: 10px;
   background: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);

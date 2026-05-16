@@ -146,6 +146,7 @@ onMounted(() => { fetchApplications() })
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -175,7 +176,7 @@ onMounted(() => { fetchApplications() })
 
 .tab-btn.active {
   background: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
   border-color: var(--color-primary);
   font-weight: 600;
 }
@@ -224,9 +225,9 @@ onMounted(() => { fetchApplications() })
   font-weight: 600;
 }
 
-.badge-status-0 { background: #fffbe6; color: #d48806; }
-.badge-status-1 { background: #f0fff0; color: var(--color-success); }
-.badge-status-2 { background: #fff2f0; color: var(--color-error); }
+.badge-status-0 { background: #FFF8EC; color: #C88A2A; }
+.badge-status-1 { background: #F0F5EC; color: #4A8C5C; }
+.badge-status-2 { background: #F5EDEB; color: #C84B31; }
 
 .action-group {
   display: flex;

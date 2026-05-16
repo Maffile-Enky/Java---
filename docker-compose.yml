@@ -160,13 +160,63 @@ services:
       - NACOS_SERVER_ADDR=nacos:8848
       - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
       - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
     depends_on:
       - nacos
+      - mysql
       - rabbitmq
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  delivery-service:
+    build: ./takeout-platform/delivery-service
+    container_name: takeout-delivery
+    ports:
+      - "8087:8087"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-guest}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - nacos
+      - mysql
+      - rabbitmq
+      - redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  search-service:
+    build: ./takeout-platform/search-service
+    container_name: takeout-search
+    ports:
+      - "8088:8088"
+    environment:
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_USERNAME=${NACOS_USERNAME:-nacos}
+      - NACOS_PASSWORD=${NACOS_PASSWORD:-nacos}
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+    depends_on:
+      - nacos
+      - mysql
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

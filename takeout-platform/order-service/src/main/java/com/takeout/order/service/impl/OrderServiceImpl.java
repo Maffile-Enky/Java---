@@ -120,6 +120,34 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         updateById(order);
     }
 
+    @Override
+    public IPage<Order> listMerchantOrders(Long merchantId, String status, Page<Order> page) {
+        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Order::getMerchantId, merchantId);
+        if (status != null && !status.isEmpty()) {
+            wrapper.eq(Order::getStatus, status);
+        }
+        wrapper.orderByDesc(Order::getCreatedAt);
+        IPage<Order> result = page(page, wrapper);
+        for (Order o : result.getRecords()) {
+            LambdaQueryWrapper<OrderItem> itemWrapper = new LambdaQueryWrapper<>();
+            itemWrapper.eq(OrderItem::getOrderId, o.getId());
+            o.setItems(orderItemService.list(itemWrapper));
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public void updateOrderStatus(Long orderId, String status) {
+        Order order = getById(orderId);
+        if (order == null) {
+            throw new BusinessException(404, "订单不存在");
+        }
+        order.setStatus(status);
+        updateById(order);
+    }
+
     private String generateOrderNo() {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         int random = ThreadLocalRandom.current().nextInt(100000, 999999);

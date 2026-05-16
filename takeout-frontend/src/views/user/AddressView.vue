@@ -124,19 +124,19 @@ onMounted(loadAddresses)
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 0; margin-bottom: 10px;
 }
-.page-header h3 { margin: 0; font-size: 18px; }
+.page-header h3 { margin: 0; font-family: var(--font-heading); font-size: 18px; }
 .back-btn {
   background: none; border: none; font-size: 20px; cursor: pointer;
   padding: 4px 8px; border-radius: 6px;
 }
-.back-btn:hover { background: #f0f0f0; }
+.back-btn:hover { background: var(--color-bg-hover); }
 .add-btn {
-  background: var(--primary-color); color: #fff; border: none;
+  background: var(--color-primary); color: #fff; border: none;
   padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer;
 }
 .empty { text-align: center; padding: 60px 0; color: #999; }
 .empty button {
-  margin-top: 12px; padding: 10px 24px; background: var(--primary-color);
+  margin-top: 12px; padding: 10px 24px; background: var(--color-primary);
   color: #fff; border: none; border-radius: 8px; cursor: pointer;
 }
 .address-list { display: flex; flex-direction: column; gap: 10px; }
@@ -145,7 +145,7 @@ onMounted(loadAddresses)
 .addr-name { font-weight: 600; font-size: 16px; }
 .addr-phone { color: #666; }
 .default-tag {
-  background: var(--primary-color); color: #fff; font-size: 12px;
+  background: var(--color-primary); color: #fff; font-size: 12px;
   padding: 2px 8px; border-radius: 10px;
 }
 .addr-detail { color: #666; font-size: 14px; margin-bottom: 12px; }
@@ -154,26 +154,26 @@ onMounted(loadAddresses)
   padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px;
   background: #fff; font-size: 13px; cursor: pointer;
 }
-.addr-actions button:hover { border-color: var(--primary-color); color: var(--primary-color); }
-.addr-actions button.delete { color: #ff4757; border-color: #ff4757; }
-.addr-actions button.delete:hover { background: #fff0f0; }
+.addr-actions button:hover { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-bg-hover); }
+.addr-actions button.delete { color: var(--color-error); border-color: var(--color-error); }
+.addr-actions button.delete:hover { background: #F5EDEB; }
 
 /* Modal */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5); display: flex; align-items: center;
+  background: rgba(45, 35, 25, 0.5); display: flex; align-items: center;
   justify-content: center; z-index: 1000;
 }
 .modal {
   width: 90%; max-width: 450px; padding: 24px;
 }
-.modal h3 { margin: 0 0 20px 0; }
+.modal h3 { margin: 0 0 20px 0; font-family: var(--font-heading); }
 .modal input {
   width: 100%; padding: 10px 12px; border: 1px solid #ddd;
   border-radius: 8px; font-size: 14px; margin-bottom: 12px;
   box-sizing: border-box; outline: none;
 }
-.modal input:focus { border-color: var(--primary-color); }
+.modal input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(200, 75, 49, 0.1); }
 .row { display: flex; gap: 8px; }
 .row input { flex: 1; }
 .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
@@ -182,6 +182,6 @@ onMounted(loadAddresses)
   background: #fff; cursor: pointer;
 }
 .form-actions button.primary {
-  background: var(--primary-color); color: #fff; border-color: var(--primary-color);
+  background: var(--color-primary); color: #fff; border-color: var(--color-primary);
 }
 </style>

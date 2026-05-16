@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://47.99.34.251:9999',
   timeout: 5000
 })
 
@@ -68,7 +68,7 @@ request.interceptors.response.use(
 
       return new Promise((resolve, reject) => {
         const token = localStorage.getItem('token')
-        axios.post('/api/auth/refresh', null, {
+        axios.post('http://47.99.34.251:9999/auth/refresh', null, {
           headers: { 'Authorization': 'Bearer ' + token },
           timeout: 5000
         }).then(refreshRes => {

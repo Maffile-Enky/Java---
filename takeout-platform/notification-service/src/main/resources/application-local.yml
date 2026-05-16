@@ -1,0 +1,20 @@
+# ===== Local Development Config =====
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:18848
+        import-check:
+          enabled: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/takeout_notification?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+  data:
+    redis:
+      host: localhost
+      password: ""

@@ -12,6 +12,9 @@ spring:
         server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:nacos}
+        ip: ${NACOS_DISCOVERY_IP:}
+        ip: ${NACOS_DISCOVERY_IP:}
+        preferred-networks: ${NACOS_PREFERRED_NETWORKS:}
       config:
         server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
         username: ${NACOS_USERNAME:nacos}
@@ -31,8 +34,8 @@ spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:47.99.34.251}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
+    username: ${RABBITMQ_USERNAME:takeout}
+    password: ${RABBITMQ_PASSWORD:123456}
     publisher-confirm-type: correlated
     publisher-returns: true
     listener:
@@ -49,6 +52,7 @@ spring:
     redis:
       host: ${REDIS_HOST:47.99.34.251}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:123456}
 
 # MyBatis-Plus 配置
 mybatis-plus:

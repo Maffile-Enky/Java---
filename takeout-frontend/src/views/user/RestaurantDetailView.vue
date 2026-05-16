@@ -214,6 +214,7 @@ onMounted(async () => {
 }
 
 .shop-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0 0 8px 0;
@@ -278,9 +279,9 @@ onMounted(async () => {
 
 .cat-item.active {
   background: var(--color-bg-card);
-  color: var(--color-accent);
+  color: var(--color-primary);
   font-weight: 600;
-  border-left-color: var(--color-accent);
+  border-left-color: var(--color-primary);
 }
 
 /* Dish list */
@@ -381,7 +382,7 @@ onMounted(async () => {
 .btn-plus {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
 }
 
 .btn-plus:hover {
@@ -413,7 +414,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 60px;
-  background: #2C3E50;
+  background: linear-gradient(135deg, #2D2D2D 0%, #3D3028 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -462,7 +463,7 @@ onMounted(async () => {
 
 .checkout-btn {
   background: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   padding: 10px 28px;

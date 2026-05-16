@@ -111,6 +111,7 @@ async function handleSave() {
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -159,8 +160,8 @@ async function handleSave() {
   font-weight: 600;
 }
 
-.status-open { background: #f0fff0; color: var(--color-success); }
-.status-closed { background: #fff2f0; color: var(--color-error); }
+.status-open { background: #F0F5EC; color: #4A8C5C; }
+.status-closed { background: #F5EDEB; color: #C84B31; }
 
 .settings-form {
   display: flex;

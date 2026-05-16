@@ -144,6 +144,7 @@ onMounted(() => { fetchUsers() })
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -223,12 +224,12 @@ onMounted(() => { fetchUsers() })
   font-weight: 600;
 }
 
-.badge-role-user { background: #e6f7ff; color: #1890ff; }
-.badge-role-merchant { background: #fff7e6; color: #fa8c16; }
-.badge-role-rider { background: #f6ffed; color: #52c41a; }
-.badge-role-admin { background: #fff2f0; color: #ff4d4f; }
-.badge-active { background: #f0fff0; color: var(--color-success); }
-.badge-disabled { background: #fff2f0; color: var(--color-error); }
+.badge-role-user { background: #EDF3F8; color: #5B8DB8; }
+.badge-role-merchant { background: #FFF8EC; color: #C88A2A; }
+.badge-role-rider { background: #F0F5EC; color: #4A8C5C; }
+.badge-role-admin { background: #F5EDEB; color: #C84B31; }
+.badge-active { background: #F0F5EC; color: #4A8C5C; }
+.badge-disabled { background: #F5EDEB; color: #C84B31; }
 
 .action-group {
   display: flex;

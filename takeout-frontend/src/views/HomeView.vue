@@ -104,7 +104,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Layout from '@/components/Layout.vue'
-import { getStoreList } from '@/api/merchant'
+import { getHotMerchants } from '@/api/search'
 
 const router = useRouter()
 const searchKeyword = ref('')
@@ -155,8 +155,8 @@ function startBanner() {
 onMounted(async () => {
   startBanner()
   try {
-    const res = await getStoreList()
-    popularShops.value = (res.data || []).slice(0, 6)
+    const res = await getHotMerchants(6)
+    popularShops.value = res.data || []
   } catch {
     popularShops.value = []
   } finally {
@@ -178,22 +178,32 @@ onUnmounted(() => {
 
 /* Hero */
 .hero {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
+  background: linear-gradient(135deg, #C84B31 0%, #E8A838 50%, #C84B31 100%);
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+  border-radius: var(--radius-card);
+  padding: 48px 32px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .hero-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-2xl);
   font-weight: 800;
-  color: var(--color-text-primary);
+  color: #fff;
   margin: 0 0 4px 0;
 }
 
 .hero-subtitle {
   font-size: var(--font-size-base);
-  color: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.7);
   margin: 0 0 20px 0;
 }
 
@@ -229,7 +239,7 @@ onUnmounted(() => {
 }
 
 .search-btn {
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-xl);
@@ -237,16 +247,18 @@ onUnmounted(() => {
   font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-smooth);
 }
 
 .search-btn:hover {
-  background: var(--color-accent-dark);
+  background: var(--color-primary-dark);
 }
 
 /* Categories */
 .categories {
   padding: var(--spacing-xl);
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-divider);
 }
 
 .category-grid {
@@ -265,7 +277,7 @@ onUnmounted(() => {
 }
 
 .category-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
 }
 
 .category-icon {
@@ -333,7 +345,7 @@ onUnmounted(() => {
 }
 
 .dot.active {
-  background: var(--color-bg-card);
+  background: var(--color-primary);
   width: 20px;
   border-radius: 4px;
 }
@@ -352,6 +364,7 @@ onUnmounted(() => {
 }
 
 .section-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0;
@@ -382,11 +395,12 @@ onUnmounted(() => {
 .merchant-card {
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(237, 229, 219, 0.5);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 
 .merchant-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) rotate(-0.5deg);
   box-shadow: var(--shadow-md);
 }
 
@@ -407,6 +421,7 @@ onUnmounted(() => {
 }
 
 .merchant-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0 0 6px 0;

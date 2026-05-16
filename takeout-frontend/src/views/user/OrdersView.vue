@@ -149,9 +149,9 @@ onMounted(async () => {
 }
 
 .tab.active {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: 600;
-  border-bottom-color: var(--color-accent);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Loading */
@@ -191,6 +191,7 @@ onMounted(async () => {
 }
 
 .order-merchant {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
 }
@@ -202,12 +203,12 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-.status-PENDING { background: #fffbe6; color: #d48806; }
-.status-PAID { background: #e6f7ff; color: #096dd9; }
-.status-CONFIRMED { background: #e6f7ff; color: #096dd9; }
-.status-DELIVERING { background: #e6f7ff; color: #096dd9; }
-.status-COMPLETED { background: #f6ffed; color: #389e0d; }
-.status-CANCELLED { background: #fff2f0; color: #cf1322; }
+.status-PENDING { background: #FFF8EC; color: #C88A2A; }
+.status-PAID { background: #EDF3F8; color: #5B8DB8; }
+.status-CONFIRMED { background: #EDF3F8; color: #5B8DB8; }
+.status-DELIVERING { background: #EDF3F8; color: #4A7A9E; }
+.status-COMPLETED { background: #F0F5EC; color: #4A8C5C; }
+.status-CANCELLED { background: #F5EDEB; color: #B85050; }
 
 .order-items {
   display: flex;
@@ -266,7 +267,7 @@ onMounted(async () => {
 }
 
 .btn-sm.btn-primary {
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
 }

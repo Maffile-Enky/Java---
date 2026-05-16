@@ -311,8 +311,8 @@ onUnmounted(() => {
   margin-bottom: 16px;
 }
 
-.result-card.success .result-icon { color: #52c41a; }
-.result-card.failed .result-icon { color: #ff4d4f; }
+.result-card.success .result-icon { color: var(--color-success); }
+.result-card.failed .result-icon { color: var(--color-error); }
 
 .result-card h2 {
   font-size: 20px;
@@ -322,7 +322,7 @@ onUnmounted(() => {
 .result-amount {
   font-size: 28px;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-primary);
   margin: 0 0 8px;
 }
 
@@ -353,7 +353,7 @@ onUnmounted(() => {
 .summary-amount {
   font-size: 32px;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-primary);
   margin: 0 0 8px;
 }
 
@@ -429,14 +429,19 @@ onUnmounted(() => {
 .btn-pay {
   width: 100%;
   padding: 14px;
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   font-size: var(--font-size-md);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+.btn-pay:hover {
+  background: var(--color-primary-dark);
+  box-shadow: 0 4px 12px rgba(200, 75, 49, 0.25);
 }
 
 .btn-pay:hover { opacity: 0.9; }
@@ -476,26 +481,31 @@ onUnmounted(() => {
 .sandbox-actions {
   margin: var(--spacing-lg) 0;
   padding: var(--spacing-md);
-  background: #fffbe6;
+  background: var(--color-surface-warm);
   border-radius: var(--radius-md);
-  border: 1px solid #ffe58f;
+  border: 1px solid var(--color-divider);
 }
 
 .sandbox-hint {
   font-size: var(--font-size-xs);
-  color: #d48806;
+  color: var(--color-text-secondary);
   margin: 0 0 10px;
 }
 
 .btn-simulate {
   padding: 10px 24px;
-  background: #faad14;
+  background: var(--color-accent);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
+  transition: background var(--transition-smooth);
+}
+
+.btn-simulate:hover {
+  background: var(--color-accent-dark);
 }
 
 .btn-simulate:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -514,13 +524,18 @@ onUnmounted(() => {
 /* Buttons */
 .btn-primary {
   padding: 10px 28px;
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
+  transition: background var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
 }
 
 .btn-outline {

@@ -47,7 +47,7 @@
 
 .sidebar {
   width: var(--sidebar-width);
-  background: #2C3E50;
+  background: linear-gradient(180deg, #2D2D2D 0%, #3D3028 100%);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -71,6 +71,7 @@
 }
 
 .sidebar-header h2 {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 700;
   margin: 0;
@@ -104,8 +105,8 @@
 }
 
 .nav-link.active {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+  background: rgba(200, 75, 49, 0.25);
+  color: #E8A838;
   font-weight: 600;
 }
 

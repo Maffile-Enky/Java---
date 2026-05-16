@@ -31,7 +31,8 @@
 
 
 ### 服务器部署
-takeout-grafana        takeout-frontend      takeout-prometheus      takeout-gateway         takeout-notification 
+takeout-grafana        takeout-frontend      takeout-prometheus      takeout-gateway         takeout-notification
+takeout-user           takeout-merchant      takeout-order           takeout-payment         takeout-delivery       takeout-search
 
 ### 其余需本地部署或分布式部署
 
@@ -58,48 +59,70 @@ takeout-grafana        takeout-frontend      takeout-prometheus      takeout-gat
 - **Node.js 18+** (前端)
 - **Docker & Docker Compose** (容器化部署)
 
-### 本地运行
+### 配置Profile说明
 
-#### 1. 启动基础设施
+项目使用 Spring Boot Profile 区分环境：
 
-确保以下服务已启动：
-- Nacos (默认端口: 8848)
-- MySQL (默认端口: 3306)
-- Redis (默认端口: 6379)
+| Profile | 用途 | 连接地址 |
+|---------|------|----------|
+| _(默认)_ | 云端/Docker部署 | 环境变量 → 服务器IP |
+| `local` | 本地开发 | localhost |
 
-#### 2. 构建并启动后端服务
+- `application.yml` — 生产配置，通过环境变量连接服务器（Docker Compose自动注入）
+- `application-local.yml` — 本地开发配置，连接 localhost
+
+### 方式一：本地开发（推荐）
+
+本地运行需要先启动基础设施（Nacos、MySQL、Redis、RabbitMQ），然后用 `--spring.profiles.active=local` 启动服务。
 
 ```bash
-# 进入后端项目目录
-cd takeout-platform
+# 1. 构建所有服务
+./scripts/build.sh
 
-# 构建所有服务（跳过测试）
-mvn clean package -DskipTests -pl common/common-core,common/common-web,common/common-security,common/common-redis,common/common-mq,common/common-feign,gateway,user-service,merchant-service,order-service -am
+# 2. 一键启动所有服务（自动使用 local profile，连接 localhost）
+./scripts/run-local.sh
 
-# 启动各服务（按顺序）
-java -jar gateway/target/gateway-1.0.0-SNAPSHOT.jar
-java -jar user-service/target/user-service-1.0.0-SNAPSHOT.jar
-java -jar merchant-service/target/merchant-service-1.0.0-SNAPSHOT.jar
-java -jar order-service/target/order-service-1.0.0-SNAPSHOT.jar
+# 3. 查看日志
+tail -f logs/gateway.log
+
+# 4. 停止所有服务
+./scripts/stop-local.sh
 ```
 
-#### 3. 启动前端服务
+手动启动单个服务：
 
 ```bash
-# 进入前端项目目录
+java -jar takeout-platform/gateway/target/gateway-1.0.0-SNAPSHOT.jar --spring.profiles.active=local
+```
+
+#### 启动前端
+
+```bash
 cd takeout-frontend
-
-# 安装依赖
 npm install
-
-# 开发模式运行（热更新）
 npm run dev
-
-# 或构建生产版本
-npm run build
 ```
 
-#### 4. 访问地址
+### 方式二：Docker Compose 部署
+
+```bash
+# 1. 构建 JAR 包
+./scripts/build.sh
+
+# 2. 构建 Docker 镜像
+./scripts/docker-build.sh
+
+# 3. 启动所有服务（含基础设施）
+docker-compose up -d
+
+# 4. 查看状态
+docker-compose ps
+
+# 5. 查看日志
+docker-compose logs -f gateway
+```
+
+### 访问地址
 
 | 服务 | 地址 |
 |------|------|
@@ -197,7 +220,7 @@ docker-compose down
 ```bash
 # 1. 构建后端jar包
 cd takeout-platform
-mvn clean package -DskipTests -pl common/common-core,common/common-web,common/common-security,common/common-redis,common/common-mq,common/common-feign,gateway,user-service,merchant-service,order-service -am
+mvn clean package -DskipTests -pl common/common-core,common/common-web,common/common-security,common/common-redis,common/common-mq,common/common-feign,gateway,user-service,merchant-service,order-service,payment-service,notification-service,delivery-service,search-service -am
 
 # 2. 构建前端
 cd ../takeout-frontend
@@ -209,6 +232,10 @@ docker build -t takeout-gateway:v1.0 ./takeout-platform/gateway
 docker build -t takeout-user:v1.0 ./takeout-platform/user-service
 docker build -t takeout-merchant:v1.0 ./takeout-platform/merchant-service
 docker build -t takeout-order:v1.0 ./takeout-platform/order-service
+docker build -t takeout-payment:v1.0 ./takeout-platform/payment-service
+docker build -t takeout-notification:v1.0 ./takeout-platform/notification-service
+docker build -t takeout-delivery:v1.0 ./takeout-platform/delivery-service
+docker build -t takeout-search:v1.0 ./takeout-platform/search-service
 docker build -t takeout-frontend:v1.0 ./takeout-frontend
 
 # 4. 打latest标签
@@ -216,6 +243,10 @@ docker tag takeout-gateway:v1.0 takeout-gateway:latest
 docker tag takeout-user:v1.0 takeout-user:latest
 docker tag takeout-merchant:v1.0 takeout-merchant:latest
 docker tag takeout-order:v1.0 takeout-order:latest
+docker tag takeout-payment:v1.0 takeout-payment:latest
+docker tag takeout-notification:v1.0 takeout-notification:latest
+docker tag takeout-delivery:v1.0 takeout-delivery:latest
+docker tag takeout-search:v1.0 takeout-search:latest
 docker tag takeout-frontend:v1.0 takeout-frontend:latest
 ```
 
@@ -228,6 +259,10 @@ docker save -o takeout-images-v1.0.tar \
   takeout-user:v1.0 takeout-user:latest \
   takeout-merchant:v1.0 takeout-merchant:latest \
   takeout-order:v1.0 takeout-order:latest \
+  takeout-payment:v1.0 takeout-payment:latest \
+  takeout-notification:v1.0 takeout-notification:latest \
+  takeout-delivery:v1.0 takeout-delivery:latest \
+  takeout-search:v1.0 takeout-search:latest \
   takeout-frontend:v1.0 takeout-frontend:latest
 
 # 在目标服务器导入镜像
