@@ -20,7 +20,7 @@
           :key="f.value"
           class="chip"
           :class="{ active: sortBy === f.value }"
-          @click="sortBy = f.value"
+          @click="changeSort(f.value)"
         >{{ f.label }}</button>
       </div>
     </div>
@@ -38,9 +38,9 @@
     </div>
 
     <!-- Restaurant List -->
-    <div v-else-if="filteredShops.length > 0" class="restaurant-list">
+    <div v-else-if="shops.length > 0" class="restaurant-list">
       <div
-        v-for="shop in filteredShops"
+        v-for="shop in shops"
         :key="shop.id"
         class="restaurant-card card"
         @click="goToRestaurant(shop.id)"
@@ -65,29 +65,41 @@
           <p class="shop-addr">{{ shop.address }}</p>
         </div>
       </div>
+      <div v-if="hasMore" class="load-more">
+        <button class="btn-outline" @click="loadMore" :disabled="loadingMore">
+          {{ loadingMore ? '加载中...' : '加载更多' }}
+        </button>
+      </div>
     </div>
 
     <!-- Empty -->
     <div v-else class="empty-state">
       <img src="/images/empty-states/empty-restaurants.svg" alt="暂无商家" class="empty-img" />
       <p>暂无符合条件的商家</p>
-      <button class="btn-outline" @click="searchKeyword = ''; sortBy = 'default'">清除筛选</button>
+      <button class="btn-outline" @click="clearFilters">清除筛选</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getStoreList } from '@/api/merchant'
+import { searchMerchants } from '@/api/search'
 
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(true)
+const loadingMore = ref(false)
 const searchKeyword = ref(route.query.keyword || '')
+const category = ref(route.query.category || '')
 const sortBy = ref('default')
 const shops = ref([])
+const page = ref(1)
+const size = ref(10)
+const total = ref(0)
+
+const hasMore = ref(true)
 
 const sortFilters = [
   { label: '默认排序', value: 'default' },
@@ -95,41 +107,78 @@ const sortFilters = [
   { label: '配送最快', value: 'speed' },
 ]
 
-const filteredShops = computed(() => {
-  let result = [...shops.value]
-
-  if (searchKeyword.value.trim()) {
-    const kw = searchKeyword.value.toLowerCase()
-    result = result.filter(s =>
-      s.name.toLowerCase().includes(kw) ||
-      (s.address && s.address.toLowerCase().includes(kw))
-    )
+async function loadMerchants(resetPage = true) {
+  if (resetPage) {
+    page.value = 1
+    shops.value = []
+    hasMore.value = true
   }
+  loading.value = resetPage
+  loadingMore.value = !resetPage
 
-  if (sortBy.value === 'rating') {
-    result.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-  } else if (sortBy.value === 'speed') {
-    result.sort((a, b) => (a.deliveryTime || 30) - (b.deliveryTime || 30))
+  try {
+    const params = {
+      page: page.value,
+      size: size.value,
+      sortBy: sortBy.value
+    }
+    if (searchKeyword.value.trim()) params.keyword = searchKeyword.value.trim()
+    if (category.value) params.category = category.value
+
+    const res = await searchMerchants(params)
+    const data = res.data || {}
+    const records = data.records || data.list || data || []
+    const newShops = Array.isArray(records) ? records : []
+
+    if (resetPage) {
+      shops.value = newShops
+    } else {
+      shops.value = [...shops.value, ...newShops]
+    }
+
+    total.value = data.total || 0
+    hasMore.value = shops.value.length < total.value
+  } catch {
+    if (resetPage) shops.value = []
+  } finally {
+    loading.value = false
+    loadingMore.value = false
   }
+}
 
-  return result
-})
+function handleSearch() {
+  loadMerchants(true)
+}
 
-function handleSearch() {}
+function changeSort(value) {
+  sortBy.value = value
+  loadMerchants(true)
+}
+
+function loadMore() {
+  page.value++
+  loadMerchants(false)
+}
+
+function clearFilters() {
+  searchKeyword.value = ''
+  category.value = ''
+  sortBy.value = 'default'
+  loadMerchants(true)
+}
 
 function goToRestaurant(id) {
   router.push(`/user/restaurants/${id}`)
 }
 
-onMounted(async () => {
-  try {
-    const res = await getStoreList()
-    shops.value = res.data || []
-  } catch {
-    shops.value = []
-  } finally {
-    loading.value = false
-  }
+watch(() => route.query, (q) => {
+  searchKeyword.value = q.keyword || ''
+  category.value = q.category || ''
+  loadMerchants(true)
+})
+
+onMounted(() => {
+  loadMerchants(true)
 })
 </script>
 
@@ -178,7 +227,7 @@ onMounted(async () => {
 }
 
 .search-btn {
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);
@@ -186,6 +235,11 @@ onMounted(async () => {
   font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
+  transition: background var(--transition-smooth);
+}
+
+.search-btn:hover {
+  background: var(--color-primary-dark);
 }
 
 .filter-chips {
@@ -205,9 +259,9 @@ onMounted(async () => {
 }
 
 .chip.active {
-  background: var(--color-primary-light);
+  background: rgba(200, 75, 49, 0.1);
   border-color: var(--color-primary);
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -228,7 +282,7 @@ onMounted(async () => {
   width: 120px;
   height: 90px;
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #f5ede4 25%, #ebe3d9 50%, #f5ede4 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   flex-shrink: 0;
@@ -245,7 +299,7 @@ onMounted(async () => {
 .skeleton-line {
   height: 14px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #f5ede4 25%, #ebe3d9 50%, #f5ede4 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -270,11 +324,12 @@ onMounted(async () => {
   display: flex;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(237, 229, 219, 0.5);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 
 .restaurant-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
 }
 
@@ -303,6 +358,7 @@ onMounted(async () => {
 }
 
 .shop-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0;
@@ -322,6 +378,7 @@ onMounted(async () => {
 
 .shop-rating svg {
   color: var(--color-accent);
+  filter: drop-shadow(0 1px 2px rgba(232, 168, 56, 0.3));
 }
 
 .monthly {
@@ -346,6 +403,12 @@ onMounted(async () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Load more */
+.load-more {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
 }
 
 /* Empty */

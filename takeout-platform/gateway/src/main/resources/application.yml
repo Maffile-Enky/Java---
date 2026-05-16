@@ -9,11 +9,11 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:nacos}
       config:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:nacos}
         file-extension: yaml
@@ -37,6 +37,18 @@ spring:
           uri: lb://delivery-service
           predicates:
             - Path=/delivery/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payment/**
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/search/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notification/**
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       globalcors:

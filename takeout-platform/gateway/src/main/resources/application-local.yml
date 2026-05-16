@@ -1,0 +1,10 @@
+# ===== Local Development Config =====
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:18848
+        import-check:
+          enabled: false

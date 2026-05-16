@@ -44,4 +44,20 @@ public class OrderController {
         Long userId = SecurityUtil.getUserId(request);
         return Result.success(orderService.cancelOrder(userId, id));
     }
+
+    @GetMapping("/merchant/list")
+    public Result<IPage<Order>> merchantList(HttpServletRequest request,
+                                              @RequestParam(required = false) String status,
+                                              @RequestParam(defaultValue = "1") Integer page,
+                                              @RequestParam(defaultValue = "10") Integer size) {
+        Long userId = SecurityUtil.getUserId(request);
+        IPage<Order> result = orderService.listMerchantOrders(userId, status, new Page<>(page, size));
+        return Result.success(result);
+    }
+
+    @PutMapping("/{id}/status")
+    public Result<Boolean> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        orderService.updateOrderStatus(id, status);
+        return Result.success(true);
+    }
 }

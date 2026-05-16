@@ -51,11 +51,12 @@ const cartStore = useCartStore()
   left: 0;
   right: 0;
   height: var(--nav-height);
-  background: var(--color-bg-card);
+  background: rgba(255, 253, 249, 0.95);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  box-shadow: 0 -1px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 -1px 8px rgba(80, 60, 30, 0.06);
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -74,11 +75,23 @@ const cartStore = useCartStore()
 }
 
 .nav-item.active {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .nav-item.active .nav-icon {
-  stroke: var(--color-accent);
+  stroke: var(--color-primary);
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
 }
 
 .icon-wrapper {
@@ -108,6 +121,12 @@ const cartStore = useCartStore()
   min-width: 16px;
   text-align: center;
   line-height: 1.4;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 @media (min-width: 768px) {

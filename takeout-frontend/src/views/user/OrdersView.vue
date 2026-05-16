@@ -53,6 +53,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getOrderList, cancelOrder } from '@/api/order'
+import { createPayment } from '@/api/payment'
 
 const router = useRouter()
 const route = useRoute()
@@ -63,6 +64,7 @@ const orders = ref([])
 const filters = [
   { label: '全部', value: 'all' },
   { label: '待支付', value: 'PENDING' },
+  { label: '已支付', value: 'PAID' },
   { label: '待配送', value: 'DELIVERING' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' }
@@ -74,7 +76,7 @@ const filteredOrders = computed(() => {
 })
 
 function statusText(status) {
-  const map = { PENDING: '待支付', DELIVERING: '待配送', COMPLETED: '已完成', CANCELLED: '已取消' }
+  const map = { PENDING: '待支付', PAID: '已支付', CONFIRMED: '已确认', DELIVERING: '待配送', COMPLETED: '已完成', CANCELLED: '已取消' }
   return map[status] || status
 }
 
@@ -83,7 +85,16 @@ function goDetail(id) {
 }
 
 async function handlePay(id) {
-  alert('支付功能暂未开放')
+  const order = orders.value.find(o => o.id === id)
+  if (!order) return
+  router.push({
+    path: '/user/payment',
+    query: {
+      orderNo: order.orderNo,
+      amount: order.totalPrice,
+      subject: order.merchantName + ' - 外卖订单'
+    }
+  })
 }
 
 async function handleCancel(id) {
@@ -138,9 +149,9 @@ onMounted(async () => {
 }
 
 .tab.active {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: 600;
-  border-bottom-color: var(--color-accent);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Loading */
@@ -180,6 +191,7 @@ onMounted(async () => {
 }
 
 .order-merchant {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
 }
@@ -191,10 +203,12 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-.status-PENDING { background: #fffbe6; color: #d48806; }
-.status-DELIVERING { background: #e6f7ff; color: #096dd9; }
-.status-COMPLETED { background: #f6ffed; color: #389e0d; }
-.status-CANCELLED { background: #fff2f0; color: #cf1322; }
+.status-PENDING { background: #FFF8EC; color: #C88A2A; }
+.status-PAID { background: #EDF3F8; color: #5B8DB8; }
+.status-CONFIRMED { background: #EDF3F8; color: #5B8DB8; }
+.status-DELIVERING { background: #EDF3F8; color: #4A7A9E; }
+.status-COMPLETED { background: #F0F5EC; color: #4A8C5C; }
+.status-CANCELLED { background: #F5EDEB; color: #B85050; }
 
 .order-items {
   display: flex;
@@ -253,7 +267,7 @@ onMounted(async () => {
 }
 
 .btn-sm.btn-primary {
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: #fff;
   border: none;
 }

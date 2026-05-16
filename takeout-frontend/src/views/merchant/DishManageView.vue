@@ -35,7 +35,12 @@
           <p class="dish-desc">{{ dish.description || '暂无描述' }}</p>
           <div class="dish-meta">
             <span class="dish-price">¥{{ dish.price }}</span>
-            <span class="dish-stock">库存: {{ dish.stock }}</span>
+            <span class="dish-stock">
+              库存:
+              <button class="stock-btn" @click.stop="adjustStock(dish, -1)">-</button>
+              <span class="stock-num">{{ dish.stock }}</span>
+              <button class="stock-btn" @click.stop="adjustStock(dish, 1)">+</button>
+            </span>
           </div>
           <div class="dish-actions">
             <button class="btn-sm btn-edit" @click="openEditModal(dish)">编辑</button>
@@ -91,7 +96,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getMyMerchant, getDishList, createDish, updateDish, deleteDish } from '@/api/merchant'
+import { getMyMerchant, getDishList, createDish, updateDish, deleteDish, updateDishStock } from '@/api/merchant'
 
 const merchant = ref(null)
 const dishes = ref([])
@@ -174,6 +179,17 @@ async function handleSubmit() {
   }
 }
 
+async function adjustStock(dish, delta) {
+  const newStock = dish.stock + delta
+  if (newStock < 0) return
+  try {
+    await updateDishStock(dish.id, newStock)
+    dish.stock = newStock
+  } catch (e) {
+    alert('更新库存失败: ' + (e.message || '请重试'))
+  }
+}
+
 async function handleDelete(dish) {
   if (!confirm(`确定要删除菜品"${dish.name}"吗?`)) return
   try {
@@ -200,6 +216,7 @@ async function handleDelete(dish) {
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -280,6 +297,7 @@ async function handleDelete(dish) {
 }
 
 .dish-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0;
@@ -292,8 +310,8 @@ async function handleDelete(dish) {
   font-weight: 500;
 }
 
-.tag-on { background: #f0fff0; color: var(--color-success); }
-.tag-off { background: #fff2f0; color: var(--color-error); }
+.tag-on { background: #F0F5EC; color: #4A8C5C; }
+.tag-off { background: #F5EDEB; color: #C84B31; }
 
 .dish-desc {
   font-size: var(--font-size-sm);
@@ -319,6 +337,36 @@ async function handleDelete(dish) {
 .dish-stock {
   font-size: var(--font-size-sm);
   color: var(--color-text-hint);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stock-btn {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-card);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.stock-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.stock-num {
+  min-width: 24px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
 .dish-actions {
@@ -341,7 +389,7 @@ async function handleDelete(dish) {
   border: 1px solid var(--color-accent);
 }
 
-.btn-edit:hover { background: #fff5ee; }
+.btn-edit:hover { background: rgba(200, 75, 49, 0.08); }
 
 .btn-delete {
   background: var(--color-bg-card);
@@ -349,13 +397,13 @@ async function handleDelete(dish) {
   border: 1px solid var(--color-error);
 }
 
-.btn-delete:hover { background: #fff2f0; }
+.btn-delete:hover { background: #F5EDEB; }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(45, 35, 25, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -374,6 +422,7 @@ async function handleDelete(dish) {
 }
 
 .modal-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0 0 20px 0;
@@ -438,16 +487,16 @@ async function handleDelete(dish) {
 }
 
 .toggle-btn.active-on {
-  border-color: var(--color-success);
-  background: #f0fff0;
-  color: var(--color-success);
+  border-color: #4A8C5C;
+  background: #F0F5EC;
+  color: #4A8C5C;
   font-weight: 600;
 }
 
 .toggle-btn.active-off {
-  border-color: var(--color-error);
-  background: #fff2f0;
-  color: var(--color-error);
+  border-color: #C84B31;
+  background: #F5EDEB;
+  color: #C84B31;
   font-weight: 600;
 }
 

@@ -22,8 +22,14 @@
       </div>
 
       <div class="header-right">
+        <router-link v-if="authStore.isLoggedIn" to="/user/notifications" class="header-link notification-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </router-link>
         <router-link v-if="authStore.userRole === 'MERCHANT' || authStore.userRole === 'ADMIN'" to="/merchant" class="header-link">
           商家中心
+        </router-link>
+        <router-link v-if="authStore.userRole === 'RIDER' || authStore.userRole === 'MERCHANT' || authStore.userRole === 'ADMIN'" to="/rider" class="header-link">
+          骑手中心
         </router-link>
         <router-link v-if="authStore.userRole === 'ADMIN'" to="/admin" class="header-link">
           管理后台
@@ -36,6 +42,7 @@
             <div v-if="showUserMenu" class="dropdown-menu">
               <router-link to="/user/profile" class="dropdown-item" @click="showUserMenu = false">个人中心</router-link>
               <router-link to="/user/orders" class="dropdown-item" @click="showUserMenu = false">我的订单</router-link>
+              <router-link v-if="authStore.userRole === 'RIDER' || authStore.userRole === 'MERCHANT' || authStore.userRole === 'ADMIN'" to="/rider" class="dropdown-item" @click="showUserMenu = false">骑手中心</router-link>
               <div class="dropdown-divider"></div>
               <div class="dropdown-item danger" @click="handleLogout">退出登录</div>
             </div>
@@ -85,12 +92,14 @@ function handleLogout() {
 
 <style scoped>
 .app-header {
-  background: var(--color-primary);
+  background: rgba(255, 253, 249, 0.92);
+  backdrop-filter: blur(12px);
   height: var(--header-height);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--color-divider);
 }
 
 .header-inner {
@@ -126,15 +135,17 @@ function handleLogout() {
 .search-bar {
   display: flex;
   align-items: center;
-  background: rgba(0,0,0,0.06);
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   padding: 0 var(--spacing-lg);
   height: 38px;
-  transition: background 0.2s;
+  transition: all var(--transition-smooth);
 }
 
 .search-bar:focus-within {
-  background: rgba(0,0,0,0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(200, 75, 49, 0.1);
 }
 
 .search-icon {
@@ -171,11 +182,11 @@ function handleLogout() {
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--color-text-primary);
-  transition: background 0.2s;
+  transition: background var(--transition-smooth);
 }
 
 .header-link:hover {
-  background: rgba(0,0,0,0.06);
+  background: var(--color-bg-hover);
 }
 
 .user-dropdown {
@@ -190,7 +201,7 @@ function handleLogout() {
 }
 
 .user-dropdown:hover {
-  background: rgba(0,0,0,0.06);
+  background: var(--color-bg-hover);
 }
 
 .user-avatar {
@@ -198,7 +209,7 @@ function handleLogout() {
   height: 30px;
   border-radius: var(--radius-full);
   object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.6);
+  border: 2px solid var(--color-primary-light);
 }
 
 .user-name {
@@ -224,6 +235,7 @@ function handleLogout() {
   background: var(--color-bg-card);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-divider);
   min-width: 140px;
   padding: 6px 0;
   z-index: 200;
@@ -266,12 +278,12 @@ function handleLogout() {
 }
 
 .btn-login:hover {
-  background: rgba(0,0,0,0.06);
+  background: var(--color-bg-hover);
 }
 
 .btn-register {
-  background: var(--color-text-primary);
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
 }
 
 .btn-register:hover {

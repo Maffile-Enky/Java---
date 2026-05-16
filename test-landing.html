@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>味觉星球 — 恩齐都印象</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /*
+   * Enkidu — 春风配色
+   * 鼠尾草绿渐变 × 暖金 × 薄紫微缀
+   * 清透 · 明亮 · 如沐春风
+   */
+  --bg-deep: #0e1612;
+  --bg-lift: #111e18;
+  --glass: rgba(180, 220, 195, 0.06);
+  --glass-border: rgba(180, 220, 195, 0.12);
+  --glass-hover: rgba(180, 220, 195, 0.10);
+  --glass-solid: rgba(20, 35, 28, 0.65);
+
+  /* 鼠尾草绿 — 恩齐都之发，带微暖底色 */
+  --accent: #6ee7a0;
+  --accent-deep: #38c97a;
+  --accent-glow: rgba(110, 231, 160, 0.22);
+
+  /* 暖金 — 吉尔伽美什之瞳 */
+  --accent-secondary: #f0c55a;
+  --accent-secondary-glow: rgba(240, 197, 90, 0.18);
+
+  /* 薄紫 — 仅微缀，不主导 */
+  --accent-whisper: #c084fc;
+  --accent-whisper-glow: rgba(192, 132, 252, 0.12);
+
+  --text-primary: #edf5f0;
+  --text-secondary: rgba(237, 245, 240, 0.58);
+  --text-muted: rgba(237, 245, 240, 0.30);
+
+  /* 绿色微渐变 — 从冷调鼠尾草到暖调薄荷 */
+  --gradient-green: linear-gradient(135deg, #4cc98c, #6ee7a0);
+  --gradient-hero: linear-gradient(135deg, #6ee7a0, #a7f3d0, #f0c55a);
+  --gradient-cool: linear-gradient(135deg, #0f1f16, #162a1f, #1a2e22);
+
+  --serif: 'Noto Serif SC', serif;
+  --sans: 'Noto Sans SC', sans-serif;
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === AMBIENT BACKGROUND — 柔和光晕 === */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.22;
+  animation: orbFloat 24s ease-in-out infinite;
+}
+
+.ambient-orb:nth-child(1) {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, #6ee7a0, transparent 70%);
+  top: -15%; left: -8%;
+  animation-delay: 0s;
+}
+
+.ambient-orb:nth-child(2) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #a7f3d0, transparent 70%);
+  top: 35%; right: -12%;
+  animation-delay: -8s;
+}
+
+.ambient-orb:nth-child(3) {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, #f0c55a, transparent 70%);
+  bottom: -10%; left: 25%;
+  animation-delay: -16s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 30px) scale(0.97); }
+}
+
+/* 顶部装饰线 — 绿金交替，春意 */
+.deco-line {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
+  z-index: 101;
+  opacity: 0.6;
+}
+
+/* Grain — 极淡纹理 */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* === LAYOUT === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+
+/* === NAVBAR === */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 20px 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navbar.scrolled {
+  padding: 12px 0;
+  background: rgba(14, 22, 18, 0.82);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 900;
+  background: var(--gradient-green);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.logo span {
+  font-weight: 400;
+  font-size: 0.82rem;
+  -webkit-text-fill-color: var(--text-secondary);
+  margin-left: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 1.5px;
+  background: var(--accent);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-links a:hover { color: var(--text-primary); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+  background: var(--gradient-green) !important;
+  color: #0e1612 !important;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+  box-shadow: 0 0 0 0 var(--accent-glow);
+}
+
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px var(--accent-glow) !important;
+}
+
+.nav-cta::after { display: none !important; }
+
+/* === HERO === */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 80px;
+  position: relative;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.hero-text { animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-bottom: 28px;
+  backdrop-filter: blur(10px);
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
+}
+
+.hero h1 .gradient-text {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+  max-width: 460px;
+  font-weight: 300;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 36px;
+  background: var(--gradient-green);
+  color: #0e1612;
+  border: none;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 0 0 var(--accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.btn-primary:hover::before { transform: translateX(100%); }
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px var(--accent-glow);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 28px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  font-size: 0.95rem;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--glass);
+}
+
+.hero-visual {
+  position: relative;
+  animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.hero-card {
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(110, 231, 160, 0.07), rgba(167, 243, 208, 0.03));
+  border: 1px solid rgba(110, 231, 160, 0.12);
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.3), 0 0 80px rgba(110, 231, 160, 0.06);
+}
+
+.hero-card-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  background: linear-gradient(to top, rgba(14,22,18,0.88), transparent 55%);
+}
+
+.hero-card-emoji {
+  font-size: 5rem;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.25));
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(-50%, -60%); }
+  50% { transform: translate(-50%, -68%); }
+}
+
+.hero-card-title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.hero-card-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.hero-card-meta .stars { color: var(--accent-secondary); }
+
+/* Hero 标签 */
+.hero-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.hero-tag {
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.hero-tag--green  { background: var(--accent); color: #0e1612; }
+.hero-tag--gold   { background: var(--accent-secondary); color: #0e1612; }
+.hero-tag--purple { background: var(--accent-whisper); color: #0e1612; }
+
+/* 浮动数据卡 */
+.float-stat {
+  position: absolute;
+  padding: 14px 20px;
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.float-stat:nth-child(1) { top: 10%; right: -20px; animation-delay: -2s; }
+.float-stat:nth-child(2) { bottom: 15%; left: -30px; animation-delay: -4s; }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--serif);
+}
+
+.float-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Hero card 金色徽章 */
+.hero-card-badge {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 8px 20px var(--accent-secondary-glow);
+  z-index: 1;
+}
+
+/* === SECTION SHARED === */
+section { padding: 120px 0; }
+
+.section-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 520px;
+  line-height: 1.75;
+  font-weight: 300;
+  margin-bottom: 60px;
+}
+
+/* === DISHES GRID === */
+.dishes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.dish-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.dish-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dish-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(110, 231, 160, 0.25);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2), 0 0 40px var(--accent-glow);
+}
+
+.dish-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--gradient-cool);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.dish-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--bg-deep), transparent 40%);
+}
+
+.dish-tag {
+  position: absolute;
+  top: 16px; left: 16px;
+  padding: 4px 12px;
+  background: var(--accent);
+  color: #0e1612;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 100px;
+  z-index: 1;
+  letter-spacing: 0.05em;
+}
+
+.dish-body { padding: 24px; }
+
+.dish-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.dish-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.dish-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dish-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--serif);
+}
+
+.dish-price small {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.dish-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--accent-secondary);
+}
+
+.dish-rating span { color: var(--text-secondary); font-size: 0.8rem; }
+
+.dish-order-btn {
+  position: absolute;
+  bottom: 24px; right: 24px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--gradient-green);
+  border: none;
+  color: #0e1612;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.dish-card:hover .dish-order-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dish-order-btn:hover {
+  background: var(--accent-secondary);
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 20px var(--accent-secondary-glow);
+}
+
+/* 装饰分割线 */
+.section-divider {
+  height: 1px;
+  max-width: 600px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-secondary), var(--accent), transparent);
+  opacity: 0.3;
+}
+
+/* === STATS BAR === */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 60px 0;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.stat-item:hover {
+  border-color: rgba(110, 231, 160, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+
+.stat-num {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: var(--gradient-green);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+/* === REVIEWS === */
+.reviews-section { overflow: hidden; }
+
+.reviews-track {
+  display: flex;
+  gap: 24px;
+  animation: scroll 30s linear infinite;
+  width: max-content;
+}
+
+.reviews-track:hover { animation-play-state: paused; }
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.review-card {
+  flex-shrink: 0;
+  width: 380px;
+  padding: 32px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.review-card:hover {
+  border-color: rgba(110, 231, 160, 0.18);
+  background: var(--glass-hover);
+}
+
+.review-stars {
+  color: var(--accent-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.review-text {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.review-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.review-name { font-weight: 500; font-size: 0.9rem; }
+.review-date { font-size: 0.75rem; color: var(--text-muted); }
+
+/* === CTA SECTION === */
+.cta-section { text-align: center; padding: 120px 0; }
+
+.cta-box {
+  padding: 80px 60px;
+  background: linear-gradient(145deg, rgba(110, 231, 160, 0.05), rgba(240, 197, 90, 0.03));
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, var(--accent-glow), var(--accent-secondary-glow), transparent 35%);
+  animation: rotateSlow 12s linear infinite;
+  opacity: 0.35;
+}
+
+@keyframes rotateSlow { to { transform: rotate(360deg); } }
+
+.cta-box > * { position: relative; z-index: 1; }
+
+.cta-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.cta-desc {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-inline: auto;
+  line-height: 1.75;
+  font-weight: 300;
+}
+
+.cta-input-group {
+  display: flex;
+  gap: 12px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.cta-input {
+  flex: 1;
+  padding: 16px 24px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 100px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.cta-input::placeholder { color: var(--text-muted); }
+.cta-input:focus { border-color: var(--accent); }
+
+/* === FOOTER === */
+footer {
+  padding: 60px 0 40px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+
+.footer-brand .logo {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.footer-brand p {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+.footer-col h4 {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.footer-col a {
+  display: block;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 6px 0;
+  transition: color 0.3s;
+}
+
+.footer-col a:hover { color: var(--text-primary); }
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 30px;
+  border-top: 1px solid var(--glass-border);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-socials {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-socials a {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.footer-socials a:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0e1612;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .hero-content { grid-template-columns: 1fr; gap: 48px; }
+  .hero-visual { max-width: 500px; }
+  .dishes-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .hero h1 { font-size: 2.2rem; }
+  .dishes-grid { grid-template-columns: 1fr; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .cta-input-group { flex-direction: column; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .review-card { width: 300px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient">
+  <div class="ambient-orb"></div>
+  <div class="ambient-orb"></div>
+  <div class="ambient-orb"></div>
+</div>
+<div class="grain"></div>
+<div class="deco-line"></div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="logo">味觉星球 <span>FLAVOR PLANET</span></div>
+    <ul class="nav-links">
+      <li><a href="#dishes">精选菜品</a></li>
+      <li><a href="#about">关于我们</a></li>
+      <li><a href="#reviews">用户评价</a></li>
+      <li><a href="#contact" class="nav-cta">立即点餐</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">✦ 神造之味 · 首单立减 20 元</div>
+        <h1>
+          每一口，<br>
+          都是一场<br>
+          <span class="gradient-text">味觉旅行</span>
+        </h1>
+        <p class="hero-sub">
+          甄选城市百大名厨，30 分钟极速送达。<br>
+          从清晨的第一杯咖啡到深夜的慰藉小食，<br>
+          我们让美食找到你。
+        </p>
+        <div class="hero-tags">
+          <span class="hero-tag hero-tag--green">鲜食直送</span>
+          <span class="hero-tag hero-tag--gold">金选臻品</span>
+          <span class="hero-tag hero-tag--purple">限定特供</span>
+        </div>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="document.getElementById('dishes').scrollIntoView({behavior:'smooth'})">
+            探索美食 →
+          </button>
+          <button class="btn-ghost">
+            ▷ 观看视频
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="float-stat">
+          <div class="float-stat-num">98.6%</div>
+          <div class="float-stat-label">好评率</div>
+        </div>
+        <div class="float-stat">
+          <div class="float-stat-num">28 min</div>
+          <div class="float-stat-label">平均送达</div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-emoji">🍜</div>
+          <div class="hero-card-badge">✦</div>
+          <div class="hero-card-inner">
+            <div class="hero-card-title">招牌红烧牛肉面</div>
+            <div class="hero-card-meta">
+              <span class="stars">★★★★★</span>
+              <span>月售 3,280 份</span>
+              <span>30 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="container"><div class="section-divider"></div></div>
+
+<!-- Stats -->
+<section id="about">
+  <div class="container">
+    <div class="stats-bar reveal">
+      <div class="stat-item">
+        <div class="stat-num" data-target="50000">0</div>
+        <div class="stat-label">日均订单</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="1200">0</div>
+        <div class="stat-label">合作商户</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="98">0</div>
+        <div class="stat-label">准时率 %</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="30">0</div>
+        <div class="stat-label">覆盖城市</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dishes -->
+<section id="dishes">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">✦ 精选推荐</div>
+      <div class="section-title">今日人气菜品</div>
+      <div class="section-desc">由资深美食编辑精心挑选，每一道都经过千人口碑验证。新鲜食材，匠心烹制。</div>
+    </div>
+    <div class="dishes-grid">
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #12261a, #1a3d24, #245a34);">
+          <span class="dish-tag">人气 TOP1</span>
+          🍛
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">黯然销魂饭</div>
+          <div class="dish-desc">秘制叉烧搭配溏心蛋，淋上特调酱汁，每一口都是回忆</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥38 <small>/份</small></div>
+            <div class="dish-rating">★ 4.9 <span>(2,847)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #1a2018, #2a3828, #3a5038);">
+          <span class="dish-tag" style="background:var(--accent-secondary);color:#0e1612;">厨师推荐</span>
+          🥘
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">酸菜鱼煲</div>
+          <div class="dish-desc">鲜嫩鲈鱼片配正宗老坛酸菜，汤鲜味美，开胃下饭</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥52 <small>/份</small></div>
+            <div class="dish-rating">★ 4.8 <span>(1,923)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #141e18, #1e3024, #284230);">
+          <span class="dish-tag" style="background:var(--accent-whisper);color:#0e1612;">新品上市</span>
+          🍜
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">兰州手拉牛肉面</div>
+          <div class="dish-desc">一清二白三红四绿五黄，传承百年工艺，手工拉制</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥28 <small>/份</small></div>
+            <div class="dish-rating">★ 4.9 <span>(3,156)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #1e1a10, #302a18, #423a20);">
+          <span class="dish-tag" style="background:linear-gradient(135deg, var(--accent-whisper), var(--accent));">限时特惠</span>
+          🍕
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">黑松露芝士披萨</div>
+          <div class="dish-desc">意大利进口芝士搭配黑松露，薄底酥脆，浓郁醇香</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥68 <small>/份</small></div>
+            <div class="dish-rating">★ 4.7 <span>(987)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #141820, #1e2830, #283840);">
+          <span class="dish-tag" style="background:var(--accent-secondary);color:#0e1612;">深夜食堂</span>
+          🍲
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">日式寿喜锅</div>
+          <div class="dish-desc">澳洲肥牛搭配新鲜蔬菜，甜咸汤底，暖胃暖心</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥78 <small>/份</small></div>
+            <div class="dish-rating">★ 4.8 <span>(1,456)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+      <div class="dish-card">
+        <div class="dish-img" style="background: linear-gradient(145deg, #101e14, #18301e, #204228);">
+          <span class="dish-tag">健康轻食</span>
+          🥗
+        </div>
+        <div class="dish-body">
+          <div class="dish-name">牛油果三文鱼沙拉</div>
+          <div class="dish-desc">挪威三文鱼配新鲜牛油果，低卡高蛋白，健身首选</div>
+          <div class="dish-footer">
+            <div class="dish-price">¥45 <small>/份</small></div>
+            <div class="dish-rating">★ 4.6 <span>(2,103)</span></div>
+          </div>
+        </div>
+        <button class="dish-order-btn">+</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reviews -->
+<section id="reviews" class="reviews-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">✦ 真实评价</div>
+      <div class="section-title">听听他们怎么说</div>
+      <div class="section-desc">来自真实用户的用餐反馈，每一条评价都经过平台认证。</div>
+    </div>
+  </div>
+  <div class="reviews-track" id="reviewsTrack">
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"深夜加班点了一份酸菜鱼，30分钟就送到了，汤还是热腾腾的！鱼片嫩滑，酸菜够味，吃完感觉又能再战三小时。"</div>
+      <div class="review-author">
+        <div class="review-avatar">👩</div>
+        <div><div class="review-name">林小雨</div><div class="review-date">3 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"作为健身党，牛油果三文鱼沙拉简直是我的救星。食材新鲜看得见，三文鱼切得很厚实，性价比超高。"</div>
+      <div class="review-author">
+        <div class="review-avatar">💪</div>
+        <div><div class="review-name">张教练</div><div class="review-date">5 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"黯然销魂饭名不虚传！叉烧肥瘦相间，溏心蛋戳开的那一刻太治愈了。已经连续点了一周，完全吃不腻。"</div>
+      <div class="review-author">
+        <div class="review-avatar">🧑‍💻</div>
+        <div><div class="review-name">王同学</div><div class="review-date">1 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★☆</div>
+      <div class="review-text">"黑松露披萨芝士拉丝超长，薄底很脆。唯一遗憾是送到的时候稍微凉了一点，不过味道还是很棒的。"</div>
+      <div class="review-author">
+        <div class="review-avatar">👨‍🍳</div>
+        <div><div class="review-name">美食家老陈</div><div class="review-date">2 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"寿喜锅的牛肉纹理太漂亮了，配上生鸡蛋液简直入口即化。冬天来一锅幸福感爆棚，强烈推荐！"</div>
+      <div class="review-author">
+        <div class="review-avatar">👩‍🎨</div>
+        <div><div class="review-name">苏苏</div><div class="review-date">4 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"兰州牛肉面的面条劲道十足，汤底清亮鲜美。在这个价位能吃到这个品质，真的太良心了。"</div>
+      <div class="review-author">
+        <div class="review-avatar">🍜</div>
+        <div><div class="review-name">面食爱好者</div><div class="review-date">6 天前</div></div>
+      </div>
+    </div>
+    <!-- Duplicate for seamless loop -->
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"深夜加班点了一份酸菜鱼，30分钟就送到了，汤还是热腾腾的！鱼片嫩滑，酸菜够味，吃完感觉又能再战三小时。"</div>
+      <div class="review-author">
+        <div class="review-avatar">👩</div>
+        <div><div class="review-name">林小雨</div><div class="review-date">3 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"作为健身党，牛油果三文鱼沙拉简直是我的救星。食材新鲜看得见，三文鱼切得很厚实，性价比超高。"</div>
+      <div class="review-author">
+        <div class="review-avatar">💪</div>
+        <div><div class="review-name">张教练</div><div class="review-date">5 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"黯然销魂饭名不虚传！叉烧肥瘦相间，溏心蛋戳开的那一刻太治愈了。已经连续点了一周，完全吃不腻。"</div>
+      <div class="review-author">
+        <div class="review-avatar">🧑‍💻</div>
+        <div><div class="review-name">王同学</div><div class="review-date">1 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★☆</div>
+      <div class="review-text">"黑松露披萨芝士拉丝超长，薄底很脆。唯一遗憾是送到的时候稍微凉了一点，不过味道还是很棒的。"</div>
+      <div class="review-author">
+        <div class="review-avatar">👨‍🍳</div>
+        <div><div class="review-name">美食家老陈</div><div class="review-date">2 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"寿喜锅的牛肉纹理太漂亮了，配上生鸡蛋液简直入口即化。冬天来一锅幸福感爆棚，强烈推荐！"</div>
+      <div class="review-author">
+        <div class="review-avatar">👩‍🎨</div>
+        <div><div class="review-name">苏苏</div><div class="review-date">4 天前</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">"兰州牛肉面的面条劲道十足，汤底清亮鲜美。在这个价位能吃到这个品质，真的太良心了。"</div>
+      <div class="review-author">
+        <div class="review-avatar">🍜</div>
+        <div><div class="review-name">面食爱好者</div><div class="review-date">6 天前</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <div class="cta-box reveal">
+      <div class="section-label">✦ 开启美食之旅</div>
+      <div class="cta-title">今天想吃点什么？</div>
+      <div class="cta-desc">输入你的地址，发现身边的美味。新用户注册即享首单 20 元优惠。</div>
+      <div class="cta-input-group">
+        <input type="text" class="cta-input" placeholder="输入你的配送地址...">
+        <button class="btn-primary">搜索美食</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">味觉星球 <span>FLAVOR PLANET</span></div>
+        <p>致力于连接城市最好的厨师与最挑剔的味蕾。每一单，都是一次对美食的致敬。</p>
+      </div>
+      <div class="footer-col">
+        <h4>产品</h4>
+        <a href="#">点餐</a>
+        <a href="#">预约配送</a>
+        <a href="#">企业团餐</a>
+        <a href="#">礼品卡</a>
+      </div>
+      <div class="footer-col">
+        <h4>公司</h4>
+        <a href="#">关于我们</a>
+        <a href="#">加入团队</a>
+        <a href="#">新闻动态</a>
+        <a href="#">合作伙伴</a>
+      </div>
+      <div class="footer-col">
+        <h4>支持</h4>
+        <a href="#">帮助中心</a>
+        <a href="#">食品安全</a>
+        <a href="#">用户协议</a>
+        <a href="#">隐私政策</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 味觉星球 Flavor Planet. All rights reserved.</span>
+      <div class="footer-socials">
+        <a href="#" title="微信">微</a>
+        <a href="#" title="微博">博</a>
+        <a href="#" title="抖音">抖</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Scroll reveal
+const revealElements = document.querySelectorAll('.reveal, .dish-card');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+revealElements.forEach(el => revealObserver.observe(el));
+
+// Counter animation
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.stat-num').forEach(num => {
+        const target = parseInt(num.dataset.target);
+        const start = performance.now();
+        const animate = (now) => {
+          const progress = Math.min((now - start) / 2000, 1);
+          const eased = 1 - Math.pow(1 - progress, 4);
+          const current = Math.floor(target * eased);
+          num.textContent = target > 1000 ? current.toLocaleString() + '+' : current + (target < 100 ? '' : '+');
+          if (progress < 1) requestAnimationFrame(animate);
+        };
+        requestAnimationFrame(animate);
+      });
+      counterObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.stats-bar').forEach(el => counterObserver.observe(el));
+</script>
+</body>
+</html>

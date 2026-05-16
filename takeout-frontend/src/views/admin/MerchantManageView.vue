@@ -107,6 +107,7 @@ onMounted(() => { fetchMerchants() })
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -156,8 +157,8 @@ onMounted(() => { fetchMerchants() })
   font-weight: 600;
 }
 
-.badge-active { background: #f0fff0; color: var(--color-success); }
-.badge-disabled { background: #fff2f0; color: var(--color-error); }
+.badge-active { background: #F0F5EC; color: #4A8C5C; }
+.badge-disabled { background: #F5EDEB; color: #C84B31; }
 
 .sort-weight-group {
   display: flex;

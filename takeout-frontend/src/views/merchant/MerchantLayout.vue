@@ -47,7 +47,7 @@
 
 .sidebar {
   width: var(--sidebar-width);
-  background: #fff;
+  background: linear-gradient(180deg, #FFFDF9 0%, #FBF7F2 100%);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -73,6 +73,7 @@
 }
 
 .sidebar-header h2 {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 700;
   margin: 0;
@@ -106,13 +107,13 @@
 }
 
 .nav-link.active {
-  background: var(--color-primary-light);
-  color: var(--color-text-primary);
+  background: rgba(200, 75, 49, 0.1);
+  color: var(--color-primary);
   font-weight: 600;
 }
 
 .nav-link.active svg {
-  stroke: var(--color-accent);
+  stroke: var(--color-primary);
 }
 
 .sidebar-footer {

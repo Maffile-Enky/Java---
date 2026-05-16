@@ -1,0 +1,1 @@
+import{r as e}from"./request-Dney94o5.js";const o=s=>e.post("/auth/login",s),r=s=>e.post("/auth/register",s),a=s=>e.post("/auth/login/phone",s),n=s=>e.post("/auth/sms/send",s),u=()=>e.get("/user/address/list"),p=s=>e.post("/user/address",s),g=(s,t)=>e.put(`/user/address/${s}`,t),i=s=>e.delete(`/user/address/${s}`);export{a,n as b,i as d,u as g,o as l,r,p as s,g as u};

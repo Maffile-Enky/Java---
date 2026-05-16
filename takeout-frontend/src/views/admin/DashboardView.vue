@@ -61,6 +61,7 @@ onMounted(async () => {
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -96,21 +97,22 @@ onMounted(async () => {
 }
 
 .users-icon {
-  background: #e6f7ff;
-  color: #1890ff;
+  background: #EDF3F8;
+  color: #5B8DB8;
 }
 
 .merchants-icon {
-  background: #fff7e6;
-  color: #fa8c16;
+  background: #FFF8EC;
+  color: #E8A838;
 }
 
 .pending-icon {
-  background: #fffbe6;
-  color: #faad14;
+  background: #F5EDEB;
+  color: #C84B31;
 }
 
 .stat-number {
+  font-family: var(--font-heading);
   font-size: 32px;
   font-weight: 800;
   color: var(--color-text-primary);

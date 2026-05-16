@@ -10,4 +10,7 @@ public interface OrderService extends IService<Order> {
     IPage<Order> listUserOrders(Long userId, Page<Order> page);
     Order getOrderDetail(Long userId, Long orderId);
     boolean cancelOrder(Long userId, Long orderId);
+    void updateOrderStatusToPaid(String orderNo);
+    IPage<Order> listMerchantOrders(Long merchantId, String status, Page<Order> page);
+    void updateOrderStatus(Long orderId, String status);
 }

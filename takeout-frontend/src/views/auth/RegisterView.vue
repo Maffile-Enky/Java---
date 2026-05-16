@@ -73,7 +73,7 @@ const handleRegister = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-page);
+  background: linear-gradient(135deg, var(--color-bg-page) 0%, var(--color-surface-warm) 100%);
   padding: var(--spacing-xl);
 }
 
@@ -84,6 +84,7 @@ const handleRegister = async () => {
   border-radius: var(--radius-xl);
   padding: 40px 32px;
   box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-divider);
 }
 
 .auth-header {
@@ -98,6 +99,7 @@ const handleRegister = async () => {
 }
 
 .auth-header h1 {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -134,22 +136,24 @@ const handleRegister = async () => {
   width: 100%;
   padding: 14px;
   background: var(--color-primary);
-  color: var(--color-text-primary);
+  color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   font-size: var(--font-size-md);
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 
 .submit-btn:hover {
   background: var(--color-primary-dark);
+  box-shadow: 0 4px 12px rgba(200, 75, 49, 0.25);
 }
 
 .submit-btn:disabled {
   background: var(--color-border);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .auth-footer {
@@ -159,7 +163,7 @@ const handleRegister = async () => {
 
 .link {
   font-size: var(--font-size-sm);
-  color: var(--color-accent);
+  color: var(--color-primary);
   text-decoration: none;
 }
 

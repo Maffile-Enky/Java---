@@ -13,9 +13,17 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:9999',
+        target: 'http://47.99.34.251:9999',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/ws/delivery': {
+        target: 'ws://47.99.34.251:8087',
+        ws: true
+      },
+      '/ws/notification': {
+        target: 'ws://47.99.34.251:8086',
+        ws: true
       }
     }
   }

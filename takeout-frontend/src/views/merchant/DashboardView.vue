@@ -128,6 +128,7 @@ async function handleCreate() {
 }
 
 .page-title {
+  font-family: var(--font-heading);
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0;
@@ -156,6 +157,7 @@ async function handleCreate() {
 }
 
 .create-card h2 {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0 0 8px 0;
@@ -219,6 +221,7 @@ async function handleCreate() {
 }
 
 .shop-name {
+  font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
   margin: 0;
@@ -231,8 +234,8 @@ async function handleCreate() {
   font-weight: 600;
 }
 
-.status-open { background: #f0fff0; color: var(--color-success); }
-.status-closed { background: #fff2f0; color: var(--color-error); }
+.status-open { background: #F0F5EC; color: #4A8C5C; }
+.status-closed { background: #F5EDEB; color: #C84B31; }
 
 .info-grid {
   display: grid;
@@ -281,10 +284,11 @@ async function handleCreate() {
 
 .quick-icon {
   margin-bottom: 12px;
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .quick-card h3 {
+  font-family: var(--font-heading);
   font-size: var(--font-size-md);
   font-weight: 600;
   margin: 0 0 6px 0;
