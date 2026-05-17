@@ -35,7 +35,7 @@
       </div>
 
       <!-- Add/Edit Modal -->
-      <GlassModal v-model="showAdd" :title="editingId ? '编辑地址' : '添加地址'">
+      <GlassModal v-model:visible="showAdd" :title="editingId ? '编辑地址' : '添加地址'">
         <form class="addr-form" @submit.prevent="saveAddress">
           <GlassInput v-model="form.name" placeholder="收货人姓名" label="姓名" />
           <GlassInput v-model="form.phone" type="tel" placeholder="手机号" label="手机号" />

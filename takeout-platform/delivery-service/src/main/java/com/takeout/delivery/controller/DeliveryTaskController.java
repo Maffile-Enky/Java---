@@ -1,6 +1,8 @@
 package com.takeout.delivery.controller;
 
+import com.takeout.common.core.annotation.RequireRole;
 import com.takeout.common.core.domain.Result;
+import com.takeout.common.core.enums.RoleEnum;
 import com.takeout.common.web.util.SecurityUtil;
 import com.takeout.delivery.dto.DispatchResultDTO;
 import com.takeout.delivery.dto.WebSocketLocationMessage;
@@ -37,6 +39,7 @@ public class DeliveryTaskController {
      * GET /delivery/task/list
      */
     @GetMapping("/list")
+    @RequireRole({RoleEnum.RIDER, RoleEnum.ADMIN})
     public Result<List<DeliveryTask>> listAvailableTasks() {
         List<DeliveryTask> tasks = deliveryTaskService.listAvailableTasks();
         return Result.success(tasks);
@@ -47,6 +50,7 @@ public class DeliveryTaskController {
      * GET /delivery/task/{taskNo}
      */
     @GetMapping("/{taskNo}")
+    @RequireRole({RoleEnum.RIDER, RoleEnum.ADMIN, RoleEnum.USER})
     public Result<DeliveryTask> getTaskDetail(@PathVariable String taskNo) {
         DeliveryTask task = deliveryTaskService.getTaskDetail(taskNo);
         return Result.success(task);
@@ -103,6 +107,7 @@ public class DeliveryTaskController {
      * GET /delivery/task/track/{orderNo}
      */
     @GetMapping("/track/{orderNo}")
+    @RequireRole({RoleEnum.USER, RoleEnum.RIDER, RoleEnum.ADMIN})
     public Result<DeliveryTask> trackDelivery(@PathVariable String orderNo) {
         DeliveryTask task = deliveryTaskService.getTaskByOrderNo(orderNo);
         if (task == null) {
@@ -117,6 +122,7 @@ public class DeliveryTaskController {
      * 实际项目中由骑手客户端通过 WebSocket 上报位置
      */
     @PostMapping("/{taskNo}/simulate-location")
+    @RequireRole({RoleEnum.RIDER, RoleEnum.ADMIN})
     public Result<String> simulateLocation(@PathVariable String taskNo,
                                             @RequestParam BigDecimal longitude,
                                             @RequestParam BigDecimal latitude) {

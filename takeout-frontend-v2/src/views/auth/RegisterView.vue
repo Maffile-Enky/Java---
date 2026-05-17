@@ -55,7 +55,6 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { register } from '@/api/user'
 import GlassInput from '@/components/ui/GlassInput.vue'
 import GlassButton from '@/components/ui/GlassButton.vue'
 
@@ -93,16 +92,14 @@ async function handleRegister() {
 
   loading.value = true
   try {
-    const res = await register({
+    await auth.register({
       phone: form.phone,
       nickname: form.nickname,
       password: form.password
     })
-    auth.setToken(res.data.token)
-    auth.setUserInfo(res.data)
     router.push('/')
   } catch (e) {
-    errors.phone = e.response?.data?.message || '注册失败'
+    errors.phone = e.response?.data?.message || e.message || '注册失败'
   } finally {
     loading.value = false
   }

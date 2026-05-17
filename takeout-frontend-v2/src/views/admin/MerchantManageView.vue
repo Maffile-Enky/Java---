@@ -11,13 +11,13 @@
           <h3 class="m-name">{{ m.name }}</h3>
           <span class="m-addr">{{ m.address }}</span>
         </div>
-        <span class="m-status tag" :class="m.status === 'APPROVED' ? 'tag-green' : 'tag-muted'">
-          {{ m.status === 'APPROVED' ? '营业中' : '未审核' }}
+        <span class="m-status tag" :class="statusClass(m.status)">
+          {{ statusLabel(m.status) }}
         </span>
         <span class="m-phone">{{ m.phone }}</span>
         <div class="m-actions">
           <button class="action-btn" @click="toggleStatus(m)">
-            {{ m.status === 'APPROVED' ? '暂停' : '启用' }}
+            {{ m.status === 1 ? '暂停' : '启用' }}
           </button>
         </div>
       </div>
@@ -34,6 +34,19 @@ import EmptyState from '@/components/common/EmptyState.vue'
 const merchants = ref([])
 const loading = ref(true)
 
+const statusLabelMap = {
+  0: '待审核',
+  1: '营业中',
+  2: '已暂停'
+}
+
+function statusLabel(s) { return statusLabelMap[s] || s }
+function statusClass(s) {
+  if (s === 1) return 'tag-green'
+  if (s === 2) return 'tag-warning'
+  return 'tag-muted'
+}
+
 async function fetchMerchants() {
   try {
     const res = await getAdminMerchantList()
@@ -44,7 +57,7 @@ async function fetchMerchants() {
 
 async function toggleStatus(m) {
   try {
-    const newStatus = m.status === 'APPROVED' ? 'SUSPENDED' : 'APPROVED'
+    const newStatus = m.status === 1 ? 2 : 1
     await updateMerchantStatus(m.id, newStatus)
     fetchMerchants()
   } catch {}
@@ -96,5 +109,6 @@ onMounted(fetchMerchants)
 .action-btn:hover { border-color: var(--accent); color: var(--text-primary); }
 
 .tag-green { background: rgba(110, 231, 160, 0.15); color: var(--accent); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; }
+.tag-warning { background: rgba(240, 197, 90, 0.15); color: var(--accent-secondary); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; }
 .tag-muted { background: var(--glass); color: var(--text-muted); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); }
 </style>

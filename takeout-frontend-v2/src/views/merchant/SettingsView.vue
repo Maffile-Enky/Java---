@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getMyMerchant, updateMyMerchant } from '@/api/merchant'
+import { getMyMerchant, updateMyMerchant, createMyMerchant } from '@/api/merchant'
 import GlassInput from '@/components/ui/GlassInput.vue'
 import GlassButton from '@/components/ui/GlassButton.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -54,15 +54,27 @@ async function fetchMerchant() {
       phone: data.phone || '', description: data.description || '',
       coverImage: data.coverImage || '', openingHours: data.openingHours || ''
     })
-  } catch {}
+  } catch (e) {
+    // No merchant record - user needs to create one first
+    merchantId.value = null
+  }
   finally { loading.value = false }
 }
 
 async function saveSettings() {
   saving.value = true
   try {
-    await updateMyMerchant(form)
-  } catch {}
+    if (merchantId.value) {
+      await updateMyMerchant({ ...form, id: merchantId.value })
+    } else {
+      await createMyMerchant(form)
+    }
+    alert('保存成功')
+    // Refresh to get the new merchant id
+    fetchMerchant()
+  } catch (e) {
+    alert('保存失败: ' + (e.message || '未知错误'))
+  }
   finally { saving.value = false }
 }
 

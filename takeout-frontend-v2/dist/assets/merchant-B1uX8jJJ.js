@@ -1,1 +1,0 @@
-import{r as s}from"./request-Dney94o5.js";const e=t=>s.get(`/dish/list/${t}`),r=async()=>(await s.get("/merchant/my")).data??null,c=t=>s.put("/merchant/my",t),n=t=>s.post("/dish",t),h=t=>s.put("/dish",t);export{r as a,c as b,n as c,e as g,h as u};

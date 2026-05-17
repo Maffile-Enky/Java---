@@ -27,7 +27,8 @@
           登录
         </router-link>
         <div v-else class="user-menu" @click="showMenu = !showMenu">
-          <span class="user-avatar">{{ nickname.charAt(0) }}</span>
+          <img v-if="auth.userInfo?.avatar" :src="auth.userInfo.avatar" class="user-avatar-img" alt="头像" />
+          <span v-else class="user-avatar">{{ nickname.charAt(0) }}</span>
           <!-- Dropdown -->
           <div v-if="showMenu" class="menu-dropdown glass-panel">
             <div class="menu-header">
@@ -200,6 +201,20 @@ onUnmounted(() => {
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
+}
+
+.user-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid var(--glass-border);
+  transition: border-color var(--duration-fast);
+}
+
+.user-avatar-img:hover {
+  border-color: var(--accent);
 }
 
 .menu-dropdown {

@@ -5,9 +5,9 @@ export const getMerchantById = (id) => request.get(`/merchant/${id}`)
 export const getDishList = (merchantId) => request.get(`/dish/list/${merchantId}`)
 
 // Merchant self-management
-export const getMyMerchant = async () => {
-  const res = await request.get('/merchant/my')
-  return res.data ?? null
+export const getMyMerchant = (id) => {
+  if (id) return request.get(`/merchant/${id}`)
+  return request.get('/merchant/my')
 }
 export const createMyMerchant = (data) => request.post('/merchant/my', data)
 export const updateMyMerchant = (data) => request.put('/merchant/my', data)

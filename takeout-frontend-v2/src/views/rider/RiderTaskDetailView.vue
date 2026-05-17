@@ -81,7 +81,7 @@ function statusClass(s) {
 
 async function fetchTask() {
   try {
-    const res = await getTaskDetail(route.params.id)
+    const res = await getTaskDetail(route.params.taskNo)
     task.value = res.data
   } catch { task.value = null }
   finally { loading.value = false }
@@ -89,8 +89,9 @@ async function fetchTask() {
 
 async function updateStatus(status) {
   try {
-    if (status === 'PICKED_UP') await pickupOrder(route.params.id)
-    else if (status === 'DELIVERING') await deliverOrder(route.params.id)
+    if (status === 'PICKED_UP') await pickupOrder(route.params.taskNo)
+    else if (status === 'DELIVERING') await deliverOrder(route.params.taskNo)
+    else if (status === 'COMPLETED') await deliverOrder(route.params.taskNo)
     fetchTask()
   } catch {}
 }

@@ -1,10 +1,10 @@
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, nextTick } from 'vue'
 
 export function useScrollReveal(selector = '.reveal', options = {}) {
   let observer = null
 
-  onMounted(() => {
-    const els = document.querySelectorAll(selector)
+  function createObserver() {
+    if (observer) return observer
     observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
         if (entry.isIntersecting) {
@@ -13,10 +13,28 @@ export function useScrollReveal(selector = '.reveal', options = {}) {
         }
       })
     }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px', ...options })
-    els.forEach(el => observer.observe(el))
-  })
+    return observer
+  }
+
+  function observe() {
+    const els = document.querySelectorAll(selector + ':not(.visible)')
+    if (els.length) {
+      const obs = createObserver()
+      els.forEach(el => obs.observe(el))
+    }
+  }
+
+  onMounted(observe)
 
   onUnmounted(() => {
     observer?.disconnect()
+    observer = null
   })
+
+  // Call after async data loads to observe newly rendered elements
+  function reobserve() {
+    nextTick(observe)
+  }
+
+  return { reobserve }
 }

@@ -40,9 +40,9 @@
           </div>
           <div class="order-footer">
             <span class="order-total">
-              合计: <strong>¥{{ Number(order.totalAmount || 0).toFixed(2) }}</strong>
+              合计: <strong>¥{{ Number(order.totalPrice || 0).toFixed(2) }}</strong>
             </span>
-            <span class="order-time">{{ formatDate(order.createTime) }}</span>
+            <span class="order-time">{{ formatDate(order.createdAt) }}</span>
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@ function formatDate(val) {
 onMounted(async () => {
   try {
     const res = await getOrderList()
-    orders.value = res.data || []
+    orders.value = res.data?.records || res.data || []
   } catch { orders.value = [] }
   finally { loading.value = false }
 })

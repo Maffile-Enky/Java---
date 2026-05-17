@@ -74,7 +74,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getMyMerchant, getDishList } from '@/api/merchant'
+import { getMerchantById, getDishList } from '@/api/merchant'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import RatingStars from '@/components/common/RatingStars.vue'
@@ -91,7 +91,7 @@ const dishes = ref([])
 const loading = ref(true)
 const activeCat = ref('全部')
 
-useScrollReveal()
+const { reobserve } = useScrollReveal()
 
 const dishCategories = computed(() => {
   const cats = new Set(dishes.value.map(d => d.category || '其他'))
@@ -108,7 +108,7 @@ async function fetchData() {
   const id = route.params.id
   try {
     const [mRes, dRes] = await Promise.all([
-      getMyMerchant(id),
+      getMerchantById(id),
       getDishList(id)
     ])
     merchant.value = mRes.data || mRes
@@ -118,6 +118,7 @@ async function fetchData() {
     dishes.value = []
   } finally {
     loading.value = false
+    reobserve()
   }
 }
 

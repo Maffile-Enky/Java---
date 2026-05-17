@@ -54,6 +54,8 @@ const selectedCat = ref('全部')
 
 const categories = ['全部', '中餐', '西餐', '日料', '韩餐', '快餐', '饮品', '甜品']
 
+const { reobserve } = useScrollReveal()
+
 async function fetchMerchants() {
   loading.value = true
   try {
@@ -61,15 +63,14 @@ async function fetchMerchants() {
       keyword: keyword.value,
       category: selectedCat.value === '全部' ? '' : selectedCat.value
     })
-    merchants.value = res.data || []
+    merchants.value = res.data?.merchants || res.data || []
   } catch {
     merchants.value = []
   } finally {
     loading.value = false
+    reobserve()
   }
 }
-
-useScrollReveal()
 
 onMounted(fetchMerchants)
 watch(() => route.query.keyword, (val) => {

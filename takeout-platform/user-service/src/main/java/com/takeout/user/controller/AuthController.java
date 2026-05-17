@@ -36,9 +36,20 @@ public class AuthController {
         String username = body.get("username");
         String password = body.get("password");
         String phone = body.get("phone");
+        String nickname = body.get("nickname");
 
-        if (username == null || password == null) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST);
+        if (password == null || password.length() < 6) {
+            throw new BusinessException(400, "密码长度不能少于6位");
+        }
+        if (username == null && phone == null) {
+            throw new BusinessException(400, "用户名和手机号不能同时为空");
+        }
+        if (phone != null && !phone.matches("^1[3-9]\\d{9}$")) {
+            throw new BusinessException(ErrorCode.USER_PHONE_INVALID);
+        }
+        // 用手机号作为默认用户名
+        if (username == null) {
+            username = phone;
         }
         if (userService.getByUsername(username) != null) {
             throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
@@ -48,7 +59,7 @@ public class AuthController {
         user.setUsername(username);
         user.setPassword(PasswordUtil.encode(password));
         user.setPhone(phone);
-        user.setNickname(username);
+        user.setNickname(nickname != null ? nickname : username);
         user.setRole("USER");
         user.setStatus(1);
         userService.save(user);
@@ -63,13 +74,15 @@ public class AuthController {
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> body) {
         String username = body.get("username");
+        String phone = body.get("phone");
         String password = body.get("password");
 
-        if (username == null || password == null) {
+        if ((username == null && phone == null) || password == null) {
             throw new BusinessException(400, "用户名和密码不能为空");
         }
 
-        User user = userService.getByUsername(username);
+        // 支持手机号或用户名登录
+        User user = (phone != null) ? userService.getByPhone(phone) : userService.getByUsername(username);
         if (user == null || !PasswordUtil.matches(password, user.getPassword())) {
             throw new BusinessException(ErrorCode.USER_PASSWORD_ERROR);
         }

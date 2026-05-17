@@ -82,8 +82,12 @@ public class PaymentController {
      * 前端轮询支付结果时调用
      */
     @GetMapping("/status/{paymentNo}")
-    public Result<PaymentOrder> queryPaymentStatus(@PathVariable String paymentNo) {
+    public Result<PaymentOrder> queryPaymentStatus(HttpServletRequest request, @PathVariable String paymentNo) {
+        Long userId = SecurityUtil.getUserId(request);
         PaymentOrder paymentOrder = paymentOrderService.queryPaymentStatus(paymentNo);
+        if (paymentOrder == null || !paymentOrder.getUserId().equals(userId)) {
+            return Result.error(404, "支付订单不存在");
+        }
         return Result.success(paymentOrder);
     }
 
@@ -119,8 +123,9 @@ public class PaymentController {
      * POST /payment/close
      */
     @PostMapping("/close")
-    public Result<Boolean> closePayment(@RequestParam String paymentNo) {
-        log.info("关闭支付订单, paymentNo: {}", paymentNo);
+    public Result<Boolean> closePayment(HttpServletRequest request, @RequestParam String paymentNo) {
+        Long userId = SecurityUtil.getUserId(request);
+        log.info("关闭支付订单, userId: {}, paymentNo: {}", userId, paymentNo);
         boolean success = paymentOrderService.closePayment(paymentNo);
         return Result.success(success);
     }

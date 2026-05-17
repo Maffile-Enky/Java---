@@ -26,11 +26,11 @@
       <!-- Password form -->
       <form v-if="tab === 'password'" class="auth-form" @submit.prevent="handlePasswordLogin">
         <GlassInput
-          v-model="form.phone"
-          type="tel"
-          placeholder="手机号"
-          label="手机号"
-          :error="errors.phone"
+          v-model="form.username"
+          type="text"
+          placeholder="用户名"
+          label="用户名"
+          :error="errors.username"
         />
         <GlassInput
           v-model="form.password"
@@ -99,11 +99,12 @@ const tab = ref('password')
 const loading = ref(false)
 const countdown = ref(0)
 
-const form = reactive({ phone: '', password: '' })
+const form = reactive({ username: '', password: '' })
 const smsForm = reactive({ phone: '', code: '' })
-const errors = reactive({ phone: '', password: '', code: '' })
+const errors = reactive({ username: '', phone: '', password: '', code: '' })
 
 function clearErrors() {
+  errors.username = ''
   errors.phone = ''
   errors.password = ''
   errors.code = ''
@@ -111,17 +112,15 @@ function clearErrors() {
 
 async function handlePasswordLogin() {
   clearErrors()
-  if (!form.phone) { errors.phone = '请输入手机号'; return }
+  if (!form.username) { errors.username = '请输入用户名'; return }
   if (!form.password) { errors.password = '请输入密码'; return }
 
   loading.value = true
   try {
-    const res = await login({ phone: form.phone, password: form.password })
-    auth.setToken(res.data.token)
-    auth.setUserInfo(res.data)
+    await auth.login({ username: form.username, password: form.password })
     router.push('/')
   } catch (e) {
-    errors.phone = e.response?.data?.message || '登录失败'
+    errors.username = e.response?.data?.message || e.message || '登录失败'
   } finally {
     loading.value = false
   }
@@ -134,12 +133,10 @@ async function handleSmsLogin() {
 
   loading.value = true
   try {
-    const res = await login({ phone: smsForm.phone, code: smsForm.code })
-    auth.setToken(res.data.token)
-    auth.setUserInfo(res.data)
+    await auth.loginByPhone({ phone: smsForm.phone, code: smsForm.code })
     router.push('/')
   } catch (e) {
-    errors.phone = e.response?.data?.message || '登录失败'
+    errors.phone = e.response?.data?.message || e.message || '登录失败'
   } finally {
     loading.value = false
   }
@@ -148,7 +145,7 @@ async function handleSmsLogin() {
 async function sendCode() {
   if (!smsForm.phone) { errors.phone = '请输入手机号'; return }
   try {
-    await sendSmsCode(smsForm.phone)
+    await sendSmsCode({ phone: smsForm.phone })
     countdown.value = 60
     const timer = setInterval(() => {
       countdown.value--

@@ -139,10 +139,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Override
     @Transactional
-    public void updateOrderStatus(Long orderId, String status) {
+    public void updateOrderStatus(Long userId, Long orderId, String status) {
         Order order = getById(orderId);
         if (order == null) {
             throw new BusinessException(404, "订单不存在");
+        }
+        // Verify user is the order owner or the merchant
+        if (!order.getUserId().equals(userId) && !order.getMerchantId().equals(userId)) {
+            throw new BusinessException(403, "无权操作此订单");
         }
         order.setStatus(status);
         updateById(order);

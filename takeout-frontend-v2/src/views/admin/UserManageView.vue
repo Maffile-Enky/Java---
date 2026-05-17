@@ -13,7 +13,7 @@
           <span class="user-phone">{{ user.phone }}</span>
         </div>
         <span class="user-role tag" :class="roleClass(user.role)">{{ roleLabel(user.role) }}</span>
-        <span class="user-date">{{ formatDate(user.createTime) }}</span>
+        <span class="user-date">{{ formatDate(user.createdAt) }}</span>
       </div>
     </div>
   </div>

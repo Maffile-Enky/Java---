@@ -29,6 +29,12 @@ public class Merchant {
 
     private String imageUrl;
 
+    private String coverImage;
+
+    private BigDecimal rating;
+
+    private Integer monthlySales;
+
     private Integer status;
 
     private Integer sortWeight;

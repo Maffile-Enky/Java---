@@ -12,6 +12,15 @@ export const getUserInfo = () => request.get('/auth/info')
 export const getProfile = () => request.get('/user/profile')
 export const updateProfile = (data) => request.put('/user/profile', data)
 export const changePassword = (data) => request.put('/user/password', data)
+export const upgradeRole = (role) => request.put('/user/upgrade-role', { role })
+
+export const uploadAvatar = (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post('/user/avatar', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+}
 
 // Address
 export const getAddressList = () => request.get('/user/address/list')

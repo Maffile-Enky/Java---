@@ -2,10 +2,15 @@
   <div class="dish-manage">
     <div class="page-header">
       <h1 class="page-title">菜品管理</h1>
-      <GlassButton variant="primary" size="sm" @click="openAdd">+ 添加菜品</GlassButton>
+      <GlassButton v-if="merchantId" variant="primary" size="sm" @click="openAdd">+ 添加菜品</GlassButton>
+      <GlassButton v-else variant="primary" size="sm" @click="$router.push('/merchant/settings')">请先创建店铺</GlassButton>
     </div>
 
     <LoadingSpinner v-if="loading" text="加载中..." />
+
+    <EmptyState v-else-if="noMerchant" icon="🏪" text="请先在店铺设置中创建店铺">
+      <GlassButton variant="primary" size="sm" @click="$router.push('/merchant/settings')">去创建店铺</GlassButton>
+    </EmptyState>
 
     <EmptyState v-else-if="!dishes.length" icon="🍜" text="暂无菜品" />
 
@@ -20,20 +25,20 @@
           <span class="dish-cat">{{ dish.category || '未分类' }}</span>
         </div>
         <span class="dish-price">¥{{ Number(dish.price).toFixed(2) }}</span>
-        <span class="dish-status" :class="{ active: dish.status === 'ON' }">
-          {{ dish.status === 'ON' ? '在售' : '下架' }}
+        <span class="dish-status" :class="{ active: dish.status === 1 || dish.status === 'ON' }">
+          {{ (dish.status === 1 || dish.status === 'ON') ? '在售' : '下架' }}
         </span>
         <div class="dish-actions">
           <button class="action-btn" @click="openEdit(dish)">编辑</button>
           <button class="action-btn action-btn--danger" @click="toggleStatus(dish)">
-            {{ dish.status === 'ON' ? '下架' : '上架' }}
+            {{ (dish.status === 1 || dish.status === 'ON') ? '下架' : '上架' }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Add/Edit Modal -->
-    <GlassModal v-model="showModal" :title="editingId ? '编辑菜品' : '添加菜品'">
+    <GlassModal v-model:visible="showModal" :title="editingId ? '编辑菜品' : '添加菜品'">
       <form class="dish-form" @submit.prevent="saveDish">
         <GlassInput v-model="form.name" placeholder="菜品名称" label="名称" />
         <GlassInput v-model="form.description" placeholder="菜品描述" label="描述" />
@@ -48,8 +53,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getMyMerchant } from '@/api/merchant'
-import { createDish, updateDish, getDishList } from '@/api/merchant'
+import { getMyMerchant, createDish, updateDish, getDishList } from '@/api/merchant'
 import { useAuthStore } from '@/stores/auth'
 import GlassButton from '@/components/ui/GlassButton.vue'
 import GlassInput from '@/components/ui/GlassInput.vue'
@@ -64,6 +68,7 @@ const showModal = ref(false)
 const saving = ref(false)
 const editingId = ref(null)
 const merchantId = ref(null)
+const noMerchant = ref(false)
 
 const form = reactive({ name: '', description: '', price: '', category: '', image: '' })
 
@@ -93,32 +98,47 @@ async function fetchDishes() {
       const mRes = await getMyMerchant()
       merchantId.value = mRes.data?.id || mRes.id
     }
+    if (!merchantId.value) {
+      noMerchant.value = true
+      dishes.value = []
+      return
+    }
+    noMerchant.value = false
     const res = await getDishList(merchantId.value)
     dishes.value = res.data || res || []
-  } catch { dishes.value = [] }
+  } catch (e) {
+    dishes.value = []
+    noMerchant.value = true
+  }
   finally { loading.value = false }
 }
 
 async function saveDish() {
   saving.value = true
   try {
+    const formData = { ...form, price: Number(form.price) }
     if (editingId.value) {
-      await updateDish(editingId.value, form)
+      await updateDish({ ...formData, id: editingId.value })
     } else {
-      await createDish({ ...form, merchantId: merchantId.value })
+      await createDish({ ...formData, merchantId: merchantId.value })
     }
     showModal.value = false
     resetForm()
     fetchDishes()
-  } catch {}
+  } catch (e) {
+    alert('保存失败: ' + (e.message || '未知错误'))
+  }
   finally { saving.value = false }
 }
 
 async function toggleStatus(dish) {
   try {
-    await updateDish(dish.id, { status: dish.status === 'ON' ? 'OFF' : 'ON' })
+    const newStatus = (dish.status === 1 || dish.status === 'ON') ? 0 : 1
+    await updateDish({ id: dish.id, status: newStatus })
     fetchDishes()
-  } catch {}
+  } catch (e) {
+    alert('操作失败: ' + (e.message || '未知错误'))
+  }
 }
 
 onMounted(fetchDishes)
