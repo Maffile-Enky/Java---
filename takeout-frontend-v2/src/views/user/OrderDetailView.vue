@@ -30,7 +30,7 @@
           </div>
           <div class="detail-row total-row">
             <span>合计</span>
-            <span class="total-price">¥{{ Number(order.totalAmount || 0).toFixed(2) }}</span>
+            <span class="total-price">¥{{ Number(order.totalPrice || 0).toFixed(2) }}</span>
           </div>
         </div>
 
@@ -38,7 +38,7 @@
         <div class="section glass-panel">
           <h2 class="section-title">配送信息</h2>
           <p class="info-text">{{ order.deliveryAddress || '暂无地址信息' }}</p>
-          <p class="info-text">{{ order.phone }}</p>
+          <p class="info-text">{{ order.deliveryPhone }}</p>
         </div>
 
         <!-- Actions -->

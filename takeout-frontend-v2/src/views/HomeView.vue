@@ -39,18 +39,7 @@
               <div class="float-stat-num">28 min</div>
               <div class="float-stat-label">平均送达</div>
             </div>
-            <div class="hero-card">
-              <div class="hero-card-emoji">🍜</div>
-              <div class="hero-card-badge">✦</div>
-              <div class="hero-card-inner">
-                <div class="hero-card-title">招牌红烧牛肉面</div>
-                <div class="hero-card-meta">
-                  <span class="stars">★★★★★</span>
-                  <span>月售 3,280 份</span>
-                  <span>30 min</span>
-                </div>
-              </div>
-            </div>
+            <div class="hero-emoji-float">🍜</div>
           </div>
         </div>
       </div>
@@ -378,70 +367,11 @@ function goSearch() {
   animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
 
-.hero-card {
-  width: 100%;
-  aspect-ratio: 4/3;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(145deg, rgba(110, 231, 160, 0.07), rgba(167, 243, 208, 0.03));
-  border: 1px solid rgba(110, 231, 160, 0.12);
-  backdrop-filter: blur(20px);
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3), 0 0 80px rgba(110, 231, 160, 0.06);
-}
-
-.hero-card-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 32px;
-  background: linear-gradient(to top, rgba(14, 22, 18, 0.88), transparent 55%);
-}
-
-.hero-card-emoji {
-  font-size: 5rem;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
+.hero-emoji-float {
+  font-size: 8rem;
   filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.25));
   animation: float 4s ease-in-out infinite;
-}
-
-.hero-card-badge {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  box-shadow: 0 8px 20px rgba(240, 197, 90, 0.3);
-  z-index: 1;
-}
-
-.hero-card-title {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.hero-card-meta {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.hero-card-meta .stars {
-  color: var(--accent-secondary);
+  text-align: center;
 }
 
 .float-stat {

@@ -20,15 +20,15 @@
         v-for="task in filteredTasks"
         :key="task.id"
         class="task-card glass-panel"
-        @click="$router.push(`/rider/tasks/${task.id}`)"
+        @click="$router.push(`/rider/tasks/${task.taskNo}`)"
       >
         <div class="task-header">
-          <span class="task-id">#{{ task.orderId || task.id }}</span>
+          <span class="task-id">#{{ task.taskNo || task.orderNo }}</span>
           <span class="task-status tag" :class="statusClass(task.status)">{{ statusLabel(task.status) }}</span>
         </div>
         <p class="task-addr">📍 {{ task.deliveryAddress || task.address }}</p>
         <p v-if="task.merchantName" class="task-merchant">🏪 {{ task.merchantName }}</p>
-        <span class="task-time">{{ formatDate(task.createTime) }}</span>
+        <span class="task-time">{{ formatDate(task.createdAt) }}</span>
       </div>
     </div>
   </div>

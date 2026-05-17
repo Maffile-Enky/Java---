@@ -1,0 +1,1 @@
+import{r as s}from"./request-Dney94o5.js";const a=t=>s.get(`/merchant/${t}`),c=t=>s.get(`/dish/list/${t}`),r=t=>s.get("/merchant/my"),n=t=>s.post("/merchant/my",t),h=t=>s.put("/merchant/my",t),o=t=>s.post("/dish",t),i=t=>s.put("/dish",t);export{n as a,a as b,o as c,r as d,h as e,c as g,i as u};

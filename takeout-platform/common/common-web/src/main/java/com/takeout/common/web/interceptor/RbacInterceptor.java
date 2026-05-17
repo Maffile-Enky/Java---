@@ -37,6 +37,10 @@ public class RbacInterceptor implements HandlerInterceptor {
             if (current == null) {
                 throw new BusinessException(403, "无效角色");
             }
+            // ADMIN is superuser - bypass role check
+            if (current == RoleEnum.ADMIN) {
+                return true;
+            }
             boolean allowed = false;
             for (RoleEnum required : roleAnnotation.value()) {
                 if (current == required) {

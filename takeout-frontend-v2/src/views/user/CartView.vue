@@ -16,15 +16,15 @@
         </div>
 
         <div class="cart-items">
-          <div v-for="item in cart.items" :key="item.id" class="cart-item glass-panel">
+          <div v-for="item in cart.items" :key="item.dishId" class="cart-item glass-panel">
             <div class="item-info">
-              <h3 class="item-name">{{ item.name }}</h3>
+              <h3 class="item-name">{{ item.dishName }}</h3>
               <span class="item-price">¥{{ Number(item.price).toFixed(2) }}</span>
             </div>
             <div class="item-qty">
-              <button class="qty-btn" @click="cart.updateQuantity(item.id, item.quantity - 1)">−</button>
+              <button class="qty-btn" @click="cart.updateQuantity(item.dishId, item.quantity - 1)">−</button>
               <span class="qty-num">{{ item.quantity }}</span>
-              <button class="qty-btn" @click="cart.updateQuantity(item.id, item.quantity + 1)">+</button>
+              <button class="qty-btn" @click="cart.updateQuantity(item.dishId, item.quantity + 1)">+</button>
             </div>
           </div>
         </div>

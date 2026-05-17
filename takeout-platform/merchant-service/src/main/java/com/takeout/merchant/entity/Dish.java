@@ -21,6 +21,10 @@ public class Dish {
 
     private String description;
 
+    private String image;
+
+    private String category;
+
     private Integer stock;
 
     private Integer status;

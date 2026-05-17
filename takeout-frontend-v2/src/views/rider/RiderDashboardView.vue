@@ -46,16 +46,20 @@
     <!-- Recent Tasks -->
     <div class="section">
       <h2 class="section-title">最近任务</h2>
-      <LoadingSpinner v-if="loading" size="sm" />
+      <div v-if="!riderStore.isRider && !loading" class="register-prompt glass-panel">
+      <p>您还未注册为骑手</p>
+      <GlassButton variant="primary" @click="$router.push('/rider/register')">立即注册</GlassButton>
+    </div>
+      <LoadingSpinner v-else-if="loading" size="sm" />
       <EmptyState v-else-if="!tasks.length" icon="📦" text="暂无任务" />
       <div v-else class="task-list">
-        <div v-for="task in tasks" :key="task.id" class="task-card glass-panel" @click="$router.push(`/rider/tasks/${task.id}`)">
+        <div v-for="task in tasks" :key="task.id" class="task-card glass-panel" @click="$router.push(`/rider/tasks/${task.taskNo}`)">
           <div class="task-header">
-            <span class="task-id">#{{ task.orderId || task.id }}</span>
+            <span class="task-id">#{{ task.taskNo || task.orderNo }}</span>
             <span class="task-status tag" :class="taskStatusClass(task.status)">{{ taskStatusLabel(task.status) }}</span>
           </div>
           <p class="task-addr">{{ task.deliveryAddress || task.address }}</p>
-          <span class="task-time">{{ formatDate(task.createTime) }}</span>
+          <span class="task-time">{{ formatDate(task.createdAt) }}</span>
         </div>
       </div>
     </div>
@@ -96,16 +100,29 @@ function formatDate(val) { return val ? dayjs(val).format('MM-DD HH:mm') : '' }
 
 async function toggleOnline() {
   try {
-    await updateRiderStatus(!riderStore.isOnline)
-    riderStore.setOnline(!riderStore.isOnline)
-  } catch {}
+    await riderStore.toggleOnline()
+  } catch (e) {
+    alert('操作失败: ' + (e.message || '未知错误'))
+  }
 }
 
 onMounted(async () => {
   try {
+    const rider = await riderStore.loadRiderInfo()
+    if (!rider) {
+      loading.value = false
+      return
+    }
     const res = await getRiderTasks()
     tasks.value = (res.data || []).slice(0, 10)
-  } catch { tasks.value = [] }
+    stats.todayDeliveries = tasks.value.filter(t => t.status === 'COMPLETED').length || '—'
+    stats.rating = rider.rating || '—'
+  } catch (e) {
+    tasks.value = []
+    if (!e.message?.includes('404')) {
+      alert('加载失败: ' + (e.message || '未知错误'))
+    }
+  }
   finally { loading.value = false }
 })
 </script>
@@ -181,4 +198,13 @@ onMounted(async () => {
 .tag-green { background: rgba(110, 231, 160, 0.15); color: var(--accent); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; }
 .tag-gold { background: rgba(240, 197, 90, 0.15); color: var(--accent-secondary); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; }
 .tag-active { background: rgba(110, 231, 160, 0.15); color: var(--accent); padding: 2px 10px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; animation: pulse 2s ease-in-out infinite; }
+
+.register-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+.register-prompt p { font-size: var(--text-sm); color: var(--text-secondary); }
 </style>

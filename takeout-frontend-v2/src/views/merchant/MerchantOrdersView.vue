@@ -29,8 +29,8 @@
           </div>
         </div>
         <div class="order-footer">
-          <span class="order-total">¥{{ Number(order.totalAmount || 0).toFixed(2) }}</span>
-          <span class="order-time">{{ formatDate(order.createTime) }}</span>
+          <span class="order-total">¥{{ Number(order.totalPrice || 0).toFixed(2) }}</span>
+          <span class="order-time">{{ formatDate(order.createdAt) }}</span>
         </div>
         <div class="order-actions" v-if="order.status === 'PAID'">
           <GlassButton variant="primary" size="sm" @click="updateStatus(order.id, 'PREPARING')">
@@ -50,6 +50,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getMerchantOrderList } from '@/api/order'
+import { getMyMerchant } from '@/api/merchant'
 import OrderStatusBadge from '@/components/common/OrderStatusBadge.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -87,8 +88,11 @@ async function updateStatus(orderId, status) {
 
 async function fetchOrders() {
   try {
-    const res = await getMerchantOrderList()
-    orders.value = res.data || []
+    const mRes = await getMyMerchant()
+    const merchant = mRes.data || mRes
+    if (!merchant?.id) { orders.value = []; return }
+    const res = await getMerchantOrderList({ merchantId: merchant.id })
+    orders.value = res.data?.records || res.data || []
   } catch { orders.value = [] }
   finally { loading.value = false }
 }

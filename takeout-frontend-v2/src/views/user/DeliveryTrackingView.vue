@@ -51,6 +51,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { trackDelivery } from '@/api/delivery'
+import { getOrderDetail } from '@/api/order'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import dayjs from 'dayjs'
 
@@ -77,7 +78,14 @@ function formatTime(val) {
 
 async function fetchDelivery() {
   try {
-    const res = await trackDelivery(route.params.id)
+    // First get the order to find its orderNo
+    const orderRes = await getOrderDetail(route.params.id)
+    const orderNo = orderRes.data?.orderNo
+    if (!orderNo) {
+      delivery.value = null
+      return
+    }
+    const res = await trackDelivery(orderNo)
     delivery.value = res.data
   } catch { delivery.value = null }
   finally { loading.value = false }

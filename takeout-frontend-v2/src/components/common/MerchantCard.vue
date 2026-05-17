@@ -1,11 +1,11 @@
 <template>
-  <router-link :to="`/user/restaurants/${merchant.id}`" class="merchant-card">
+  <router-link :to="`/user/restaurants/${merchant.merchantId || merchant.id}`" class="merchant-card">
     <div class="merchant-cover">
       <img v-if="merchant.coverImage" :src="merchant.coverImage" :alt="merchant.name" loading="lazy" />
       <div v-else class="cover-placeholder">
         <span>🏪</span>
       </div>
-      <span v-if="merchant.status === 'APPROVED'" class="merchant-badge tag tag-green">营业中</span>
+      <span v-if="merchant.status === 1 || merchant.status === 'APPROVED'" class="merchant-badge tag tag-green">营业中</span>
       <span v-else class="merchant-badge tag tag-muted">休息中</span>
     </div>
     <div class="merchant-info">

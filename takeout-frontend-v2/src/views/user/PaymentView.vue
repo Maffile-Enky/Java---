@@ -19,7 +19,7 @@
           </div>
           <div class="summary-total">
             <span>应付金额</span>
-            <span class="total-price">¥{{ Number(order.totalAmount || 0).toFixed(2) }}</span>
+            <span class="total-price">¥{{ Number(order.totalPrice || 0).toFixed(2) }}</span>
           </div>
         </div>
 
@@ -54,11 +54,11 @@ const router = useRouter()
 const order = ref(null)
 const loading = ref(true)
 const paying = ref(false)
-const selectedMethod = ref('wechat')
+const selectedMethod = ref('WECHAT')
 
 const methods = [
-  { id: 'wechat', name: '微信支付', icon: '💚' },
-  { id: 'alipay', name: '支付宝', icon: '💙' }
+  { id: 'WECHAT', name: '微信支付', icon: '💚' },
+  { id: 'ALIPAY', name: '支付宝', icon: '💙' }
 ]
 
 async function fetchOrder() {
@@ -73,8 +73,8 @@ async function handlePay() {
   paying.value = true
   try {
     await createPayment({
-      orderId: route.params.id,
-      paymentMethod: selectedMethod.value
+      orderNo: order.value.orderNo,
+      payChannel: selectedMethod.value
     })
     router.push(`/user/orders/${route.params.id}`)
   } catch {}

@@ -17,6 +17,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
+      '/uploads': {
+        target: 'http://47.99.34.251:8081',
+        changeOrigin: true
+      },
       '/ws/delivery': {
         target: 'ws://47.99.34.251:9999',
         ws: true

@@ -3,6 +3,7 @@ package com.takeout.order.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.takeout.common.core.domain.Result;
+import com.takeout.common.core.exception.BusinessException;
 import com.takeout.common.web.util.SecurityUtil;
 import com.takeout.order.entity.Order;
 import com.takeout.order.service.OrderService;
@@ -46,18 +47,28 @@ public class OrderController {
     }
 
     @GetMapping("/merchant/list")
-    public Result<IPage<Order>> merchantList(HttpServletRequest request,
+    public Result<IPage<Order>> merchantList(@RequestParam Long merchantId,
                                               @RequestParam(required = false) String status,
                                               @RequestParam(defaultValue = "1") Integer page,
                                               @RequestParam(defaultValue = "10") Integer size) {
-        Long userId = SecurityUtil.getUserId(request);
-        IPage<Order> result = orderService.listMerchantOrders(userId, status, new Page<>(page, size));
+        IPage<Order> result = orderService.listMerchantOrders(merchantId, status, new Page<>(page, size));
         return Result.success(result);
     }
 
     @PutMapping("/{id}/status")
-    public Result<Boolean> updateStatus(@PathVariable Long id, @RequestParam String status) {
-        orderService.updateOrderStatus(id, status);
+    public Result<Boolean> updateStatus(HttpServletRequest request, @PathVariable Long id, @RequestParam String status) {
+        Long userId = SecurityUtil.getUserId(request);
+        // 校验状态值合法性
+        if (!isValidStatus(status)) {
+            throw new BusinessException(400, "无效的订单状态");
+        }
+        orderService.updateOrderStatus(userId, id, status);
         return Result.success(true);
+    }
+
+    private boolean isValidStatus(String status) {
+        return "PENDING".equals(status) || "PAID".equals(status) || "PREPARING".equals(status)
+                || "READY".equals(status) || "DELIVERING".equals(status) || "DELIVERED".equals(status)
+                || "COMPLETED".equals(status) || "CANCELLED".equals(status);
     }
 }

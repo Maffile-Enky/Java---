@@ -35,10 +35,9 @@ onMounted(async () => {
     const res = await getAdminStats()
     const data = res.data || {}
     stats.value = [
-      { icon: '👥', label: '用户总数', value: data.userCount || '—' },
-      { icon: '🏪', label: '商家总数', value: data.merchantCount || '—' },
-      { icon: '📦', label: '今日订单', value: data.todayOrders || '—' },
-      { icon: '💰', label: '今日收入', value: data.todayRevenue ? `¥${data.todayRevenue}` : '—' }
+      { icon: '👥', label: '用户总数', value: data.totalUsers || '—' },
+      { icon: '🏪', label: '商家总数', value: data.totalMerchants || '—' },
+      { icon: '📋', label: '待审核申请', value: data.pendingApplications || '—' }
     ]
   } catch {}
 })

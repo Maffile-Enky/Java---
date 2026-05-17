@@ -40,9 +40,17 @@ const form = reactive({
 async function handleRegister() {
   loading.value = true
   try {
-    await registerRider(form)
+    await registerRider({
+      name: form.realName,
+      phone: form.phone,
+      idCardNo: form.idCard,
+      vehicleType: form.vehicleType
+    })
+    alert('注册成功')
     router.push('/rider')
-  } catch {}
+  } catch (e) {
+    alert('注册失败: ' + (e.message || '未知错误'))
+  }
   finally { loading.value = false }
 }
 </script>

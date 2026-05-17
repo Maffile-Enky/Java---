@@ -22,9 +22,9 @@
         <div v-for="order in recentOrders" :key="order.id" class="table-row glass-panel">
           <span class="row-id">#{{ order.id }}</span>
           <span class="row-items">{{ orderItemCount(order) }}件</span>
-          <span class="row-price">¥{{ Number(order.totalAmount || 0).toFixed(2) }}</span>
+          <span class="row-price">¥{{ Number(order.totalPrice || 0).toFixed(2) }}</span>
           <OrderStatusBadge :status="order.status" />
-          <span class="row-time">{{ formatDate(order.createTime) }}</span>
+          <span class="row-time">{{ formatDate(order.createdAt) }}</span>
         </div>
       </div>
     </div>
@@ -34,6 +34,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getMerchantOrderList } from '@/api/order'
+import { getMyMerchant } from '@/api/merchant'
 import OrderStatusBadge from '@/components/common/OrderStatusBadge.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -42,12 +43,12 @@ import dayjs from 'dayjs'
 const recentOrders = ref([])
 const loading = ref(true)
 
-const stats = [
+const stats = ref([
   { icon: '📦', label: '今日订单', value: '—' },
   { icon: '💰', label: '今日收入', value: '—' },
   { icon: '⭐', label: '店铺评分', value: '—' },
   { icon: '📊', label: '月销量', value: '—' }
-]
+])
 
 function orderItemCount(order) {
   return (order.items || []).reduce((sum, item) => sum + (item.quantity || 1), 0)
@@ -59,9 +60,33 @@ function formatDate(val) {
 
 onMounted(async () => {
   try {
-    const res = await getMerchantOrderList()
-    recentOrders.value = (res.data || []).slice(0, 10)
-  } catch { recentOrders.value = [] }
+    let merchantId = null
+    try {
+      const mRes = await getMyMerchant()
+      const merchant = mRes.data || mRes
+      if (merchant) {
+        merchantId = merchant.id
+        stats.value[2].value = merchant.rating || '—'
+        stats.value[3].value = merchant.monthlySales || '—'
+      }
+    } catch (e) {
+      // No merchant record - stats stay as default
+    }
+    if (merchantId) {
+      const res = await getMerchantOrderList({ merchantId })
+      const list = res.data?.records || res.data || []
+      recentOrders.value = list.slice(0, 10)
+      const today = dayjs().format('YYYY-MM-DD')
+      const todayOrders = list.filter(o => dayjs(o.createdAt).format('YYYY-MM-DD') === today)
+      stats.value[0].value = todayOrders.length || '—'
+      stats.value[1].value = todayOrders.reduce((s, o) => s + (o.totalPrice || 0), 0).toFixed(2) || '—'
+    }
+  } catch (e) {
+    recentOrders.value = []
+    if (!e.message?.includes('404')) {
+      alert('获取订单失败: ' + (e.message || '未知错误'))
+    }
+  }
   finally { loading.value = false }
 })
 </script>
