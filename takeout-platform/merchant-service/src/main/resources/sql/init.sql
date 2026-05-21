@@ -1,15 +1,23 @@
 -- 商家表
 CREATE TABLE `merchant` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT COMMENT '关联用户ID',
     `name` VARCHAR(100) NOT NULL COMMENT '商家名称',
     `address` VARCHAR(255) NOT NULL COMMENT '商家地址',
     `longitude` DECIMAL(10, 6) COMMENT '经度',
     `latitude` DECIMAL(10, 6) COMMENT '纬度',
     `phone` VARCHAR(20) COMMENT '联系电话',
+    `description` VARCHAR(500) COMMENT '商家描述',
+    `image_url` VARCHAR(500) COMMENT '商家图片',
+    `cover_image` VARCHAR(500) COMMENT '封面图片',
+    `rating` DECIMAL(2, 1) DEFAULT 5.0 COMMENT '评分',
+    `monthly_sales` INT DEFAULT 0 COMMENT '月销量',
+    `sort_weight` INT DEFAULT 0 COMMENT '排序权重',
     `status` TINYINT DEFAULT 1 COMMENT '状态: 1-营业中 0-休息中',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商家表';
 
 -- 菜品表
@@ -19,6 +27,8 @@ CREATE TABLE `dish` (
     `name` VARCHAR(100) NOT NULL COMMENT '菜品名称',
     `price` DECIMAL(10, 2) NOT NULL COMMENT '价格',
     `description` VARCHAR(500) COMMENT '描述',
+    `image` VARCHAR(500) COMMENT '菜品图片',
+    `category` VARCHAR(50) COMMENT '分类',
     `stock` INT DEFAULT 0 COMMENT '库存',
     `status` TINYINT DEFAULT 1 COMMENT '状态: 1-上架 0-下架',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

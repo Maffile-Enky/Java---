@@ -1,0 +1,199 @@
+/* ═══════════════════════════════════════════════════════
+   玻璃拟态模式库
+   ═══════════════════════════════════════════════════════ */
+
+/* ── 环境光晕 ── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.22;
+  animation: orbFloat 24s ease-in-out infinite;
+}
+
+.ambient-orb:nth-child(1) {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, #6ee7a0, transparent 70%);
+  top: -15%; left: -8%;
+}
+
+.ambient-orb:nth-child(2) {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #a7f3d0, transparent 70%);
+  top: 35%; right: -12%;
+  animation-delay: -8s;
+}
+
+.ambient-orb:nth-child(3) {
+  width: 450px; height: 450px;
+  background: radial-gradient(circle, #f0c55a, transparent 70%);
+  bottom: -10%; left: 25%;
+  animation-delay: -16s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 30px) scale(0.97); }
+}
+
+/* ── 纹理叠加 ── */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── 顶部装饰线 ── */
+.deco-line {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
+  z-index: 101;
+  opacity: 0.6;
+}
+
+/* ── 玻璃面板 ── */
+.glass-panel {
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── 玻璃输入框 ── */
+.glass-input {
+  width: 100%;
+  padding: var(--space-4) var(--space-6);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.glass-input::placeholder { color: var(--text-muted); }
+.glass-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ── 浮动卡 ── */
+.glass-float {
+  padding: var(--space-4) var(--space-5);
+  background: var(--glass-solid);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-lg);
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ── 绿色发光悬停 ── */
+.glow-green-hover {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.glow-green-hover:hover {
+  border-color: rgba(110, 231, 160, 0.25);
+  box-shadow: var(--shadow-glow-green);
+  transform: translateY(-4px);
+}
+
+/* ── 金色发光悬停 ── */
+.glow-gold-hover {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.glow-gold-hover:hover {
+  border-color: rgba(240, 197, 90, 0.2);
+  box-shadow: var(--shadow-glow-gold);
+}
+
+/* ── 分割装饰线 ── */
+.deco-divider {
+  height: 1px;
+  max-width: 600px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-secondary), var(--accent), transparent);
+  opacity: 0.3;
+}
+
+/* ── 旋转光边（CTA 用） ── */
+.rotating-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.rotating-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, var(--accent-glow), var(--accent-secondary-glow), transparent 35%);
+  animation: rotateGlow 12s linear infinite;
+  opacity: 0.35;
+}
+
+@keyframes rotateGlow { to { transform: rotate(360deg); } }
+
+.rotating-glow > * { position: relative; z-index: 1; }
+
+/* ── 加载动画 ── */
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--glass-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-lg {
+  width: 40px; height: 40px;
+  border-width: 3px;
+}
+
+/* ── 空状态 ── */
+.empty-state {
+  text-align: center;
+  padding: var(--space-16) var(--space-8);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.empty-state-desc {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-6);
+}

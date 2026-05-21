@@ -27,7 +27,7 @@ public class Order {
     private String deliveryName;
     private String note;
 
-    /** 0=PENDING 1=CONFIRMED 2=DELIVERING 3=COMPLETED 4=CANCELLED */
+    /** PENDING/PAID/CONFIRMED/DELIVERING/COMPLETED/CANCELLED */
     private String status;
 
     @TableField(fill = FieldFill.INSERT)

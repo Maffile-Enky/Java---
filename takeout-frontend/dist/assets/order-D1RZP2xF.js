@@ -1,1 +1,0 @@
-import{r as e}from"./request-CXLAujxk.js";const s=r=>e.post("/order/create",r),o=r=>e.get("/order/list",{params:r}),a=r=>e.get(`/order/${r}`),c=r=>e.put(`/order/${r}/cancel`);export{c as a,a as b,s as c,o as g};

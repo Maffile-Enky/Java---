@@ -1,0 +1,105 @@
+/* ═══════════════════════════════════════════════════════
+   恩齐都春风 — 设计 Token 系统
+   鼠尾草绿渐变 × 暖金 × 薄紫微缀
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  /* ── 背景 ── */
+  --bg-deep: #0e1612;
+  --bg-lift: #111e18;
+  --bg-card: rgba(180, 220, 195, 0.03);
+
+  /* ── 玻璃拟态 ── */
+  --glass: rgba(180, 220, 195, 0.06);
+  --glass-border: rgba(180, 220, 195, 0.12);
+  --glass-hover: rgba(180, 220, 195, 0.10);
+  --glass-solid: rgba(20, 35, 28, 0.65);
+
+  /* ── 主色 · 鼠尾草绿 ── */
+  --accent: #6ee7a0;
+  --accent-deep: #4cc98c;
+  --accent-glow: rgba(110, 231, 160, 0.22);
+  --accent-muted: rgba(110, 231, 160, 0.15);
+
+  /* ── 辅色 · 暖金 ── */
+  --accent-secondary: #f0c55a;
+  --accent-secondary-glow: rgba(240, 197, 90, 0.18);
+
+  /* ── 点缀 · 薄紫（仅微缀） ── */
+  --accent-whisper: #c084fc;
+  --accent-whisper-glow: rgba(192, 132, 252, 0.12);
+
+  /* ── 语义色 ── */
+  --color-success: #6ee7a0;
+  --color-warning: #f0c55a;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+
+  /* ── 文字 ── */
+  --text-primary: #edf5f0;
+  --text-secondary: rgba(237, 245, 240, 0.58);
+  --text-muted: rgba(237, 245, 240, 0.30);
+  --text-inverse: #0e1612;
+
+  /* ── 渐变 ── */
+  --gradient-green: linear-gradient(135deg, #4cc98c, #6ee7a0);
+  --gradient-hero: linear-gradient(135deg, #6ee7a0, #a7f3d0, #f0c55a);
+  --gradient-cool: linear-gradient(135deg, #0f1f16, #162a1f, #1a2e22);
+  --gradient-gold: linear-gradient(135deg, #f0c55a, #f59e0b);
+  --gradient-whisper: linear-gradient(135deg, #c084fc, #a855f7);
+
+  /* ── 字体 ── */
+  --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Noto Serif SC', Georgia, serif;
+
+  /* ── 字号 ── */
+  --text-xs: 0.7rem;
+  --text-sm: 0.82rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.8rem;
+  --text-5xl: 4.5rem;
+
+  /* ── 间距 ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ── 圆角 ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 100px;
+
+  /* ── 阴影 ── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.25);
+  --shadow-glow-green: 0 0 40px var(--accent-glow);
+  --shadow-glow-gold: 0 0 30px var(--accent-secondary-glow);
+
+  /* ── 过渡 ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 0.2s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.5s;
+
+  /* ── 布局 ── */
+  --header-height: 60px;
+  --nav-height: 56px;
+  --sidebar-width: 220px;
+  --content-max: 1200px;
+}

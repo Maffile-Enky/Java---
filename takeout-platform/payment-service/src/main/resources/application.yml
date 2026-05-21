@@ -1,0 +1,98 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: payment-service
+  config:
+    import: optional:nacos:${spring.application.name}.yaml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:nacos}
+        file-extension: yaml
+        import-check:
+          enabled: false
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/takeout_payment?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: takeout_app
+    password: ${MYSQL_PASSWORD:}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+  # RabbitMQ 配置
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:takeout}
+    password: ${RABBITMQ_PASSWORD:}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 2.0
+
+  # Redis 配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+# 支付配置（沙箱环境）
+payment:
+  alipay:
+    app-id: ${ALIPAY_APP_ID:2021000123456789}
+    gateway-url: ${ALIPAY_GATEWAY_URL:https://openapi-sandbox.dl.alipaydev.com/gateway.do}
+    private-key: ${ALIPAY_PRIVATE_KEY:sandbox_private_key}
+    alipay-public-key: ${ALIPAY_PUBLIC_KEY:sandbox_public_key}
+    notify-url: ${ALIPAY_NOTIFY_URL:http://localhost:8085/payment/callback/alipay}
+    return-url: ${ALIPAY_RETURN_URL:http://localhost/payment/return}
+  wechat:
+    app-id: ${WECHAT_APP_ID:wx_sandbox_app_id}
+    mch-id: ${WECHAT_MCH_ID:1234567890}
+    api-key: ${WECHAT_API_KEY:sandbox_api_key}
+    notify-url: ${WECHAT_NOTIFY_URL:http://localhost:8085/payment/callback/wechat}
+    gateway-url: ${WECHAT_GATEWAY_URL:https://api.mch.weixin.qq.com}
+
+# 管理端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# 日志格式（含 traceId）
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}] %-5level %logger{36} - %msg%n"

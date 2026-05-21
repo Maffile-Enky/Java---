@@ -5,7 +5,13 @@
       "Read(//e/Save-User_Enky/Java_IDEA_Project/MeiTuan/**)",
       "Bash(find \"e:/Save-User_Enky/Java_IDEA_Project/MeiTuan/Java---\" -maxdepth 1 -type f -o -maxdepth 1 -type d | sort)",
       "Bash(ls -la \"e:/..Save-User_Enky/Java_IDEA_Project/MeiTuan/Java---/takeout-frontend/public/images/banners/\")",
-      "Read(//e/..Save-User_Enky/Java_IDEA_Project/MeiTuan/Java---/takeout-frontend/public/images/**)"
+      "Read(//e/..Save-User_Enky/Java_IDEA_Project/MeiTuan/Java---/takeout-frontend/public/images/**)",
+      "Bash(pip install *)",
+      "Bash(rm -rf docker-build/platform/frontend/*)",
+      "Bash(cp -r takeout-frontend-v2/dist/* docker-build/platform/frontend/)",
+      "Bash(npm run *)",
+      "Bash(python -c \"from deploy import deploy_frontend; deploy_frontend\\(\\)\")",
+      "Bash(python deploy_frontend_only.py)"
     ]
   }
 }
