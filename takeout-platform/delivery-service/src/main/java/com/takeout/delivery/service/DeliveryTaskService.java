@@ -86,4 +86,13 @@ public interface DeliveryTaskService extends IService<DeliveryTask> {
      * @return 配送任务
      */
     DeliveryTask getTaskByOrderNo(String orderNo);
+
+    /**
+     * 自动派单给指定骑手
+     * 查找待处理的配送任务并分配给骑手
+     *
+     * @param riderId 骑手ID
+     * @return 分配的任务，如果没有待处理任务则返回null
+     */
+    DeliveryTask autoDispatchToRider(Long riderId);
 }

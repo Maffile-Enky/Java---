@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header" :class="{ scrolled }">
+  <header class="app-header" :class="{ scrolled, 'menu-open': showMobileMenu }">
     <div class="header-inner">
       <!-- Logo -->
       <router-link to="/" class="header-logo">
@@ -20,8 +20,8 @@
 
       <!-- Right actions -->
       <div class="header-actions">
-        <router-link v-if="isLoggedIn" to="/user/notifications" class="action-btn">
-          🔔
+        <router-link v-if="isLoggedIn" to="/user/notifications" class="action-btn notification-btn">
+          <span class="notification-icon">🔔</span>
         </router-link>
         <router-link v-if="!isLoggedIn" to="/auth/login" class="btn btn-primary btn-sm">
           登录
@@ -30,29 +30,97 @@
           <img v-if="auth.userInfo?.avatar" :src="auth.userInfo.avatar" class="user-avatar-img" alt="头像" />
           <span v-else class="user-avatar">{{ nickname.charAt(0) }}</span>
           <!-- Dropdown -->
-          <div v-if="showMenu" class="menu-dropdown glass-panel">
-            <div class="menu-header">
-              <span class="menu-name">{{ nickname }}</span>
-              <span class="menu-role tag tag-green" style="font-size:10px;">{{ userRole }}</span>
+          <Transition name="dropdown">
+            <div v-if="showMenu" class="menu-dropdown glass-panel">
+              <div class="menu-header">
+                <span class="menu-name">{{ nickname }}</span>
+                <span class="menu-role tag tag-green" style="font-size:10px;">{{ userRole }}</span>
+              </div>
+              <div class="menu-divider"></div>
+              <router-link to="/user/profile" class="menu-item" @click="showMenu = false">
+                <span class="menu-icon">👤</span> 个人中心
+              </router-link>
+              <router-link to="/user/orders" class="menu-item" @click="showMenu = false">
+                <span class="menu-icon">📦</span> 我的订单
+              </router-link>
+              <router-link v-if="userRole === 'MERCHANT' || userRole === 'ADMIN'" to="/merchant" class="menu-item" @click="showMenu = false">
+                <span class="menu-icon">🏪</span> 商家后台
+              </router-link>
+              <router-link v-if="userRole === 'ADMIN'" to="/admin" class="menu-item" @click="showMenu = false">
+                <span class="menu-icon">⚙️</span> 管理后台
+              </router-link>
+              <router-link v-if="userRole === 'RIDER' || userRole === 'ADMIN'" to="/rider" class="menu-item" @click="showMenu = false">
+                <span class="menu-icon">🚴</span> 骑手中心
+              </router-link>
+              <div class="menu-divider"></div>
+              <button class="menu-item menu-item--danger" @click="handleLogout">
+                <span class="menu-icon">🚪</span> 退出登录
+              </button>
             </div>
-            <div class="menu-divider"></div>
-            <router-link to="/user/profile" class="menu-item" @click="showMenu = false">个人中心</router-link>
-            <router-link to="/user/orders" class="menu-item" @click="showMenu = false">我的订单</router-link>
-            <router-link v-if="userRole === 'MERCHANT' || userRole === 'ADMIN'" to="/merchant" class="menu-item" @click="showMenu = false">商家后台</router-link>
-            <router-link v-if="userRole === 'ADMIN'" to="/admin" class="menu-item" @click="showMenu = false">管理后台</router-link>
-            <router-link v-if="userRole === 'RIDER' || userRole === 'ADMIN'" to="/rider" class="menu-item" @click="showMenu = false">骑手中心</router-link>
-            <div class="menu-divider"></div>
-            <button class="menu-item menu-item--danger" @click="handleLogout">退出登录</button>
+          </Transition>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn" @click="showMobileMenu = !showMobileMenu">
+          <span class="hamburger" :class="{ active: showMobileMenu }">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <Transition name="mobile-menu">
+      <div v-if="showMobileMenu" class="mobile-menu">
+        <div class="mobile-menu-content">
+          <div class="mobile-search" v-if="showSearch">
+            <input
+              v-model="keyword"
+              type="text"
+              placeholder="搜索美食、商家..."
+              class="search-input"
+              @keyup.enter="doSearchMobile"
+            />
+          </div>
+          <nav class="mobile-nav">
+            <router-link to="/" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">🏠</span> 首页
+            </router-link>
+            <router-link to="/user/restaurants" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">🍽️</span> 点餐
+            </router-link>
+            <router-link to="/user/cart" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">🛒</span> 购物车
+            </router-link>
+            <router-link to="/user/orders" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">📦</span> 订单
+            </router-link>
+            <router-link v-if="isLoggedIn" to="/user/notifications" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">🔔</span> 通知
+            </router-link>
+            <router-link v-if="isLoggedIn" to="/user/profile" class="mobile-nav-item" @click="closeMobileMenu">
+              <span class="nav-icon">👤</span> 我的
+            </router-link>
+          </nav>
+          <div class="mobile-menu-footer">
+            <router-link v-if="!isLoggedIn" to="/auth/login" class="btn btn-primary btn-block" @click="closeMobileMenu">
+              登录
+            </router-link>
+            <button v-else class="btn btn-danger btn-block" @click="handleLogout">
+              退出登录
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </header>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 
@@ -61,11 +129,13 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const { isLoggedIn, nickname, userRole } = storeToRefs(auth)
 
 const keyword = ref('')
 const showMenu = ref(false)
+const showMobileMenu = ref(false)
 const scrolled = ref(false)
 
 function doSearch() {
@@ -74,9 +144,19 @@ function doSearch() {
   }
 }
 
+function doSearchMobile() {
+  doSearch()
+  closeMobileMenu()
+}
+
+function closeMobileMenu() {
+  showMobileMenu.value = false
+}
+
 function handleLogout() {
   auth.logout()
   showMenu.value = false
+  showMobileMenu.value = false
   router.push('/')
 }
 
@@ -89,6 +169,11 @@ function onClickOutside(e) {
     showMenu.value = false
   }
 }
+
+// Close mobile menu on route change
+watch(() => route.path, () => {
+  showMobileMenu.value = false
+})
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll)
@@ -115,6 +200,10 @@ onUnmounted(() => {
   backdrop-filter: blur(24px) saturate(1.4);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
   border-bottom: 1px solid var(--glass-border);
+}
+
+.app-header.menu-open {
+  background: rgba(14, 22, 18, 0.95);
 }
 
 .header-inner {
@@ -169,7 +258,7 @@ onUnmounted(() => {
 }
 
 .search-input::placeholder { color: var(--text-muted); }
-.search-input:focus { border-color: var(--accent); }
+.search-input:focus { border-color: var(--accent); outline: none; }
 
 .header-actions {
   display: flex;
@@ -184,6 +273,10 @@ onUnmounted(() => {
 }
 
 .action-btn:hover { transform: scale(1.1); }
+
+.notification-btn {
+  position: relative;
+}
 
 .user-menu {
   position: relative;
@@ -221,9 +314,9 @@ onUnmounted(() => {
   position: absolute;
   top: calc(100% + var(--space-2));
   right: 0;
-  min-width: 180px;
+  min-width: 200px;
   padding: var(--space-2);
-  animation: fadeSlideDown 0.2s var(--ease-out);
+  z-index: 1000;
 }
 
 .menu-header {
@@ -245,7 +338,9 @@ onUnmounted(() => {
 }
 
 .menu-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   width: 100%;
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
@@ -269,12 +364,165 @@ onUnmounted(() => {
   color: var(--color-danger);
 }
 
-@keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-8px); }
+.menu-icon {
+  font-size: 1rem;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 20px;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: all var(--duration-fast);
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(14, 22, 18, 0.98);
+  backdrop-filter: blur(24px);
+  z-index: 99;
+  overflow-y: auto;
+}
+
+.mobile-menu-content {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: calc(100vh - var(--header-height));
+}
+
+.mobile-search {
+  margin-bottom: var(--space-4);
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--text-lg);
+  border-radius: var(--radius-md);
+  transition: background var(--duration-fast);
+}
+
+.mobile-nav-item:hover {
+  background: var(--glass);
+}
+
+.nav-icon {
+  font-size: 1.3rem;
+}
+
+.mobile-menu-footer {
+  margin-top: auto;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--glass-border);
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #f87171;
+}
+
+.btn-danger:hover {
+  background: rgba(248, 113, 113, 0.25);
+}
+
+/* Dropdown animation */
+.dropdown-enter-active {
+  animation: dropdownIn 0.2s var(--ease-out);
+}
+
+.dropdown-leave-active {
+  animation: dropdownOut 0.15s var(--ease-out);
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes dropdownOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter-active {
+  animation: mobileMenuIn 0.3s var(--ease-out);
+}
+
+.mobile-menu-leave-active {
+  animation: mobileMenuOut 0.2s var(--ease-out);
+}
+
+@keyframes mobileMenuIn {
+  from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 640px) {
+@keyframes mobileMenuOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
   .header-search { display: none; }
+  .user-menu { display: none; }
+  .notification-btn { display: none; }
+  .mobile-menu-btn { display: block; }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu { display: none; }
 }
 </style>

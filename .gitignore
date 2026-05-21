@@ -2,6 +2,24 @@
 config/server.env
 config/.env
 .env
+*.env.local
+*.env.production
+
+# Deploy scripts with credentials
+deploy.py
+deploy*.py
+!deploy*.py.example
+
+# Server-specific docker compose
+docker-compose.server.yml
+docker-compose.server.yml.example
+docker-compose.infra.yml
+docker-compose.services.yml
+!docker-compose.infra.yml.example
+!docker-compose.services.yml.example
+
+# Docker build artifacts (contains hardcoded IPs)
+docker-build/
 
 # IDE
 .idea/
@@ -23,6 +41,7 @@ yarn-error.log*
 
 # Frontend build
 takeout-frontend/dist/
+takeout-frontend-v2/dist/
 
 # OS
 .DS_Store
@@ -34,3 +53,7 @@ logs/
 
 # Docker
 docker-compose.override.yml
+
+# Python cache
+__pycache__/
+*.pyc

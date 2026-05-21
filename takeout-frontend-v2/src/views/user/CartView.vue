@@ -55,14 +55,33 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { createOrder } from '@/api/order'
 import GlassButton from '@/components/ui/GlassButton.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 
 const router = useRouter()
 const cart = useCartStore()
 
-function goCheckout() {
-  router.push('/user/orders')
+async function goCheckout() {
+  try {
+    const orderData = {
+      merchantId: cart.merchantId,
+      items: cart.items.map(item => ({
+        dishId: item.dishId,
+        dishName: item.dishName,
+        price: item.price,
+        quantity: item.quantity
+      }))
+    }
+    const res = await createOrder(orderData)
+    const orderId = res.data?.id
+    if (orderId) {
+      cart.clearCart()
+      router.push(`/user/orders/${orderId}`)
+    }
+  } catch (error) {
+    console.error('创建订单失败:', error)
+  }
 }
 </script>
 

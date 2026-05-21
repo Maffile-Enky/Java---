@@ -4,7 +4,10 @@ const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const request = axios.create({
   baseURL,
-  timeout: 5000
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 let isRefreshing = false
@@ -32,12 +35,15 @@ request.interceptors.response.use(
   response => {
     const res = response.data
     if (res.code !== 200) {
-      return Promise.reject(new Error(res.message || 'Error'))
+      const error = new Error(res.message || '请求失败')
+      error.code = res.code
+      return Promise.reject(error)
     }
     return res
   },
   error => {
     const status = error.response?.status
+    const message = error.response?.data?.message || error.message
 
     if (status === 401) {
       localStorage.removeItem('token')
@@ -89,6 +95,11 @@ request.interceptors.response.use(
           isRefreshing = false
         })
       })
+    }
+
+    // Network error
+    if (!error.response) {
+      error.message = '网络连接失败，请检查网络'
     }
 
     return Promise.reject(error)

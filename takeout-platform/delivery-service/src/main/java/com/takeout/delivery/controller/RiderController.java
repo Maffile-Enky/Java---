@@ -58,6 +58,7 @@ public class RiderController {
     /**
      * 更新骑手状态（上线/下线）
      * PUT /delivery/rider/status?status=ONLINE
+     * 当骑手上线时，自动尝试派单
      */
     @PutMapping("/status")
     public Result<Rider> updateStatus(HttpServletRequest request,
@@ -68,6 +69,19 @@ public class RiderController {
             return Result.error(404, "您还未注册为骑手");
         }
         Rider updated = riderService.updateRiderStatus(rider.getId(), status);
+
+        // 当骑手上线时，自动尝试派单
+        if ("ONLINE".equals(status)) {
+            try {
+                DeliveryTask task = deliveryTaskService.autoDispatchToRider(rider.getId());
+                if (task != null) {
+                    log.info("骑手上线自动接单成功, riderId: {}, taskNo: {}", rider.getId(), task.getTaskNo());
+                }
+            } catch (Exception e) {
+                log.warn("骑手上线自动派单失败, riderId: {}", rider.getId(), e);
+            }
+        }
+
         return Result.success(updated);
     }
 

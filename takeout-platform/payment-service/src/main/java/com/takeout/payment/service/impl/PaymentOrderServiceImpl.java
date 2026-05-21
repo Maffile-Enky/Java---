@@ -300,6 +300,35 @@ public class PaymentOrderServiceImpl extends ServiceImpl<PaymentOrderMapper, Pay
         return true;
     }
 
+    /**
+     * 模拟支付成功（沙箱环境专用）
+     * 前端倒计时结束后调用，模拟用户完成支付
+     */
+    @Override
+    @Transactional
+    public boolean mockPaymentSuccess(Long userId, String paymentNo) {
+        log.info("模拟支付成功, userId: {}, paymentNo: {}", userId, paymentNo);
+
+        PaymentOrder paymentOrder = getByPaymentNo(paymentNo);
+        if (paymentOrder == null) {
+            throw new BusinessException(404, "支付流水不存在");
+        }
+        if (!paymentOrder.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权操作该支付流水");
+        }
+        if (!"PENDING".equals(paymentOrder.getStatus())) {
+            throw new BusinessException(400, "当前状态不可模拟支付");
+        }
+
+        // 模拟第三方交易号
+        String mockTradeNo = "MOCK_" + System.currentTimeMillis();
+        // 复用支付成功处理逻辑
+        processPaymentSuccess(paymentOrder, mockTradeNo, "mock_callback");
+
+        log.info("模拟支付成功完成, paymentNo: {}", paymentNo);
+        return true;
+    }
+
     // ==================== 私有方法 ====================
 
     /**

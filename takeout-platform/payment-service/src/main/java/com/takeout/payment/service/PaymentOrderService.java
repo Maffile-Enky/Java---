@@ -66,4 +66,12 @@ public interface PaymentOrderService extends IService<PaymentOrder> {
      * @return 是否成功
      */
     boolean closePayment(String paymentNo);
+
+    /**
+     * 模拟支付成功（沙箱环境专用）
+     * @param userId 用户ID
+     * @param paymentNo 支付流水号
+     * @return 是否成功
+     */
+    boolean mockPaymentSuccess(Long userId, String paymentNo);
 }
