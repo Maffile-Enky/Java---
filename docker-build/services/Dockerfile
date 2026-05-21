@@ -19,25 +19,22 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # 暴露所有服务端口
 EXPOSE 8081 8083 8084 8085 8086 8087 8088
 
-# 环境变量 - 数据库配置
+# 环境变量 - 必须在运行时通过 docker-compose 或 docker run 传入
 ENV MYSQL_HOST=host.docker.internal
 ENV MYSQL_PORT=3306
-ENV MYSQL_PASSWORD=TakeoutApp2026!
+ENV MYSQL_PASSWORD=
 
-# 环境变量 - Redis配置
 ENV REDIS_HOST=host.docker.internal
 ENV REDIS_PORT=6379
-ENV REDIS_PASSWORD=123456
+ENV REDIS_PASSWORD=
 
-# 环境变量 - RabbitMQ配置
 ENV RABBITMQ_HOST=host.docker.internal
 ENV RABBITMQ_PORT=5672
 ENV RABBITMQ_USERNAME=takeout
-ENV RABBITMQ_PASSWORD=123456
+ENV RABBITMQ_PASSWORD=
 
-# 环境变量 - Nacos配置
-ENV NACOS_SERVER_ADDR=47.99.34.251:8848
+ENV NACOS_SERVER_ADDR=
 ENV NACOS_USERNAME=nacos
-ENV NACOS_PASSWORD=nacos
+ENV NACOS_PASSWORD=
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

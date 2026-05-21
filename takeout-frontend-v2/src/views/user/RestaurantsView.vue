@@ -18,8 +18,12 @@
         </div>
       </div>
 
-      <!-- Loading -->
-      <LoadingSpinner v-if="loading" text="加载中..." />
+      <!-- Loading Skeleton -->
+      <div v-if="loading" class="merchant-grid">
+        <div v-for="i in 6" :key="i" class="skeleton-card">
+          <SkeletonLoader type="card" />
+        </div>
+      </div>
 
       <!-- Empty -->
       <EmptyState v-else-if="!merchants.length" icon="🏪" text="暂无商家" />
@@ -42,8 +46,8 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { searchMerchants } from '@/api/search'
 import MerchantCard from '@/components/common/MerchantCard.vue'
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import SkeletonLoader from '@/components/common/SkeletonLoader.vue'
 import { useScrollReveal } from '@/composables/useScrollReveal'
 
 const route = useRoute()
@@ -100,6 +104,14 @@ watch(selectedCat, fetchMerchants)
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--space-2);
+}
+
+.filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .filter-chip {
@@ -112,6 +124,8 @@ watch(selectedCat, fetchMerchants)
   cursor: pointer;
   transition: all var(--duration-fast);
   font-family: var(--font-sans);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .filter-chip:hover {
@@ -130,5 +144,24 @@ watch(selectedCat, fetchMerchants)
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-6);
+}
+
+.skeleton-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .merchant-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+  }
 }
 </style>

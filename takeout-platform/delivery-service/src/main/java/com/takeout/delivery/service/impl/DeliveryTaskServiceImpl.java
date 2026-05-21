@@ -239,4 +239,36 @@ public class DeliveryTaskServiceImpl extends ServiceImpl<DeliveryTaskMapper, Del
         int random = ThreadLocalRandom.current().nextInt(100000, 999999);
         return "DLV" + timestamp + random;
     }
+
+    @Override
+    @Transactional
+    public DeliveryTask autoDispatchToRider(Long riderId) {
+        // 查询待处理的配送任务（商家已备餐完成）
+        LambdaQueryWrapper<DeliveryTask> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DeliveryTask::getStatus, "PENDING")
+                .orderByAsc(DeliveryTask::getCreatedAt)
+                .last("LIMIT 1");
+        DeliveryTask task = getOne(wrapper);
+
+        if (task == null) {
+            log.info("没有待处理的配送任务, riderId: {}", riderId);
+            return null;
+        }
+
+        Rider rider = riderService.getRiderById(riderId);
+
+        // 分配骑手
+        task.setRiderId(rider.getId());
+        task.setRiderName(rider.getName());
+        task.setRiderPhone(rider.getPhone());
+        task.setStatus("ASSIGNED");
+        task.setAssignedAt(LocalDateTime.now());
+        updateById(task);
+
+        // 更新骑手状态为忙碌
+        riderService.updateRiderStatus(rider.getId(), "BUSY");
+
+        log.info("自动派单成功, taskNo: {}, riderId: {}", task.getTaskNo(), riderId);
+        return task;
+    }
 }

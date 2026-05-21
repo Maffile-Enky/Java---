@@ -129,4 +129,17 @@ public class PaymentController {
         boolean success = paymentOrderService.closePayment(paymentNo);
         return Result.success(success);
     }
+
+    /**
+     * 模拟支付成功（沙箱环境专用）
+     * POST /payment/mock-success
+     * 前端倒计时结束后调用，模拟用户完成支付
+     */
+    @PostMapping("/mock-success")
+    public Result<Boolean> mockPaymentSuccess(HttpServletRequest request, @RequestParam String paymentNo) {
+        Long userId = SecurityUtil.getUserId(request);
+        log.info("模拟支付成功, userId: {}, paymentNo: {}", userId, paymentNo);
+        boolean success = paymentOrderService.mockPaymentSuccess(userId, paymentNo);
+        return Result.success(success);
+    }
 }

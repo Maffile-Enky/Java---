@@ -9,11 +9,11 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:nacos}
       config:
-        server-addr: ${NACOS_SERVER_ADDR:47.99.34.251:8848}
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
         username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD:nacos}
         file-extension: yaml
@@ -22,15 +22,22 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:47.99.34.251}:${MYSQL_PORT:3306}/takeout_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/takeout_order?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: takeout_app
-    password: ${MYSQL_PASSWORD:TakeoutApp2026!}
+    password: ${MYSQL_PASSWORD:}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
 
   rabbitmq:
-    host: ${RABBITMQ_HOST:47.99.34.251}
+    host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:takeout}
-    password: ${RABBITMQ_PASSWORD:123456}
+    password: ${RABBITMQ_PASSWORD:}
     listener:
       simple:
         acknowledge-mode: manual

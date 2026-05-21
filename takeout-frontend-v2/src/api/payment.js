@@ -16,3 +16,7 @@ export const applyRefund = (paymentNo, reason) =>
 // 关闭支付订单
 export const closePayment = (paymentNo) =>
   request.post('/payment/close', null, { params: { paymentNo } })
+
+// 模拟支付成功（沙箱环境专用）
+export const mockPaymentSuccess = (paymentNo) =>
+  request.post('/payment/mock-success', null, { params: { paymentNo } })

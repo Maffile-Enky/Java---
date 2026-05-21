@@ -22,9 +22,9 @@ RUN mkdir -p /run/nginx
 # 暴露端口
 EXPOSE 80 9999
 
-# 环境变量
-ENV NACOS_SERVER_ADDR=47.99.34.251:8848
+# 环境变量 - 必须在运行时通过 docker-compose 或 docker run 传入
+ENV NACOS_SERVER_ADDR=
 ENV NACOS_USERNAME=nacos
-ENV NACOS_PASSWORD=nacos
+ENV NACOS_PASSWORD=
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
