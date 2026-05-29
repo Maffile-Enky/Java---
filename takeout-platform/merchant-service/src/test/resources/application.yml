@@ -1,0 +1,56 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: merchant-service
+  cloud:
+    nacos:
+      discovery:
+        enabled: false
+      config:
+        enabled: false
+
+  # H2 内存数据库配置
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    username: sa
+    password: 
+
+  # Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      timeout: 10000ms
+
+  # 禁用RabbitMQ自动配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    dynamic: false
+
+# 禁用Redisson自动配置
+autoconfigure:
+  exclude:
+    - org.redisson.spring.starter.RedissonAutoConfiguration
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+# MQ 配置（测试用）
+mq:
+  exchange:
+    order: order.exchange
+  routing-key:
+    order:
+      accepted: order.accepted
+      ready: order.ready

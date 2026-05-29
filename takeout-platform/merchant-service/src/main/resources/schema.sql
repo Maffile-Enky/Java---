@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS merchant (
 -- 创建菜品表
 CREATE TABLE IF NOT EXISTS dish (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    version INT DEFAULT 0,
     merchant_id BIGINT NOT NULL,
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,

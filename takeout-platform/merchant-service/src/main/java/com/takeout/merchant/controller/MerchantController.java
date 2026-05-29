@@ -1,6 +1,5 @@
 package com.takeout.merchant.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.takeout.common.core.domain.Result;
 import com.takeout.merchant.entity.Merchant;
 import com.takeout.merchant.service.MerchantService;

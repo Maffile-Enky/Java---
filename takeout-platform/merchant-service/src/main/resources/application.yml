@@ -33,9 +33,43 @@ spring:
       enabled: true
       path: /h2-console
 
+  # Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # RabbitMQ 配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+# MQ 配置
+mq:
+  exchange:
+    order: order.exchange
+  routing-key:
+    order:
+      accepted: order.accepted
+      ready: order.ready
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
   global-config:
     db-config:
       id-type: auto
+
+
+
+

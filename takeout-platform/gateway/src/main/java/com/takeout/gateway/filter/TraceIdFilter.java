@@ -1,4 +1,4 @@
-﻿package com.takeout.gateway.filter;
+package com.takeout.gateway.filter;
 
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;

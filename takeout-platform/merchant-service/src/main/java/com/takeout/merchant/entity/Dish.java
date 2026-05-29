@@ -13,6 +13,9 @@ public class Dish {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @Version
+    private Integer version = 0;
+
     private Long merchantId;
 
     private String name;

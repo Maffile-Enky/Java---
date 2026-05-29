@@ -1,4 +1,4 @@
-﻿package com.takeout.common.core.domain;
+package com.takeout.common.core.domain;
 
 import lombok.Data;
 

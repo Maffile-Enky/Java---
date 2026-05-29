@@ -1,19 +1,18 @@
 package com.takeout.merchant.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.takeout.merchant.dto.CartItemDTO;
 import com.takeout.merchant.entity.Dish;
 import com.takeout.merchant.service.CartService;
 import com.takeout.merchant.service.DishService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -21,8 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CartServiceImpl implements CartService {
 
     private final DishService dishService;
+    private final StringRedisTemplate redisTemplate;
 
-    private static final Map<Long, Map<Long, Integer>> CART_CACHE = new ConcurrentHashMap<>();
+    // Redis Key 前缀
+    private static final String CART_KEY_PREFIX = "cart:";
 
     @Override
     public void addToCart(Long userId, Long dishId, Integer quantity) {
@@ -35,22 +36,27 @@ public class CartServiceImpl implements CartService {
             throw new RuntimeException("库存不足");
         }
 
-        Map<Long, Integer> userCart = CART_CACHE.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
-        Integer existingQty = userCart.get(dishId);
-        if (existingQty != null) {
-            quantity += existingQty;
+        String cartKey = CART_KEY_PREFIX + userId;
+        String field = dishId.toString();
+        
+        // 获取当前数量
+        Object existingQtyObj = redisTemplate.opsForHash().get(cartKey, field);
+        Integer existingQty = existingQtyObj != null ? Integer.parseInt(existingQtyObj.toString()) : 0;
+        Integer newQty = existingQty + quantity;
+
+        // 检查总数量是否超过库存
+        if (dish.getStock() < newQty) {
+            throw new RuntimeException("库存不足");
         }
 
-        userCart.put(dishId, quantity);
-        log.info("用户 {} 添加菜品 {} 到购物车，数量 {}", userId, dishId, quantity);
+        redisTemplate.opsForHash().put(cartKey, field, newQty.toString());
+        log.info("用户 {} 添加菜品 {} 到购物车，数量 {}", userId, dishId, newQty);
     }
 
     @Override
     public void removeFromCart(Long userId, Long dishId) {
-        Map<Long, Integer> userCart = CART_CACHE.get(userId);
-        if (userCart != null) {
-            userCart.remove(dishId);
-        }
+        String cartKey = CART_KEY_PREFIX + userId;
+        redisTemplate.opsForHash().delete(cartKey, dishId.toString());
         log.info("用户 {} 从购物车删除菜品 {}", userId, dishId);
     }
 
@@ -66,29 +72,37 @@ public class CartServiceImpl implements CartService {
             throw new RuntimeException("库存不足");
         }
 
-        Map<Long, Integer> userCart = CART_CACHE.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
-        userCart.put(dishId, quantity);
+        String cartKey = CART_KEY_PREFIX + userId;
+        redisTemplate.opsForHash().put(cartKey, dishId.toString(), quantity.toString());
         log.info("用户 {} 更新购物车菜品 {} 数量为 {}", userId, dishId, quantity);
     }
 
     @Override
     public void clearCart(Long userId) {
-        CART_CACHE.remove(userId);
+        String cartKey = CART_KEY_PREFIX + userId;
+        redisTemplate.delete(cartKey);
         log.info("用户 {} 清空购物车", userId);
     }
 
     @Override
     public List<CartItemDTO> getCart(Long userId) {
-        Map<Long, Integer> userCart = CART_CACHE.get(userId);
-        if (userCart == null) {
+        String cartKey = CART_KEY_PREFIX + userId;
+        Map<Object, Object> cartMap = redisTemplate.opsForHash().entries(cartKey);
+        
+        if (cartMap == null || cartMap.isEmpty()) {
             return new ArrayList<>();
         }
 
         List<CartItemDTO> result = new ArrayList<>();
 
-        for (Map.Entry<Long, Integer> entry : userCart.entrySet()) {
-            Long dishId = entry.getKey();
-            Integer quantity = entry.getValue();
+        for (Map.Entry<Object, Object> entry : cartMap.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (key == null || value == null) {
+                continue;
+            }
+            Long dishId = Long.parseLong(key.toString());
+            Integer quantity = Integer.parseInt(value.toString());
 
             Dish dish = dishService.getById(dishId);
             if (dish != null) {
