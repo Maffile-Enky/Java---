@@ -31,5 +31,13 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- Seata 分布式事务 - 需要单独部署Seata Server -->
+        <!-- 注意：Seata 2.x 需要手动下载部署，此处仅预留配置 -->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-all</artifactId>
+            <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

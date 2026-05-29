@@ -1,97 +1,413 @@
-**项目总览**
+# Takeout Platform - 外卖平台
 
-这是一个**SpringBoot**外卖点餐平台微服务系统（接近美团/饿了么校园版），强调高并发处理、实时性、分布式一致性、智能调度与全链路可观测性。
+基于 Spring Cloud 微服务架构的外卖点餐平台，支持用户点餐、商家管理、订单处理、支付结算、骑手配送等完整业务流程。
 
-**核心技术栈**：
-- **Java版本**：JDK 21
-- **主框架**：Spring Boot 3.3+（Jakarta EE） + Spring Cloud 2025.0.x（Northfields，兼容Spring Boot 3.5.x）
-- **微服务治理**：Spring Cloud Alibaba 2025.0.x（Nacos 3.1.x 作为服务注册发现 + 配置中心，支持3节点集群）
-- **API网关**：Spring Cloud Gateway（统一鉴权、限流、日志、跨域、路由）
-- **ORM**：MyBatis-Plus（代码生成、逻辑删除、分页插件）
-- **缓存**：Redis 7.x（分布式锁、购物车、Session、实时数据、ZSet抢单）
-- **消息队列**：RabbitMQ（可靠异步通知、支付回调） + Kafka（高吞吐订单事件流、骑手位置上报）
-- **搜索引擎**：Elasticsearch 8.x（商家、菜品、订单全文搜索与聚合）
-- **分布式事务**：Seata 2.5+（AT/Saga模式，重点用于下单扣库存、支付等一致性）
-- **限流熔断**：Sentinel（流量防护、降级、热点参数）
-- **实时通信**：WebSocket + MQTT（骑手位置上报、订单状态推送）
-- **地理位置**：集成高德/腾讯地图API（距离计算、ETA、地理围栏）
-- **调度算法**：Redis ZSet + 贪心算法（基础智能派单，可后续扩展）
-- **安全**：Spring Security + JWT/OAuth2 + 接口签名 + 防重放（时间戳+Nonce）
-- **监控观测**：Spring Boot Actuator + Prometheus + Grafana + SkyWalking（全链路追踪）
-- **部署**：Docker + Docker Compose（本地多服务） + Kubernetes基础支持
-- **其他工具**：Lombok、MapStruct（DTO转换）、Knife4J（接口文档）、JUnit5 + Testcontainers（测试）、Resilience4j（熔断备用）
+## 技术栈
 
-**架构特点**：
-- 严格一服务一数据库，禁止跨库Join
-- 配置全部走Nacos（Namespace环境隔离、Group DEV/PROD、DataId如user-service-dev.yaml + common-dev.yaml）
-- 事件驱动优先（MQ解耦），同步调用保持扁平（禁止循环调用）
-- 所有接口必须幂等、加分布式锁保护关键操作
-- 订单全生命周期使用状态机管理
-- 服务必须无状态、可降级、可观测
+### 后端
 
-**微服务列表**（核心拆分，先实现基础，后续迭代扩展）：
-- gateway（网关）
-- user-service（用户）
-- merchant-service（商家 + 菜品 + 购物车）
-- order-service（订单核心，最复杂）
-- payment-service（支付）
-- delivery-service（骑手 + 配送调度 + 实时位置，最先进）
-- search-service（ES搜索，可选由成员2/3协助）
-- notification-service（通知，可与支付合并部分）
+| 技术                   | 版本       | 说明                 |
+| ---------------------- | ---------- | -------------------- |
+| Spring Boot            | 3.0.13     | 应用框架             |
+| Spring Cloud           | 2022.0.0   | 微服务框架           |
+| Spring Cloud Alibaba   | 2022.0.0.0 | 阿里巴巴微服务组件   |
+| Nacos                  | 2.3.1      | 服务注册与配置中心   |
+| Spring Cloud Gateway   | -          | API 网关             |
+| Sentinel               | -          | 流量控制与熔断降级   |
+| MyBatis-Plus           | 3.5.5      | ORM 框架             |
+| MySQL                  | 8.0        | 关系型数据库         |
+| Redis                  | 7.x        | 缓存与会话管理       |
+| RabbitMQ               | 3.12       | 消息队列             |
+| JWT                    | -          | 用户认证             |
+| Lombok                 | -          | 代码简化             |
 
-**开发流程**：所有人先拉取dev分支最新代码，在个人feature/xxx分支开发，完成自测+单元测试后提交PR，由架构负责人统一Review并合并到dev。严格执行包结构、统一返回、异常处理、日志规范等。
+### 前端
 
-**5人后端团队详细分工**（均衡难度，成员1把控全局架构与集成，成员3负责最复杂订单模块，成员5负责实时调度模块）：
+| 技术       | 版本 | 说明                   |
+| ---------- | ---- | ---------------------- |
+| Vue.js     | 3.4  | 渐进式 JavaScript 框架 |
+| Vite       | 5.0  | 构建工具               |
+| Vue Router | 4.2  | 路由管理               |
+| Pinia      | 2.1  | 状态管理               |
+| Axios      | 1.6  | HTTP 客户端            |
 
-成员1（架构负责人/技术领头，建议由经验最丰富者担任，全局把控）：  
-负责整体项目架构设计、Nacos集群与公共配置、网关服务、用户服务、代码审查、集成测试、监控部署以及跨服务一致性框架。  
-具体部分包括：  
-- 网关服务全部内容：Spring Cloud Gateway路由配置、过滤器链（全局鉴权、日志记录、Sentinel限流、跨域处理、请求头透传）、统一入口安全策略。  
-- 用户服务全部内容：用户注册/登录（手机号、微信授权、JWT生成）、用户中心（个人信息、地址管理）、RBAC权限体系（角色定义：用户/商家/骑手/管理员，权限拦截）、OAuth2支持、分布式Session与Redis缓存框架。  
-- Nacos相关：3节点集群部署配置、公共配置common-dev.yaml（统一日志、数据库连接池、Redis/Sentinel等）、各服务专属配置（如user-service-dev.yaml）、动态刷新机制。  
-- 全局基础框架：统一Result<T>返回结构、全局异常处理GlobalExceptionHandler、traceId日志链路（MDC + SkyWalking）、接口签名与防重放机制、Docker Compose多服务编排脚本、Kubernetes基础部署yaml、Prometheus + Grafana监控面板搭建、每周代码Review与集成联调把控。  
-- 跨服务公共工作：Seata全局事务协调器配置、Sentinel规则统一管理、SkyWalking探针接入。
+### 运维
 
-成员2：  
-负责商家服务和菜品/购物车服务全部或主要部分。  
-具体部分包括：  
-- 商家服务：商家入驻流程（信息提交、审核状态）、店铺管理（基本信息、营业时间、配送范围设置、地理位置）、商家后台登录与权限、店铺统计基础。  
-- 菜品管理：菜品分类CRUD、多规格SKU管理（口味、价格、库存组合）、菜品上下架、图片上传与OSS集成、菜品搜索基础逻辑。  
-- 购物车服务：Redis实现购物车（添加、删除、修改数量、合并本地购物车）、购物车预览计算（总价、优惠）、库存预检查（Redis分布式锁）。  
-- 商家端订单处理：接单、出餐确认、拒单逻辑（通过MQ与订单服务交互）。  
-- 对应工作：merchant-service的Nacos配置、数据库表设计（商家表、菜品表、规格表、库存表）、MyBatis-Plus Mapper与Service实现、接口幂等处理、单元测试覆盖、与订单服务的Feign/MQ调用定义。
+| 技术           | 说明             |
+| -------------- | ---------------- |
+| Docker         | 容器化部署       |
+| Docker Compose | 服务编排         |
+| Prometheus     | 监控数据采集     |
+| Grafana        | 监控可视化面板   |
 
-成员3（承担最复杂、最困难模块）：  
-负责订单服务全部内容（整个项目技术难度最高的核心模块）。  
-具体部分包括：  
-- 订单全流程：订单创建与预览（购物车转订单、地址选择、优惠计算）、订单状态机全生命周期管理（下单 → 待支付 → 已支付 → 接单 → 出餐 → 配送中 → 已完成/取消/退款，使用Spring Statemachine实现状态流转与事件监听）。  
-- 分布式事务处理：Seata Saga/AT模式实现下单扣库存、扣优惠、创建订单等跨服务一致性（与商家服务、用户服务、支付服务配合）。  
-- 订单管理：订单查询（用户端/商家端/管理员）、复杂条件搜索与ES同步、订单分库分表策略（按用户ID/商家ID/时间维度）、订单项明细管理。  
-- 事件驱动：订单事件发布（Kafka/RabbitMQ，支付成功、状态变更等事件）、事件消费处理。  
-- 高并发优化：防重复下单（分布式锁 + 幂等Token）、限流保护、库存最终一致性保障。  
-- 对应工作：order-service完整包结构实现、Nacos配置、数据库设计（订单主表、订单项表、状态历史表）、状态机配置类、Seata事务注解使用、与支付/配送服务的通信接口定义、性能测试重点覆盖（下单高峰场景）。
+## 系统架构
 
-成员4：  
-负责支付服务和通知服务全部内容。  
-具体部分包括：  
-- 支付服务：支付宝/微信沙箱支付集成（统一下单、回调验签、退款接口、对账单生成）、支付流水记录、支付状态机与订单状态同步（通过MQ通知订单服务）、支付异常处理与重试。  
-- 通知服务：实时消息推送体系（WebSocket订单状态变更推送、短信/APP推送模板）、异步事件消费（支付成功后触发通知、订单取消通知等）、消息可靠性（RabbitMQ重试 + 死信队列）、通知日志与审计。  
-- 对应工作：payment-service与notification-service的Nacos配置、数据库表（支付流水表、通知记录表）、Feign/MQ调用定义、回调安全校验、与订单服务的分布式事务配合、单元测试（支付回调模拟）。
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        用户端 / 商家端                           │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Nginx (反向代理 / 静态资源)                    │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Spring Cloud Gateway (API 网关 / 鉴权)              │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+        ┌────────────────────┼────────────────────┐
+        ▼                    ▼                    ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│  用户服务     │   │  商家服务     │   │  订单服务     │
+│  8081        │   │  8083        │   │  8084        │
+└──────┬───────┘   └──────┬───────┘   └──────┬───────┘
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  支付服务     │  │  配送服务     │  │  通知服务     │
+│  8085        │  │  8087        │  │  8086        │
+└──────────────┘  └──────────────┘  └──────────────┘
+        │                 │                 │
+        └─────────────────┼─────────────────┘
+                          ▼
+        ┌─────────────────┼─────────────────┐
+        ▼                 ▼                 ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│    MySQL     │  │    Redis     │  │   RabbitMQ   │
+│   3306       │  │   6379       │  │   5672       │
+└──────────────┘  └──────────────┘  └──────────────┘
+```
 
-成员5（承担最具技术亮点模块）：  
-负责骑手服务、配送/调度服务以及实时位置功能全部内容（项目中最前沿的实时与算法部分）。  
-具体部分包括：  
-- 骑手服务：骑手注册认证、个人信息管理、忙碌状态切换、骑手端登录与权限。  
-- 配送调度：配送任务创建（从订单服务接收）、智能调度算法实现（距离优先 + 负载均衡 + Redis ZSet抢单/派单 + 简单贪心算法）、派单/抢单逻辑、ETA预计送达时间计算。  
-- 实时位置：骑手位置上报（WebSocket/MQTT实时接口）、轨迹跟踪记录、地理围栏判断、与高德/腾讯地图API集成（距离、路线规划）。  
-- 骑手端功能：骑手订单列表、接单确认、导航集成、配送完成上报（触发订单状态变更MQ）。  
-- 对应工作：delivery-service完整实现、Nacos配置、数据库表（骑手表、配送任务表、位置轨迹表）、实时通信配置（WebSocket Handler + MQTT Broker集成）、调度算法核心类、Redis ZSet使用、与订单服务的MQ事件消费、实时大屏数据基础支持（可选与监控配合）、性能测试（骑手抢单高峰）。
+## 项目结构
 
-**跨成员协作要求**（所有人共同参与）：  
-- 数据库整体设计（雪花ID主键、create_time/update_time字段、索引优化、ER关系）。  
-- 统一接口规范与Knife4J文档编写。  
-- 单元测试、集成测试（Testcontainers模拟Redis/MQ）。  
-- 性能压测（JMeter重点覆盖订单创建、骑手抢单）。  
-- 日志与traceId统一、最终监控面板调优（Grafana展示订单量、骑手分布、事务成功率等）。  
-- 所有服务必须实现服务无状态、配置外部化、接口幂等、可降级。
+```
+Java---/
+├── takeout-platform/                    # 后端微服务
+│   ├── common/                          # 公共模块
+│   │   ├── common-core/                 # 核心工具类
+│   │   ├── common-web/                  # Web 公共配置
+│   │   ├── common-redis/                # Redis 配置
+│   │   ├── common-security/             # 安全认证
+│   │   ├── common-feign/                # Feign 客户端
+│   │   └── common-mq/                   # 消息队列
+│   ├── gateway/                         # API 网关 (9999)
+│   ├── user-service/                    # 用户服务 (8081)
+│   ├── merchant-service/                # 商家服务 (8083)
+│   ├── order-service/                   # 订单服务 (8084)
+│   ├── payment-service/                 # 支付服务 (8085)
+│   ├── notification-service/            # 通知服务 (8086)
+│   ├── delivery-service/                # 配送服务 (8087)
+│   ├── search-service/                  # 搜索服务 (8088)
+│   └── sql/                             # 数据库脚本
+│
+├── takeout-frontend-v2/                 # 前端项目
+│   ├── src/
+│   │   ├── views/                       # 页面组件
+│   │   ├── components/                  # 公共组件
+│   │   ├── router/                      # 路由配置
+│   │   ├── stores/                      # 状态管理
+│   │   ├── api/                         # API 接口
+│   │   └── utils/                       # 工具函数
+│   └── package.json
+│
+├── config/                              # 配置文件
+│   ├── .env.example                     # 环境变量模板
+│   └── server.env.example               # 服务器配置模板
+│
+├── monitoring/                          # 监控配置
+│   ├── prometheus.yml
+│   ├── grafana-datasource.yml
+│   └── grafana-dashboard.json
+│
+├── docker-compose.yml                   # 本地开发 Docker 配置
+├── docker-compose.server.yml.example    # 服务器部署配置模板
+├── deploy.py.example                    # 部署脚本模板
+└── SECURITY.md                          # 安全配置指南
+```
 
+## 快速开始
+
+### 环境要求
+
+- JDK 21+
+- Maven 3.8+
+- Node.js 18+
+- Docker & Docker Compose
+- MySQL 8.0
+- Redis 7.x
+- RabbitMQ 3.12
+
+### 本地开发
+
+#### 1. 克隆项目
+
+```bash
+git clone https://github.com/your-username/takeout-platform.git
+cd takeout-platform
+```
+
+#### 2. 启动基础设施
+
+```bash
+# 启动 Nacos、MySQL、Redis、RabbitMQ
+docker-compose up -d nacos mysql redis rabbitmq
+```
+
+#### 3. 初始化数据库
+
+```bash
+# 等待 MySQL 启动完成后，执行初始化脚本
+mysql -h localhost -u root -p123456 < takeout-platform/sql/init.sql
+```
+
+#### 4. 启动后端服务
+
+```bash
+# 编译项目
+cd takeout-platform
+mvn clean install -DskipTests
+
+# 启动网关
+mvn spring-boot:run -pl gateway
+
+# 启动用户服务（新终端）
+mvn spring-boot:run -pl user-service
+
+# 启动其他服务...
+mvn spring-boot:run -pl merchant-service
+mvn spring-boot:run -pl order-service
+mvn spring-boot:run -pl payment-service
+mvn spring-boot:run -pl delivery-service
+mvn spring-boot:run -pl notification-service
+mvn spring-boot:run -pl search-service
+```
+
+#### 5. 启动前端
+
+```bash
+cd takeout-frontend-v2
+npm install
+npm run dev
+```
+
+前端访问地址: http://localhost:3000
+
+#### 6. 访问服务
+
+| 服务           | 地址                          |
+| -------------- | ----------------------------- |
+| 前端           | http://localhost:3000         |
+| API 网关       | http://localhost:9999         |
+| Nacos 控制台   | http://localhost:8848/nacos   |
+| RabbitMQ 管理  | http://localhost:15672        |
+| Prometheus     | http://localhost:9090         |
+| Grafana        | http://localhost:3000         |
+
+### 使用 Docker Compose 一键启动
+
+```bash
+# 启动所有服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f gateway
+```
+
+## 服务器部署
+
+### 1. 准备配置文件
+
+```bash
+# 复制配置模板
+cp config/.env.example config/.env
+cp config/server.env.example config/server.env
+cp docker-compose.server.yml.example docker-compose.server.yml
+cp docker-compose.infra.yml.example docker-compose.infra.yml
+cp docker-compose.services.yml.example docker-compose.services.yml
+cp deploy.py.example deploy.py
+cp takeout-frontend-v2/.env.production.example takeout-frontend-v2/.env.production
+```
+
+### 2. 编辑配置文件
+
+编辑以下文件，填入真实的服务器 IP 和密码：
+
+```bash
+# 编辑环境变量
+vi config/.env
+
+# 编辑服务器配置
+vi config/server.env
+
+# 编辑 Docker Compose 配置
+vi docker-compose.server.yml
+```
+
+### 3. 部署基础设施
+
+```bash
+# 部署 Nacos、MySQL、Redis、RabbitMQ
+docker-compose -f docker-compose.infra.yml up -d
+```
+
+### 4. 部署后端服务
+
+```bash
+# 构建项目
+cd takeout-platform
+mvn clean package -DskipTests
+
+# 部署服务
+docker-compose -f docker-compose.services.yml up -d
+```
+
+### 5. 部署前端
+
+```bash
+cd takeout-frontend-v2
+
+# 配置生产环境 API 地址
+vi .env.production
+
+# 构建前端
+npm run build
+
+# 部署到服务器
+python deploy.py
+```
+
+### 6. 使用部署脚本
+
+```bash
+# 配置环境变量
+export DEPLOY_FRONTEND_SERVER_IP=your-frontend-server-ip
+export DEPLOY_BACKEND_SERVER_IP=your-backend-server-ip
+export DEPLOY_SSH_PASSWORD=your-ssh-password
+
+# 一键部署
+python deploy.py
+```
+
+## 配置说明
+
+### 环境变量
+
+| 变量名             | 说明           | 默认值             |
+| ------------------ | -------------- | ------------------ |
+| `SERVER_IP`        | 服务器 IP 地址 | -                  |
+| `NACOS_SERVER_ADDR`| Nacos 服务地址 | `localhost:8848`   |
+| `NACOS_USERNAME`   | Nacos 用户名   | `nacos`            |
+| `NACOS_PASSWORD`   | Nacos 密码     | -                  |
+| `MYSQL_HOST`       | MySQL 主机     | `localhost`        |
+| `MYSQL_PORT`       | MySQL 端口     | `3306`             |
+| `MYSQL_PASSWORD`   | MySQL 密码     | -                  |
+| `REDIS_HOST`       | Redis 主机     | `localhost`        |
+| `REDIS_PORT`       | Redis 端口     | `6379`             |
+| `REDIS_PASSWORD`   | Redis 密码     | -                  |
+| `RABBITMQ_HOST`    | RabbitMQ 主机  | `localhost`        |
+| `RABBITMQ_PORT`    | RabbitMQ 端口  | `5672`             |
+| `RABBITMQ_USERNAME`| RabbitMQ 用户名| `takeout`          |
+| `RABBITMQ_PASSWORD`| RabbitMQ 密码  | -                  |
+
+### 服务端口
+
+| 服务                 | 端口 | 说明                 |
+| -------------------- | ---- | -------------------- |
+| gateway              | 9999 | API 网关             |
+| user-service         | 8081 | 用户服务             |
+| merchant-service     | 8083 | 商家服务             |
+| order-service        | 8084 | 订单服务             |
+| payment-service      | 8085 | 支付服务             |
+| notification-service | 8086 | 通知服务             |
+| delivery-service     | 8087 | 配送服务             |
+| search-service       | 8088 | 搜索服务             |
+| mysql                | 3306 | 数据库               |
+| redis                | 6379 | 缓存                 |
+| rabbitmq             | 5672 | 消息队列             |
+| rabbitmq-management  | 15672| RabbitMQ 管理界面    |
+| nacos                | 8848 | 注册中心             |
+| prometheus           | 9090 | 监控                 |
+| grafana              | 3000 | 监控面板             |
+
+## 注意事项
+
+### 安全
+
+1. **永远不要**将包含真实密码的文件提交到 GitHub
+2. **始终使用**环境变量配置敏感信息
+3. **定期更换**数据库密码和 API 密钥
+4. **使用强密码**，避免使用简单密码
+
+### 开发
+
+1. 本地开发使用 `application-local.yml` 配置文件
+2. 生产环境必须设置所有必需的环境变量
+3. 提交代码前确保所有测试通过
+4. 遵循代码规范，使用统一的代码风格
+
+### 部署
+
+1. 部署前确保所有配置文件已正确设置
+2. 首次部署需要初始化数据库
+3. 监控服务健康状态，及时处理异常
+4. 定期备份数据库和重要数据
+
+### 性能
+
+1. 生产环境建议配置 JVM 参数：
+   ```
+   -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+   ```
+2. 合理配置数据库连接池大小
+3. 使用 Redis 缓存热点数据
+4. 监控服务响应时间和错误率
+
+## 常见问题
+
+### Q: 无法连接到 Nacos
+
+检查 `NACOS_SERVER_ADDR` 环境变量是否正确设置，确保 Nacos 服务已启动。
+
+### Q: 数据库连接失败
+
+检查 `MYSQL_HOST`、`MYSQL_PORT`、`MYSQL_PASSWORD` 环境变量，确保 MySQL 服务可访问。
+
+### Q: 前端无法访问 API
+
+检查 `VITE_API_BASE_URL` 或 `VITE_DEV_SERVER_IP` 环境变量，确保 API 网关已启动。
+
+### Q: 服务启动失败
+
+查看服务日志：
+```bash
+docker-compose logs -f service-name
+```
+
+## 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支：`git checkout -b feature/your-feature`
+3. 提交更改：`git commit -m 'Add some feature'`
+4. 推送分支：`git push origin feature/your-feature`
+5. 提交 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+## 联系方式
+
+- 项目地址：https://github.com/your-username/takeout-platform
+- 问题反馈：https://github.com/your-username/takeout-platform/issues
+
+## 致谢
+
+感谢所有为本项目做出贡献的开发者！

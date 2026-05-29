@@ -10,6 +10,12 @@ spring:
         enabled: false
       config:
         enabled: false
+  autoconfigure:
+    exclude:
+      - org.redisson.spring.starter.RedissonAutoConfiguration
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 
   # H2 内存数据库配置
   datasource:
@@ -18,7 +24,7 @@ spring:
     username: sa
     password: 
 
-  # Redis 配置
+  # 禁用Redis
   data:
     redis:
       host: localhost
@@ -26,18 +32,13 @@ spring:
       password: 
       timeout: 10000ms
 
-  # 禁用RabbitMQ自动配置
+  # 禁用RabbitMQ
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
     dynamic: false
-
-# 禁用Redisson自动配置
-autoconfigure:
-  exclude:
-    - org.redisson.spring.starter.RedissonAutoConfiguration
 
 mybatis-plus:
   configuration:
