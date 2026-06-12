@@ -350,7 +350,6 @@ python deploy.py
 | prometheus | 9090 | 监控 |
 | grafana | 3001 | 监控面板 |
 
-## 注意事项
 
 
 
