@@ -9,6 +9,7 @@ config/.env
 deploy.py
 deploy*.py
 !deploy*.py.example
+deploy/
 
 # Server-specific docker compose
 docker-compose.server.yml
@@ -53,7 +54,24 @@ logs/
 
 # Docker
 docker-compose.override.yml
+docker-compose.server1.yml
+docker-compose.server2.yml
 
 # Python cache
 __pycache__/
 *.pyc
+
+# Server passwords (sensitive)
+SERVER_PASSWORDS.md
+
+deploy-server1/
+deploy-server2/
+
+docker-build/
+
+k8s/
+
+ppt/
+
+scripts/
+SECURITY.md

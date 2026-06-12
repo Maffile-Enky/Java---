@@ -1,9 +1,9 @@
 <template>
   <div class="dish-card" @mouseenter="hovered = true" @mouseleave="hovered = false">
     <div class="dish-image">
-      <img v-if="dish.image" :src="dish.image" :alt="dish.name" loading="lazy" />
+      <img v-if="dish.image" :src="dish.image" :alt="dish.name" loading="lazy" @error="handleImageError" />
       <div v-else class="image-placeholder">
-        <span class="placeholder-icon">🍜</span>
+        <img src="@/assets/pic/enk.png" alt="默认图片" class="placeholder-img" />
       </div>
       <span v-if="dish.tag" class="dish-tag tag tag-green">{{ dish.tag }}</span>
     </div>
@@ -32,6 +32,7 @@
 <script setup>
 import { ref } from 'vue'
 import RatingStars from './RatingStars.vue'
+import enkImg from '@/assets/pic/enk.png'
 
 defineProps({
   dish: { type: Object, required: true },
@@ -44,6 +45,11 @@ const hovered = ref(false)
 
 function formatPrice(val) {
   return Number(val).toFixed(2)
+}
+
+function handleImageError(e) {
+  e.target.src = enkImg
+  e.target.alt = '加载失败'
 }
 </script>
 
@@ -91,9 +97,11 @@ function formatPrice(val) {
   background: linear-gradient(135deg, var(--bg-elevated), rgba(110, 231, 160, 0.05));
 }
 
-.placeholder-icon {
-  font-size: 2.5rem;
-  opacity: 0.4;
+.placeholder-img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  opacity: 0.6;
 }
 
 .dish-tag {
