@@ -1,44 +1,55 @@
 # Takeout Platform - 外卖平台
 
-基于 Spring Cloud 微服务架构的外卖点餐平台，支持用户点餐、商家管理、订单处理、支付结算、骑手配送等完整业务流程。
+> 基于 Spring Cloud 微服务架构的外卖点餐系统，支持用户点餐、商家管理、订单处理、在线支付、骑手配送等完整业务流程。
+
+---
+
+> 项目预览见 http://121.41.76.29
+## 项目概览
+
+| 维度 | 说明 |
+|------|------|
+| **架构** | Spring Cloud 微服务 + Vue 3 前后端分离 |
+| **服务数** | 8 个微服务 + 1 个 API 网关 |
+| **部署** | Docker Compose 容器化，支持多服务器部署 |
+| **监控** | Prometheus + Grafana 可视化监控 |
 
 ## 技术栈
 
 ### 后端
 
-| 技术                   | 版本       | 说明                 |
-| ---------------------- | ---------- | -------------------- |
-| Spring Boot            | 3.0.13     | 应用框架             |
-| Spring Cloud           | 2022.0.0   | 微服务框架           |
-| Spring Cloud Alibaba   | 2022.0.0.0 | 阿里巴巴微服务组件   |
-| Nacos                  | 2.3.1      | 服务注册与配置中心   |
-| Spring Cloud Gateway   | -          | API 网关             |
-| Sentinel               | -          | 流量控制与熔断降级   |
-| MyBatis-Plus           | 3.5.5      | ORM 框架             |
-| MySQL                  | 8.0        | 关系型数据库         |
-| Redis                  | 7.x        | 缓存与会话管理       |
-| RabbitMQ               | 3.12       | 消息队列             |
-| JWT                    | -          | 用户认证             |
-| Lombok                 | -          | 代码简化             |
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| Spring Boot | 3.3.6 | 应用框架 |
+| Spring Cloud | 2025.0.0 | 微服务框架 |
+| Spring Cloud Alibaba | 2025.0.0 | 阿里巴巴微服务组件 |
+| Nacos | 2.3.x | 服务注册与配置中心 |
+| Spring Cloud Gateway | - | API 网关 |
+| Sentinel | - | 流量控制与熔断降级 |
+| MyBatis-Plus | 3.5.5 | ORM 框架 |
+| MySQL | 8.0 | 关系型数据库 |
+| Redis | 7.x | 缓存与会话管理 |
+| RabbitMQ | 3.12 | 消息队列 |
+| JWT | - | 用户认证 |
 
 ### 前端
 
-| 技术       | 版本 | 说明                   |
-| ---------- | ---- | ---------------------- |
-| Vue.js     | 3.4  | 渐进式 JavaScript 框架 |
-| Vite       | 5.0  | 构建工具               |
-| Vue Router | 4.2  | 路由管理               |
-| Pinia      | 2.1  | 状态管理               |
-| Axios      | 1.6  | HTTP 客户端            |
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| Vue.js | 3.4 | 渐进式 JavaScript 框架 |
+| Vite | 5.0 | 构建工具 |
+| Vue Router | 4.2 | 路由管理 |
+| Pinia | 2.1 | 状态管理 |
+| Axios | 1.6 | HTTP 客户端 |
 
 ### 运维
 
-| 技术           | 说明             |
-| -------------- | ---------------- |
-| Docker         | 容器化部署       |
-| Docker Compose | 服务编排         |
-| Prometheus     | 监控数据采集     |
-| Grafana        | 监控可视化面板   |
+| 技术 | 说明 |
+|------|------|
+| Docker | 容器化部署 |
+| Docker Compose | 服务编排 |
+| Prometheus | 监控数据采集 |
+| Grafana | 监控可视化面板 |
 
 ## 系统架构
 
@@ -147,8 +158,8 @@ Java---/
 #### 1. 克隆项目
 
 ```bash
-git clone https://github.com/your-username/takeout-platform.git
-cd takeout-platform
+git clone <your-repo-url>
+cd Java---
 ```
 
 #### 2. 启动基础设施
@@ -162,7 +173,7 @@ docker-compose up -d nacos mysql redis rabbitmq
 
 ```bash
 # 等待 MySQL 启动完成后，执行初始化脚本
-mysql -h localhost -u root -p123456 < takeout-platform/sql/init.sql
+mysql -h localhost -u root -p < takeout-platform/sql/init.sql
 ```
 
 #### 4. 启动后端服务
@@ -199,14 +210,14 @@ npm run dev
 
 #### 6. 访问服务
 
-| 服务           | 地址                          |
-| -------------- | ----------------------------- |
-| 前端           | http://localhost:3000         |
-| API 网关       | http://localhost:9999         |
-| Nacos 控制台   | http://localhost:8848/nacos   |
-| RabbitMQ 管理  | http://localhost:15672        |
-| Prometheus     | http://localhost:9090         |
-| Grafana        | http://localhost:3000         |
+| 服务 | 地址 |
+|------|------|
+| 前端 | http://localhost:3000 |
+| API 网关 | http://localhost:9999 |
+| Nacos 控制台 | http://localhost:8848/nacos |
+| RabbitMQ 管理 | http://localhost:15672 |
+| Prometheus | http://localhost:9090 |
+| Grafana | http://localhost:3001 |
 
 ### 使用 Docker Compose 一键启动
 
@@ -288,63 +299,59 @@ python deploy.py
 
 ```bash
 # 配置环境变量
-export DEPLOY_FRONTEND_SERVER_IP=your-frontend-server-ip
-export DEPLOY_BACKEND_SERVER_IP=your-backend-server-ip
-export DEPLOY_SSH_PASSWORD=your-ssh-password
+export DEPLOY_FRONTEND_SERVER_IP=<your-frontend-server-ip>
+export DEPLOY_BACKEND_SERVER_IP=<your-backend-server-ip>
+export DEPLOY_SSH_PASSWORD=<your-ssh-password>
 
 # 一键部署
 python deploy.py
+> 部署脚本未维护，请自行完善
 ```
+
 
 ## 配置说明
 
 ### 环境变量
 
-| 变量名             | 说明           | 默认值             |
-| ------------------ | -------------- | ------------------ |
-| `SERVER_IP`        | 服务器 IP 地址 | -                  |
-| `NACOS_SERVER_ADDR`| Nacos 服务地址 | `localhost:8848`   |
-| `NACOS_USERNAME`   | Nacos 用户名   | `nacos`            |
-| `NACOS_PASSWORD`   | Nacos 密码     | -                  |
-| `MYSQL_HOST`       | MySQL 主机     | `localhost`        |
-| `MYSQL_PORT`       | MySQL 端口     | `3306`             |
-| `MYSQL_PASSWORD`   | MySQL 密码     | -                  |
-| `REDIS_HOST`       | Redis 主机     | `localhost`        |
-| `REDIS_PORT`       | Redis 端口     | `6379`             |
-| `REDIS_PASSWORD`   | Redis 密码     | -                  |
-| `RABBITMQ_HOST`    | RabbitMQ 主机  | `localhost`        |
-| `RABBITMQ_PORT`    | RabbitMQ 端口  | `5672`             |
-| `RABBITMQ_USERNAME`| RabbitMQ 用户名| `takeout`          |
-| `RABBITMQ_PASSWORD`| RabbitMQ 密码  | -                  |
+| 变量名 | 说明 | 默认值 |
+|--------|------|--------|
+| `SERVER_IP` | 服务器 IP 地址 | - |
+| `NACOS_SERVER_ADDR` | Nacos 服务地址 | `localhost:8848` |
+| `NACOS_USERNAME` | Nacos 用户名 | `nacos` |
+| `NACOS_PASSWORD` | Nacos 密码 | - |
+| `MYSQL_HOST` | MySQL 主机 | `localhost` |
+| `MYSQL_PORT` | MySQL 端口 | `3306` |
+| `MYSQL_PASSWORD` | MySQL 密码 | - |
+| `REDIS_HOST` | Redis 主机 | `localhost` |
+| `REDIS_PORT` | Redis 端口 | `6379` |
+| `REDIS_PASSWORD` | Redis 密码 | - |
+| `RABBITMQ_HOST` | RabbitMQ 主机 | `localhost` |
+| `RABBITMQ_PORT` | RabbitMQ 端口 | `5672` |
+| `RABBITMQ_USERNAME` | RabbitMQ 用户名 | `takeout` |
+| `RABBITMQ_PASSWORD` | RabbitMQ 密码 | - |
 
 ### 服务端口
 
-| 服务                 | 端口 | 说明                 |
-| -------------------- | ---- | -------------------- |
-| gateway              | 9999 | API 网关             |
-| user-service         | 8081 | 用户服务             |
-| merchant-service     | 8083 | 商家服务             |
-| order-service        | 8084 | 订单服务             |
-| payment-service      | 8085 | 支付服务             |
-| notification-service | 8086 | 通知服务             |
-| delivery-service     | 8087 | 配送服务             |
-| search-service       | 8088 | 搜索服务             |
-| mysql                | 3306 | 数据库               |
-| redis                | 6379 | 缓存                 |
-| rabbitmq             | 5672 | 消息队列             |
-| rabbitmq-management  | 15672| RabbitMQ 管理界面    |
-| nacos                | 8848 | 注册中心             |
-| prometheus           | 9090 | 监控                 |
-| grafana              | 3000 | 监控面板             |
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| gateway | 9999 | API 网关 |
+| user-service | 8081 | 用户服务 |
+| merchant-service | 8083 | 商家服务 |
+| order-service | 8084 | 订单服务 |
+| payment-service | 8085 | 支付服务 |
+| notification-service | 8086 | 通知服务 |
+| delivery-service | 8087 | 配送服务 |
+| search-service | 8088 | 搜索服务 |
+| mysql | 3306 | 数据库 |
+| redis | 6379 | 缓存 |
+| rabbitmq | 5672 | 消息队列 |
+| rabbitmq-management | 15672 | RabbitMQ 管理界面 |
+| nacos | 8848 | 注册中心 |
+| prometheus | 9090 | 监控 |
+| grafana | 3001 | 监控面板 |
 
-## 注意事项
 
-### 安全
 
-1. **永远不要**将包含真实密码的文件提交到 GitHub
-2. **始终使用**环境变量配置敏感信息
-3. **定期更换**数据库密码和 API 密钥
-4. **使用强密码**，避免使用简单密码
 
 ### 开发
 
@@ -362,13 +369,13 @@ python deploy.py
 
 ### 性能
 
-1. 生产环境建议配置 JVM 参数：
-   ```
-   -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
-   ```
+1. 生产环境建议配置适当 JVM 参数
 2. 合理配置数据库连接池大小
 3. 使用 Redis 缓存热点数据
 4. 监控服务响应时间和错误率
+
+### 技术
+详细技术架构见 [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md)
 
 ## 常见问题
 
@@ -399,14 +406,7 @@ docker-compose logs -f service-name
 4. 推送分支：`git push origin feature/your-feature`
 5. 提交 Pull Request
 
-## 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
-## 联系方式
-
-- 项目地址：https://github.com/your-username/takeout-platform
-- 问题反馈：https://github.com/your-username/takeout-platform/issues
 
 ## 致谢
 

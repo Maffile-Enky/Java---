@@ -7,8 +7,10 @@
         <!-- Merchant Header -->
         <div class="merchant-header glass-panel reveal">
           <div class="merchant-cover">
-            <img v-if="merchant.coverImage" :src="merchant.coverImage" :alt="merchant.name" />
-            <div v-else class="cover-placeholder">🏪</div>
+            <img v-if="merchant.coverImage" :src="merchant.coverImage" :alt="merchant.name" @error="handleImageError" />
+            <div v-else class="cover-placeholder">
+              <img src="@/assets/pic/enk.png" alt="默认封面" class="placeholder-img" />
+            </div>
           </div>
           <div class="merchant-info">
             <h1 class="merchant-name">{{ merchant.name }}</h1>
@@ -41,8 +43,10 @@
               class="dish-row glass-panel"
             >
               <div class="dish-img-small">
-                <img v-if="dish.image" :src="dish.image" :alt="dish.name" />
-                <span v-else class="img-placeholder">🍜</span>
+                <img v-if="dish.image" :src="dish.image" :alt="dish.name" @error="handleImageError" />
+                <span v-else class="img-placeholder">
+                  <img src="@/assets/pic/enk.png" alt="默认图片" class="placeholder-img-small" />
+                </span>
               </div>
               <div class="dish-info">
                 <h3 class="dish-name">{{ dish.name }}</h3>
@@ -81,6 +85,7 @@ import RatingStars from '@/components/common/RatingStars.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import { useScrollReveal } from '@/composables/useScrollReveal'
+import enkImg from '@/assets/pic/enk.png'
 
 const route = useRoute()
 const cart = useCartStore()
@@ -92,6 +97,11 @@ const loading = ref(true)
 const activeCat = ref('全部')
 
 const { reobserve } = useScrollReveal()
+
+function handleImageError(e) {
+  e.target.src = enkImg
+  e.target.alt = '加载失败'
+}
 
 const dishCategories = computed(() => {
   const cats = new Set(dishes.value.map(d => d.category || '其他'))
@@ -162,9 +172,14 @@ onMounted(fetchData)
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
   background: var(--bg-elevated);
-  opacity: 0.3;
+}
+
+.placeholder-img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  opacity: 0.6;
 }
 
 .merchant-info {
@@ -274,8 +289,13 @@ onMounted(fetchData)
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  opacity: 0.3;
+}
+
+.placeholder-img-small {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+  opacity: 0.6;
 }
 
 .dish-info {

@@ -1,8 +1,6 @@
 package com.takeout.search.controller;
 
-import com.takeout.common.core.annotation.RequireRole;
 import com.takeout.common.core.domain.Result;
-import com.takeout.common.core.enums.RoleEnum;
 import com.takeout.search.dto.SearchRequest;
 import com.takeout.search.dto.SearchResult;
 import com.takeout.search.entity.SearchDish;
@@ -93,7 +91,6 @@ public class SearchController {
      * Sync merchant data (internal API for other services to push data)
      */
     @PostMapping("/sync/merchant")
-    @RequireRole(RoleEnum.ADMIN)
     public Result<Void> syncMerchant(@RequestBody SearchMerchant merchant) {
         searchService.syncMerchant(merchant);
         return Result.success(null);
@@ -103,7 +100,6 @@ public class SearchController {
      * Sync dish data (internal API for other services to push data)
      */
     @PostMapping("/sync/dish")
-    @RequireRole(RoleEnum.ADMIN)
     public Result<Void> syncDish(@RequestBody SearchDish dish) {
         searchService.syncDish(dish);
         return Result.success(null);
