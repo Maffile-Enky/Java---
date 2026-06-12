@@ -3,6 +3,7 @@
     <div class="header-inner">
       <!-- Logo -->
       <router-link to="/" class="header-logo">
+        <img src="@/assets/pic/enk.png" alt="味觉星球" class="logo-icon" />
         <span class="logo-text">味觉星球</span>
         <span class="logo-sub">FLAVOR</span>
       </router-link>
@@ -219,10 +220,16 @@ onUnmounted(() => {
 
 .header-logo {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-2);
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
 .logo-text {

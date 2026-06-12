@@ -17,8 +17,8 @@
     <div v-else class="dish-table">
       <div v-for="dish in dishes" :key="dish.id" class="dish-row glass-panel">
         <div class="dish-img-tiny">
-          <img v-if="dish.image" :src="dish.image" :alt="dish.name" />
-          <span v-else>🍜</span>
+          <img v-if="dish.image" :src="dish.image" :alt="dish.name" @error="handleImageError" />
+          <img v-else src="@/assets/pic/enk.png" alt="默认图片" class="placeholder-img" />
         </div>
         <div class="dish-meta">
           <h3 class="dish-name">{{ dish.name }}</h3>
@@ -60,8 +60,14 @@ import GlassInput from '@/components/ui/GlassInput.vue'
 import GlassModal from '@/components/ui/GlassModal.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import enkImg from '@/assets/pic/enk.png'
 
 const auth = useAuthStore()
+
+function handleImageError(e) {
+  e.target.src = enkImg
+  e.target.alt = '加载失败'
+}
 const dishes = ref([])
 const loading = ref(true)
 const showModal = ref(false)
@@ -185,13 +191,19 @@ onMounted(fetchDishes)
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
 }
 
 .dish-img-tiny img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.placeholder-img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  opacity: 0.6;
 }
 
 .dish-name {

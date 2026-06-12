@@ -1,9 +1,9 @@
 <template>
   <router-link :to="`/user/restaurants/${merchant.merchantId || merchant.id}`" class="merchant-card">
     <div class="merchant-cover">
-      <img v-if="merchant.coverImage" :src="merchant.coverImage" :alt="merchant.name" loading="lazy" />
+      <img v-if="merchant.coverImage" :src="merchant.coverImage" :alt="merchant.name" loading="lazy" @error="handleImageError" />
       <div v-else class="cover-placeholder">
-        <span>🏪</span>
+        <img src="@/assets/pic/enk.png" alt="默认封面" class="placeholder-img" />
       </div>
       <span v-if="merchant.status === 1 || merchant.status === 'APPROVED'" class="merchant-badge tag tag-green">营业中</span>
       <span v-else class="merchant-badge tag tag-muted">休息中</span>
@@ -27,10 +27,16 @@
 
 <script setup>
 import RatingStars from './RatingStars.vue'
+import enkImg from '@/assets/pic/enk.png'
 
 defineProps({
   merchant: { type: Object, required: true }
 })
+
+function handleImageError(e) {
+  e.target.src = enkImg
+  e.target.alt = '加载失败'
+}
 </script>
 
 <style scoped>
@@ -75,9 +81,14 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  opacity: 0.3;
   background: linear-gradient(135deg, var(--bg-elevated), rgba(110, 231, 160, 0.05));
+}
+
+.placeholder-img {
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  opacity: 0.6;
 }
 
 .merchant-badge {
